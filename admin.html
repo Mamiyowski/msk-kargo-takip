@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MSK GLOBAL | Yönetici Paneli</title>
-    <!-- İŞTE BURASI SEKME İKONU (FAVICON) -->
-    <link rel="icon" href="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" type="image/png">
-    
+    <link rel="icon" href="MSK-GLOBAL-2022-LOGO-removebg-preview-1.png" type="image/png">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f0f4f8; color: #333; }
@@ -77,7 +75,7 @@
             </div>
 
             <div class="form-group">
-                <label>Tır Plakası (Sadece yeni kayıtta doldurmanız yeterlidir)</label>
+                <label>Tır Plakası</label>
                 <input type="text" id="tirPlakasi" placeholder="Örn: 34 MSK 01" style="text-transform: uppercase;">
             </div>
 
@@ -106,15 +104,10 @@
 
             <div class="form-group">
                 <label>Güncel Durum Aşaması</label>
-                <select id="durum">
-                    <option value="Araç Yüklendi, Yola Çıkmaya Hazır.">Araç Yüklendi, Yola Çıkmaya Hazır.</option>
-                    <option value="İhracat Gümrük İşlemleri Devam Ediyor.">İhracat Gümrük İşlemleri Devam Ediyor.</option>
-                    <option value="Gümrük İşlemleri Tamamlandı, Transit Yolda.">Gümrük İşlemleri Tamamlandı, Transit Yolda.</option>
-                    <option value="Varış Gümrüğünde İşlem Görüyor.">Varış Gümrüğünde İşlem Görüyor.</option>
-                    <option value="Teslimat Bölgelerine Dağıtım Sürüyor.">Teslimat Bölgelerine Dağıtım Sürüyor.</option>
-                    <option value="Yük Başarıyla Teslim Edildi.">Yük Başarıyla Teslim Edildi.</option>
-                    <option value="DİĞER">Diğer (Özel Mesaj Yaz)</option>
-                </select>
+                <div class="flex-group">
+                    <select id="durum" style="flex: 1;"></select>
+                    <button type="button" id="durumEkleBtn" class="btn-plus" title="Yeni Hazır Mesaj Ekle">+</button>
+                </div>
                 <input type="text" id="ozelMesaj" placeholder="Müşteriye gösterilecek özel mesajı buraya yazın..." style="display:none; margin-top:10px; border-color:#e74c3c;">
             </div>
 
@@ -127,9 +120,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, arrayUnion, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // =====================================================================
-        // ŞİFRELERİNİ BURAYA YAPIŞTIR!
-        // =====================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
             authDomain: "msk-global---kargo-takip.firebaseapp.com",
@@ -137,8 +127,8 @@
             storageBucket: "msk-global---kargo-takip.firebasestorage.app",
             messagingSenderId: "608864535211",
             appId: "1:608864535211:web:2fa07474ab410fc87fadee",
-            measurementId: "G-VXK3KR1LY8"        };
-        // =====================================================================
+            measurementId: "G-VXK3KR1LY8"
+          };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -155,7 +145,6 @@
                 let html = "";
                 querySnapshot.forEach((docSnap) => {
                     const veri = docSnap.data();
-                    // Firebase'in gerçek belge ID'sini (docSnap.id) alıyoruz!
                     const gercekDocId = docSnap.id; 
                     
                     html += `
@@ -166,7 +155,6 @@
                         </div>
                         <div class="truck-actions">
                             <button class="btn-copy" data-kod="${veri.takipKodu}">Kodu Seç</button>
-                            <!-- Silmek için artık "gercekDocId" kullanıyoruz -->
                             <button class="btn-delete" data-docid="${gercekDocId}" data-kod="${veri.takipKodu}">Bitir / Sil</button>
                         </div>
                     </div>`;
@@ -185,10 +173,9 @@
                 document.getElementById('kargoKodu').value = e.target.getAttribute('data-kod');
             }
             
-            // DÜZELTİLEN SİLME MEKANİZMASI
             if (e.target.classList.contains('btn-delete')) {
-                const silinecekGercekId = e.target.getAttribute('data-docid'); // Firebase belge adı
-                const gosterilecekKod = e.target.getAttribute('data-kod');     // Ekranda görünen kod
+                const silinecekGercekId = e.target.getAttribute('data-docid');
+                const gosterilecekKod = e.target.getAttribute('data-kod');
                 
                 if (confirm(`DİKKAT! ${gosterilecekKod} kodlu aracın teslimatı bitti ve sistemden TAMAMEN SİLİNSİN Mİ?`)) {
                     try {
@@ -202,15 +189,42 @@
             }
         });
 
+        const varsayilanDurumlar = [
+            "Araç Yüklendi, Yola Çıktı.",
+            "Yolda.",
+            "Teslimat Bölgelerine Dağıtım Sürüyor."
+        ];
+        let durumVerileri = JSON.parse(localStorage.getItem('mskDurumHafizasi')) || varsayilanDurumlar;
         const durumSec = document.getElementById('durum');
         const ozelMesajInput = document.getElementById('ozelMesaj');
-        
+        const durumEkleBtn = document.getElementById('durumEkleBtn');
+
+        function durumlariYukle() {
+            durumSec.innerHTML = '';
+            durumVerileri.forEach(d => { durumSec.innerHTML += `<option value="${d}">${d}</option>`; });
+            durumSec.innerHTML += `<option value="DİĞER">Diğer (Bir Seferlik Özel Mesaj)</option>`;
+        }
+        durumlariYukle();
+
         durumSec.addEventListener('change', () => {
             if(durumSec.value === "DİĞER") {
                 ozelMesajInput.style.display = 'block';
                 ozelMesajInput.value = ""; 
             } else {
                 ozelMesajInput.style.display = 'none';
+            }
+        });
+
+        durumEkleBtn.addEventListener('click', () => {
+            const yeniDurum = prompt("Sisteme kalıcı olarak eklenecek yeni hazır mesajı yazın:");
+            if(yeniDurum && yeniDurum.trim() !== "") {
+                if(!durumVerileri.includes(yeniDurum)) {
+                    durumVerileri.push(yeniDurum);
+                    localStorage.setItem('mskDurumHafizasi', JSON.stringify(durumVerileri));
+                    durumlariYukle();
+                    durumSec.value = yeniDurum;
+                    durumSec.dispatchEvent(new Event('change'));
+                }
             }
         });
 
@@ -329,10 +343,10 @@
                 manuelKonum.style.display = 'none';
                 document.getElementById('tarih').value = "";
                 ozelMesajInput.style.display = 'none';
-                durumSec.value = "Araç Yüklendi, Yola Çıkmaya Hazır.";
+                durumSec.value = "Araç Yüklendi, Yola Çıktı.";
                 
             } catch (error) {
-                console.error("Hata: ", error);
+                console.error(error);
                 alert("Sistemsel hata oluştu.");
             }
         });

@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MSK GLOBAL | Kargo Takip</title>
-    <!-- İŞTE BURASI SEKME İKONU (FAVICON) -->
-    <link rel="icon" href="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" type="image/png">
-    
+    <link rel="icon" href="MSK-GLOBAL-2022-LOGO-removebg-preview-1.png" type="image/png">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f0f4f8; color: #333; }
@@ -90,9 +88,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // =====================================================================
-        // ŞİFRELERİNİ BURAYA YAPIŞTIR!
-        // =====================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
             authDomain: "msk-global---kargo-takip.firebaseapp.com",
@@ -101,7 +96,6 @@
             messagingSenderId: "608864535211",
             appId: "1:608864535211:web:2fa07474ab410fc87fadee",
             measurementId: "G-VXK3KR1LY8"        };
-        // =====================================================================
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -133,7 +127,6 @@
                         
                         if(veri.hareketler && veri.hareketler.length > 0) {
                             const gecmisListesi = [...veri.hareketler].reverse();
-                            
                             const sonKonum = gecmisListesi[0].konum ? gecmisListesi[0].konum : "Türkiye";
                             mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(sonKonum)}&t=&z=7&ie=UTF8&iwloc=&output=embed`;
                             
@@ -151,7 +144,7 @@
                     });
                 }
             } catch (error) {
-                console.error("Hata: ", error);
+                console.error(error);
                 alert("Sistemsel bir hata oluştu.");
             }
         });
