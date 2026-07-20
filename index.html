@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSK GLOBAL | Kargo Takip</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f7f6; color: #333; }
+        .header { background-color: #1a1a1a; padding: 20px; text-align: center; color: #fff; border-bottom: 4px solid #ff6600; }
+        .header h1 { font-size: 24px; letter-spacing: 2px; }
+        .header span { color: #ff6600; }
+        
+        .search-container { max-width: 600px; margin: 40px auto; padding: 20px; text-align: center; background: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .search-container h2 { margin-bottom: 20px; font-size: 20px; color: #444; }
+        .search-box { display: flex; gap: 10px; justify-content: center; }
+        .search-box input { padding: 12px; width: 70%; border: 2px solid #ddd; border-radius: 4px; font-size: 16px; outline: none; text-transform: uppercase; }
+        .search-box input:focus { border-color: #ff6600; }
+        .search-box button { padding: 12px 24px; background-color: #ff6600; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
+        .search-box button:hover { background-color: #e65c00; }
+
+        .result-container { max-width: 600px; margin: 0 auto 40px; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: none; }
+        .result-header { border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 15px; }
+        .result-header h3 { color: #ff6600; }
+        
+        .timeline { position: relative; border-left: 3px solid #ff6600; padding-left: 20px; margin-left: 10px; margin-top: 20px; }
+        .timeline-item { margin-bottom: 20px; position: relative; }
+        .timeline-item::before { content: ''; position: absolute; left: -28px; top: 0; width: 14px; height: 14px; background: #fff; border: 3px solid #ff6600; border-radius: 50%; }
+        .timeline-date { font-size: 14px; color: #777; font-weight: bold; margin-bottom: 5px; }
+        .timeline-content { font-size: 16px; color: #333; }
+        
+        .error-msg { color: #d9534f; font-weight: bold; margin-top: 15px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>MSK <span>GLOBAL</span> LOJİSTİK</h1>
+    </div>
+
+    <div class="search-container">
+        <h2>Gönderi Durumunu Sorgula</h2>
+        <div class="search-box">
+            <input type="text" id="kargoKodu" placeholder="Örn: MSK-1001">
+            <button id="sorgulaBtn">Sorgula</button>
+        </div>
+        <div id="errorMsg" class="error-msg">Bu koda ait gönderi bulunamadı!</div>
+    </div>
+
+    <div class="result-container" id="resultContainer">
+        <div class="result-header">
+            <h3>Takip Kodu: <span id="sonucKodu"></span></h3>
+            <p><strong>Varış Noktası:</strong> <span id="sonucSehir"></span></p>
+        </div>
+        
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-date" id="sonucTarih"></div>
+                <div class="timeline-content" id="sonucDurum"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Bağlantı Motoru -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // =====================================================================
+        // DİKKAT: AŞAĞIDAKİ const firebaseConfig = { ... }; KISMINI SİLİP 
+        // YERİNE KENDİ NOT DEFTERİNDEKİ KODLARI YAPIŞTIRACAKSIN!
+        // =====================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
+            authDomain: "msk-global---kargo-takip.firebaseapp.com",
+            projectId: "msk-global---kargo-takip",
+            storageBucket: "msk-global---kargo-takip.firebasestorage.app",
+            messagingSenderId: "608864535211",
+            appId: "1:608864535211:web:2fa07474ab410fc87fadee",
+            measurementId: "G-VXK3KR1LY8"
+        };
+        // =====================================================================
+
+        // Firebase'i Başlat
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Sorgula Butonuna Tıklanınca Çalışacak Kodlar
+        document.getElementById('sorgulaBtn').addEventListener('click', async () => {
+            const girilenKod = document.getElementById('kargoKodu').value.toUpperCase();
+            const errorMsg = document.getElementById('errorMsg');
+            const resultContainer = document.getElementById('resultContainer');
+
+            // Ekranı sıfırla
+            errorMsg.style.display = 'none';
+            resultContainer.style.display = 'none';
+
+            if(girilenKod === "") {
+                alert("Lütfen bir takip kodu giriniz!");
+                return;
+            }
+
+            try {
+                // Veritabanında 'sevkiyatlar' tablosunda arama yap
+                const q = query(collection(db, "sevkiyatlar"), where("takipKodu", "==", girilenKod));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    // Kayıt bulunamazsa hata göster
+                    errorMsg.style.display = 'block';
+                } else {
+                    // Kayıt bulunursa verileri ekrana yazdır
+                    querySnapshot.forEach((doc) => {
+                        const veri = doc.data();
+                        document.getElementById('sonucKodu').innerText = veri.takipKodu;
+                        document.getElementById('sonucSehir').innerText = veri.aliciSehir;
+                        document.getElementById('sonucTarih').innerText = veri.tarih;
+                        document.getElementById('sonucDurum').innerText = veri.guncelDurum;
+                        
+                        // Sonuç ekranını görünür yap
+                        resultContainer.style.display = 'block';
+                    });
+                }
+            } catch (error) {
+                console.error("Veri çekilirken hata oluştu: ", error);
+                alert("Sistemsel bir hata oluştu. Lütfen bağlantınızı kontrol edin.");
+            }
+        });
+    </script>
+</body>
+</html>
