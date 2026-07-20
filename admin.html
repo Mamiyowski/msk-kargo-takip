@@ -9,7 +9,7 @@
         body { background-color: #eef2f3; color: #333; }
         .header { background-color: #2c3e50; padding: 20px; text-align: center; color: #fff; border-bottom: 4px solid #e74c3c; }
         
-        .admin-container { max-width: 500px; margin: 40px auto; padding: 30px; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .admin-container { max-width: 550px; margin: 40px auto; padding: 30px; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .admin-container h2 { text-align: center; margin-bottom: 20px; color: #2c3e50; }
         
         .form-group { margin-bottom: 15px; }
@@ -17,13 +17,18 @@
         .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; outline: none; }
         .form-group input:focus, .form-group select:focus { border-color: #e74c3c; }
         
-        .date-group { display: flex; gap: 10px; }
-        .date-group input { flex: 1; }
-        .btn-suan { margin-top: 0 !important; width: auto !important; padding: 10px 15px !important; background-color: #34495e !important; }
-        .btn-suan:hover { background-color: #2c3e50 !important; }
+        .flex-group { display: flex; gap: 10px; }
+        .flex-group input, .flex-group select { flex: 1; }
         
-        button { width: 100%; padding: 12px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; margin-top: 15px; }
-        button:hover { background-color: #c0392b; }
+        .btn-action { margin-top: 0 !important; width: auto !important; padding: 10px 15px !important; background-color: #34495e !important; }
+        .btn-action:hover { background-color: #2c3e50 !important; }
+        
+        .btn-plus { padding: 10px 15px; background-color: #27ae60; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 18px; cursor: pointer; transition: 0.3s; }
+        .btn-plus:hover { background-color: #219150; }
+        .btn-plus:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        
+        button#kaydetBtn { width: 100%; padding: 12px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; margin-top: 15px; }
+        button#kaydetBtn:hover { background-color: #c0392b; }
         .info-text { font-size: 12px; color: #777; margin-top: 5px; }
     </style>
 </head>
@@ -37,21 +42,45 @@
         <h2>Kargo Aşaması Ekle</h2>
         
         <div class="form-group">
-            <label>Takip Kodu (Örn: MSK-1002)</label>
-            <input type="text" id="kargoKodu" placeholder="Kodu giriniz..." style="text-transform: uppercase;">
+            <label>Takip Kodu</label>
+            <div class="flex-group">
+                <input type="text" id="kargoKodu" placeholder="Kodu buraya yazın veya yanda üretin ->" style="text-transform: uppercase;">
+                <button type="button" id="kodUretBtn" class="btn-action">Yeni Kod Üret</button>
+            </div>
         </div>
 
         <div class="form-group">
-            <label>Varış Noktası (Sadece yeni kayıtta doldurun)</label>
+            <label>Nihai Varış Noktası (Sadece yeni kayıtta doldurun)</label>
             <input type="text" id="sehir" placeholder="Örn: Münih, Almanya">
-            <p class="info-text">Eğer yoldaki bir tıra yeni aşama ekliyorsanız burayı boş bırakabilirsiniz.</p>
+        </div>
+
+        <div class="form-group">
+            <label>Şu Anki Konum (Tır şu an nerede?)</label>
+            <div class="flex-group">
+                <!-- Ülke Seçimi ve Ekleme Butonu -->
+                <div style="display: flex; flex: 1; gap: 5px;">
+                    <select id="ulkeSec" style="flex: 1;">
+                        <option value="">-- Ülke Seç --</option>
+                    </select>
+                    <button type="button" id="ulkeEkleBtn" class="btn-plus" title="Listeye Yeni Ülke Ekle">+</button>
+                </div>
+                
+                <!-- Şehir Seçimi ve Ekleme Butonu -->
+                <div style="display: flex; flex: 1; gap: 5px;">
+                    <select id="sehirSec" disabled style="flex: 1;">
+                        <option value="">-- Önce Ülke Seçin --</option>
+                    </select>
+                    <button type="button" id="sehirEkleBtn" class="btn-plus" title="Bu Ülkeye Yeni Şehir Ekle" disabled>+</button>
+                </div>
+            </div>
+            <input type="text" id="manuelKonum" placeholder="Lütfen ülke ve şehri yazın..." style="display:none; margin-top:10px;">
         </div>
 
         <div class="form-group">
             <label>Tarih ve Saat</label>
-            <div class="date-group">
+            <div class="flex-group">
                 <input type="text" id="tarih" placeholder="Örn: 20 Temmuz 2026, 08:30">
-                <button type="button" id="simdiBtn" class="btn-suan">Şu An</button>
+                <button type="button" id="simdiBtn" class="btn-action">Şu An</button>
             </div>
         </div>
 
@@ -75,10 +104,10 @@
         import { getFirestore, doc, setDoc, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // =====================================================================
-        // ŞİFRE BLOĞUNU BURAYA YAPIŞTIR! (m harfine dikkat)
+        // ŞİFRE BLOĞUNU BURAYA YAPIŞTIR!
         // =====================================================================
         const firebaseConfig = {
-            apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
+                       apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
             authDomain: "msk-global---kargo-takip.firebaseapp.com",
             projectId: "msk-global---kargo-takip",
             storageBucket: "msk-global---kargo-takip.firebasestorage.app",
@@ -91,46 +120,149 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // "Şu An" Butonuna Tıklanınca Kutuyu Otomatik Doldurur
+        // --- OTOMATİK KOD ÜRETİCİ ---
+        document.getElementById('kodUretBtn').addEventListener('click', () => {
+            const rastgeleSayi = Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('kargoKodu').value = "MSK-" + rastgeleSayi;
+        });
+
+        // --- AKILLI VE ÖĞRENEN KATEGORİ SİSTEMİ ---
+        const varsayilanKonumlar = {
+            "Türkiye": ["İstanbul", "Ankara", "İzmir", "Bursa", "Edirne / Kapıkule"],
+            "Almanya": ["Münih", "Berlin", "Köln", "Frankfurt", "Stuttgart"],
+            "Fransa": ["Paris", "Lyon", "Marsilya"],
+            "Sırbistan": ["Belgrad", "Niş", "Sınır Kapısı"],
+            "Bulgaristan": ["Sofya", "Filibe", "Sınır Kapısı"]
+        };
+
+        // Eğer tarayıcıda önceden kaydedilmiş liste varsa onu al, yoksa varsayılanı kullan
+        let konumVerileri = JSON.parse(localStorage.getItem('mskKategoriHafizasi')) || varsayilanKonumlar;
+
+        const ulkeSec = document.getElementById('ulkeSec');
+        const sehirSec = document.getElementById('sehirSec');
+        const manuelKonum = document.getElementById('manuelKonum');
+        const ulkeEkleBtn = document.getElementById('ulkeEkleBtn');
+        const sehirEkleBtn = document.getElementById('sehirEkleBtn');
+
+        // Ülkeleri Ekrana Basma Fonksiyonu
+        function ulkeleriYukle() {
+            ulkeSec.innerHTML = '<option value="">-- Ülke Seç --</option>';
+            for (let ulke in konumVerileri) {
+                ulkeSec.innerHTML += `<option value="${ulke}">${ulke}</option>`;
+            }
+            ulkeSec.innerHTML += `<option value="Diğer (Manuel Giriş)">Diğer (Manuel Giriş)</option>`;
+        }
+        ulkeleriYukle(); // Sayfa açılınca çalıştır
+
+        // Ülke Seçilince Şehirleri Getir
+        ulkeSec.addEventListener('change', function() {
+            const secilenUlke = this.value;
+            sehirSec.innerHTML = '<option value="">-- Şehir Seç --</option>';
+            
+            if (secilenUlke === "Diğer (Manuel Giriş)") {
+                sehirSec.style.display = 'none';
+                manuelKonum.style.display = 'block';
+                sehirEkleBtn.disabled = true;
+            } else if (secilenUlke !== "") {
+                sehirSec.style.display = 'block';
+                manuelKonum.style.display = 'none';
+                sehirSec.disabled = false;
+                sehirEkleBtn.disabled = false; // Şehir ekleme butonunu aktif et
+                
+                konumVerileri[secilenUlke].forEach(sehir => {
+                    sehirSec.innerHTML += `<option value="${sehir}">${sehir}</option>`;
+                });
+            } else {
+                sehirSec.disabled = true;
+                sehirEkleBtn.disabled = true;
+            }
+        });
+
+        // YENİ ÜLKE EKLEME
+        ulkeEkleBtn.addEventListener('click', () => {
+            const yeniUlke = prompt("Sisteme eklenecek yeni ülkenin adını yazın:");
+            if(yeniUlke && yeniUlke.trim() !== "") {
+                if(!konumVerileri[yeniUlke]) {
+                    konumVerileri[yeniUlke] = []; // Yeni ülkeyi boş şehir listesiyle oluştur
+                    localStorage.setItem('mskKategoriHafizasi', JSON.stringify(konumVerileri)); // Hafızaya kaydet
+                    ulkeleriYukle(); // Menüyü yenile
+                    ulkeSec.value = yeniUlke; // Yeni eklenen ülkeyi otomatik seç
+                    ulkeSec.dispatchEvent(new Event('change')); // Şehir menüsünü tetikle
+                    alert(yeniUlke + " başarıyla sisteme eklendi!");
+                } else {
+                    alert("Bu ülke zaten listede var!");
+                }
+            }
+        });
+
+        // YENİ ŞEHİR EKLEME
+        sehirEkleBtn.addEventListener('click', () => {
+            const secilenUlke = ulkeSec.value;
+            const yeniSehir = prompt(secilenUlke + " için eklenecek yeni şehrin adını yazın:");
+            if(yeniSehir && yeniSehir.trim() !== "") {
+                if(!konumVerileri[secilenUlke].includes(yeniSehir)) {
+                    konumVerileri[secilenUlke].push(yeniSehir); // Seçili ülkenin içine şehri ekle
+                    localStorage.setItem('mskKategoriHafizasi', JSON.stringify(konumVerileri)); // Hafızaya kaydet
+                    ulkeSec.dispatchEvent(new Event('change')); // Şehirleri yenile
+                    sehirSec.value = yeniSehir; // Yeni eklenen şehri otomatik seç
+                    alert(yeniSehir + " şehri " + secilenUlke + " listesine başarıyla eklendi!");
+                } else {
+                    alert("Bu şehir zaten var!");
+                }
+            }
+        });
+
+        // --- ŞU AN BUTONU ---
         document.getElementById('simdiBtn').addEventListener('click', () => {
             const simdikiZaman = new Date();
             const otomatikTarih = simdikiZaman.toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
             document.getElementById('tarih').value = otomatikTarih;
         });
 
-        // Sisteme Kaydetme İşlemi
+        // --- SİSTEME KAYDETME ---
         document.getElementById('kaydetBtn').addEventListener('click', async () => {
             const kod = document.getElementById('kargoKodu').value.toUpperCase();
             const sehir = document.getElementById('sehir').value;
             const tarih = document.getElementById('tarih').value;
             const durum = document.getElementById('durum').value;
 
-            if(kod === "") { alert("Lütfen bir takip kodu girin!"); return; }
-            if(tarih === "") { alert("Lütfen bir tarih girin veya 'Şu An' butonuna basın!"); return; }
+            let anlikKonum = "";
+            if (ulkeSec.value === "Diğer (Manuel Giriş)") {
+                anlikKonum = manuelKonum.value;
+            } else if (ulkeSec.value !== "" && sehirSec.value !== "") {
+                anlikKonum = sehirSec.value + ", " + ulkeSec.value;
+            }
+
+            if(kod === "") { alert("Lütfen bir takip kodu girin veya üretin!"); return; }
+            if(tarih === "") { alert("Lütfen tarih girin veya 'Şu An' butonuna basın!"); return; }
+            if(anlikKonum === "") { alert("Lütfen tırın şu anki konumunu seçin veya yazın!"); return; }
 
             try {
                 const docRef = doc(db, "sevkiyatlar", kod);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
-                    // KAYIT VARSA: Eski listeye yeni aşamayı ekle
                     await setDoc(docRef, {
-                        hareketler: arrayUnion({ tarih: tarih, durum: durum })
+                        hareketler: arrayUnion({ tarih: tarih, durum: durum, konum: anlikKonum })
                     }, { merge: true });
                 } else {
-                    // YENİ KAYITSA: Listeyi sıfırdan başlat
-                    if(sehir === "") { alert("Bu yeni bir kargo, lütfen varış şehrini girin!"); return; }
+                    if(sehir === "") { alert("Bu yeni bir kargo, lütfen nihai varış noktasını girin!"); return; }
                     
                     await setDoc(docRef, {
                         takipKodu: kod,
                         aliciSehir: sehir,
-                        hareketler: [{ tarih: tarih, durum: durum }]
+                        hareketler: [{ tarih: tarih, durum: durum, konum: anlikKonum }]
                     });
                 }
 
-                alert(kod + " numaralı gönderiye yeni aşama eklendi!");
+                alert(kod + " numaralı kargo hareketi sisteme başarıyla eklendi!");
+                
                 document.getElementById('kargoKodu').value = "";
-                document.getElementById('sehir').value = "";
+                ulkeSec.value = "";
+                sehirSec.innerHTML = '<option value="">-- Önce Ülke Seçin --</option>';
+                sehirSec.disabled = true;
+                sehirEkleBtn.disabled = true;
+                manuelKonum.style.display = 'none';
                 document.getElementById('tarih').value = "";
                 
             } catch (error) {
