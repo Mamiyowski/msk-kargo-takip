@@ -8,11 +8,13 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f0f4f8; color: #333; }
         
-        /* Açık Gri Ferah Header */
         .header { background-color: #f4f5f7; padding: 15px; text-align: center; border-bottom: 4px solid #00c3ff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .header img { max-height: 70px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
         
-        .admin-container { max-width: 600px; margin: 30px auto; padding: 30px; background: #fff; border-radius: 8px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
+        /* Yan Yana Dizilim İçin Ana Kasa (Dashboard) */
+        .dashboard-wrapper { max-width: 1200px; margin: 30px auto; display: flex; gap: 30px; flex-wrap: wrap; padding: 0 20px; align-items: flex-start; }
+        
+        .admin-container { flex: 1; min-width: 350px; padding: 30px; background: #fff; border-radius: 8px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
         .admin-container h2 { text-align: center; margin-bottom: 25px; color: #0b1c38; }
         
         .form-group { margin-bottom: 18px; }
@@ -34,13 +36,11 @@
         button#kaydetBtn:hover { background-color: #0b1c38; color: #fff; }
         .info-text { font-size: 12px; color: #7f8c8d; margin-top: 5px; font-weight: 500; }
 
-        /* Aktif Tırlar Listesi Stilleri */
-        .truck-list-container { margin-top: 40px; }
         .truck-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #e1e8ed; border-radius: 6px; margin-bottom: 10px; background-color: #f8f9fa; }
         .truck-info { font-size: 15px; color: #2c3e50; }
-        .truck-info strong { color: #0b1c38; font-size: 16px; }
-        .truck-code { color: #e74c3c; font-weight: bold; margin-left: 10px; }
-        .truck-actions button { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; color: white; transition: 0.3s; }
+        .truck-info strong { color: #0b1c38; font-size: 16px; display: block; }
+        .truck-code { color: #e74c3c; font-weight: bold; }
+        .truck-actions button { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; color: white; transition: 0.3s; margin-top: 5px;}
         .btn-copy { background-color: #3498db; margin-right: 5px; }
         .btn-copy:hover { background-color: #2980b9; }
         .btn-delete { background-color: #e74c3c; }
@@ -53,74 +53,78 @@
         <img src="MSK-GLOBAL-2022-LOGO-removebg-preview-1.png" alt="MSK Global Lojistik">
     </div>
 
-    <!-- YENİ BÖLÜM: AKTİF TIRLAR LİSTESİ -->
-    <div class="admin-container truck-list-container">
-        <h2>🚚 Yoldaki Aktif Tırlar</h2>
-        <p class="info-text" style="text-align: center; margin-bottom: 15px;">Güncellemek istediğiniz tırın kodunu kopyalayabilir veya teslimatı bitenleri sistemden silebilirsiniz.</p>
-        <div id="aktifTirlarListesi">
-            <p style="text-align:center; color:#7f8c8d;">Sistemdeki araçlar yükleniyor...</p>
-        </div>
-    </div>
-
-    <div class="admin-container">
-        <h2>Yeni Aşama Ekle</h2>
+    <!-- Yan Yana Düzen İçin Kapsayıcı (Dashboard) -->
+    <div class="dashboard-wrapper">
         
-        <div class="form-group">
-            <label>Takip Kodu</label>
-            <div class="flex-group">
-                <input type="text" id="kargoKodu" placeholder="Kodu yazın veya üretin ->" style="text-transform: uppercase;">
-                <button type="button" id="kodUretBtn" class="btn-action">Yeni Kod Üret</button>
+        <!-- Sol Taraf: Aktif Tırlar Listesi -->
+        <div class="admin-container">
+            <h2>🚚 Yoldaki Aktif Tırlar</h2>
+            <p class="info-text" style="text-align: center; margin-bottom: 20px;">Güncellemek istediğiniz tırın kodunu seçebilir veya teslimatı bitenleri silebilirsiniz.</p>
+            <div id="aktifTirlarListesi">
+                <p style="text-align:center; color:#7f8c8d;">Sistemdeki araçlar yükleniyor...</p>
             </div>
         </div>
 
-        <div class="form-group">
-            <label>Tır Plakası (Sadece yeni kayıtta doldurmanız yeterlidir)</label>
-            <input type="text" id="tirPlakasi" placeholder="Örn: 34 MSK 01" style="text-transform: uppercase;">
-        </div>
-
-        <div class="form-group">
-            <label>Şu Anki Konum</label>
-            <div class="flex-group">
-                <div style="display: flex; flex: 1; gap: 5px;">
-                    <select id="ulkeSec" style="flex: 1;"><option value="">-- Ülke Seç --</option></select>
-                    <button type="button" id="ulkeEkleBtn" class="btn-plus" title="Listeye Yeni Ülke Ekle">+</button>
-                </div>
-                <div style="display: flex; flex: 1; gap: 5px;">
-                    <select id="sehirSec" disabled style="flex: 1;"><option value="">-- Önce Ülke Seçin --</option></select>
-                    <button type="button" id="sehirEkleBtn" class="btn-plus" title="Bu Ülkeye Yeni Şehir Ekle" disabled>+</button>
+        <!-- Sağ Taraf: Form Alanı -->
+        <div class="admin-container">
+            <h2>Yeni Aşama Ekle</h2>
+            
+            <div class="form-group">
+                <label>Takip Kodu</label>
+                <div class="flex-group">
+                    <input type="text" id="kargoKodu" placeholder="Kodu yazın veya üretin ->" style="text-transform: uppercase;">
+                    <button type="button" id="kodUretBtn" class="btn-action">Yeni Kod Üret</button>
                 </div>
             </div>
-            <input type="text" id="manuelKonum" placeholder="Lütfen ülke ve şehri yazın..." style="display:none; margin-top:10px;">
-        </div>
 
-        <div class="form-group">
-            <label>Tarih ve Saat</label>
-            <div class="flex-group">
-                <input type="text" id="tarih" placeholder="Örn: 20 Temmuz 2026, 08:30">
-                <button type="button" id="simdiBtn" class="btn-action">Şu An</button>
+            <div class="form-group">
+                <label>Tır Plakası (Sadece yeni kayıtta doldurmanız yeterlidir)</label>
+                <input type="text" id="tirPlakasi" placeholder="Örn: 34 MSK 01" style="text-transform: uppercase;">
             </div>
+
+            <div class="form-group">
+                <label>Şu Anki Konum</label>
+                <div class="flex-group">
+                    <div style="display: flex; flex: 1; gap: 5px;">
+                        <select id="ulkeSec" style="flex: 1;"><option value="">-- Ülke Seç --</option></select>
+                        <button type="button" id="ulkeEkleBtn" class="btn-plus" title="Listeye Yeni Ülke Ekle">+</button>
+                    </div>
+                    <div style="display: flex; flex: 1; gap: 5px;">
+                        <select id="sehirSec" disabled style="flex: 1;"><option value="">-- Önce Ülke Seçin --</option></select>
+                        <button type="button" id="sehirEkleBtn" class="btn-plus" title="Bu Ülkeye Yeni Şehir Ekle" disabled>+</button>
+                    </div>
+                </div>
+                <input type="text" id="manuelKonum" placeholder="Lütfen ülke ve şehri yazın..." style="display:none; margin-top:10px;">
+            </div>
+
+            <div class="form-group">
+                <label>Tarih ve Saat</label>
+                <div class="flex-group">
+                    <input type="text" id="tarih" placeholder="Örn: 20 Temmuz 2026, 08:30">
+                    <button type="button" id="simdiBtn" class="btn-action">Şu An</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Güncel Durum Aşaması</label>
+                <select id="durum">
+                    <option value="Araç Yüklendi, Yola Çıkmaya Hazır.">Araç Yüklendi, Yola Çıkmaya Hazır.</option>
+                    <option value="İhracat Gümrük İşlemleri Devam Ediyor.">İhracat Gümrük İşlemleri Devam Ediyor.</option>
+                    <option value="Gümrük İşlemleri Tamamlandı, Transit Yolda.">Gümrük İşlemleri Tamamlandı, Transit Yolda.</option>
+                    <option value="Varış Gümrüğünde İşlem Görüyor.">Varış Gümrüğünde İşlem Görüyor.</option>
+                    <option value="Teslimat Bölgelerine Dağıtım Sürüyor.">Teslimat Bölgelerine Dağıtım Sürüyor.</option>
+                    <option value="Yük Başarıyla Teslim Edildi.">Yük Başarıyla Teslim Edildi.</option>
+                    <option value="DİĞER">Diğer (Özel Mesaj Yaz)</option>
+                </select>
+                <input type="text" id="ozelMesaj" placeholder="Müşteriye gösterilecek özel mesajı buraya yazın..." style="display:none; margin-top:10px; border-color:#e74c3c;">
+            </div>
+
+            <button id="kaydetBtn">Sisteme Ekle / Güncelle</button>
         </div>
 
-        <div class="form-group">
-            <label>Güncel Durum Aşaması</label>
-            <select id="durum">
-                <option value="Araç Yüklendi, Yola Çıkmaya Hazır.">Araç Yüklendi, Yola Çıkmaya Hazır.</option>
-                <option value="İhracat Gümrük İşlemleri Devam Ediyor.">İhracat Gümrük İşlemleri Devam Ediyor.</option>
-                <option value="Gümrük İşlemleri Tamamlandı, Transit Yolda.">Gümrük İşlemleri Tamamlandı, Transit Yolda.</option>
-                <option value="Varış Gümrüğünde İşlem Görüyor.">Varış Gümrüğünde İşlem Görüyor.</option>
-                <option value="Teslimat Bölgelerine Dağıtım Sürüyor.">Teslimat Bölgelerine Dağıtım Sürüyor.</option>
-                <option value="Yük Başarıyla Teslim Edildi.">Yük Başarıyla Teslim Edildi.</option>
-                <!-- YENİ: Özel Mesaj Seçeneği -->
-                <option value="DİĞER">Diğer (Özel Mesaj Yaz)</option>
-            </select>
-            <input type="text" id="ozelMesaj" placeholder="Müşteriye gösterilecek özel mesajı buraya yazın..." style="display:none; margin-top:10px; border-color:#e74c3c;">
-        </div>
-
-        <button id="kaydetBtn">Sisteme Ekle / Güncelle</button>
     </div>
 
     <script type="module">
-        // Firebase bağlantılarına koleksiyon çekme (getDocs) ve veri silme (deleteDoc) eklendi!
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, arrayUnion, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -140,13 +144,14 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- AKTİF TIRLARI EKRANA GETİRME SİSTEMİ ---
+        // --- AKTİF TIRLARI GETİRME VE İSTENİLEN BOŞ EKRAN UYARISI ---
         async function aktifTirlariGetir() {
             const listeDiv = document.getElementById('aktifTirlarListesi');
             try {
                 const querySnapshot = await getDocs(collection(db, "sevkiyatlar"));
                 if (querySnapshot.empty) {
-                    listeDiv.innerHTML = "<p style='text-align:center; color:#7f8c8d;'>Şu an sistemde kayıtlı aktif araç bulunmuyor.</p>";
+                    // Senin istediğin o özel uyarı metni eklendi!
+                    listeDiv.innerHTML = "<div style='padding: 20px; background: #eef2f5; border-radius: 6px; text-align: center; border-left: 4px solid #00c3ff;'><strong style='color: #0b1c38; font-size: 15px;'>Şu anda mevcut tır bulunmamaktadır.</strong><br><span style='font-size:13px; color:#6c7a89;'>Yeni bir sevkiyat olduğunda yanda bulunan alandan ekleyebilirsiniz.</span></div>";
                     return;
                 }
                 
@@ -172,26 +177,20 @@
             }
         }
         
-        // Sayfa açıldığında tırları getir
         aktifTirlariGetir();
 
-        // Tır Listesindeki Butonlara Tıklama (Kopyala ve Sil)
         document.getElementById('aktifTirlarListesi').addEventListener('click', async (e) => {
-            // Kodu Seç Butonu
             if (e.target.classList.contains('btn-copy')) {
-                const secilenKod = e.target.getAttribute('data-kod');
-                document.getElementById('kargoKodu').value = secilenKod;
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); // Aşağı kaydır
+                document.getElementById('kargoKodu').value = e.target.getAttribute('data-kod');
             }
             
-            // Bitir / Sil Butonu
             if (e.target.classList.contains('btn-delete')) {
                 const silinecekKod = e.target.getAttribute('data-kod');
                 if (confirm(`DİKKAT! ${silinecekKod} kodlu aracın teslimatı bitti ve sistemden TAMAMEN SİLİNSİN Mİ?`)) {
                     try {
                         await deleteDoc(doc(db, "sevkiyatlar", silinecekKod));
                         alert("Araç başarıyla sistemden silindi!");
-                        aktifTirlariGetir(); // Listeyi yenile
+                        aktifTirlariGetir(); 
                     } catch(err) {
                         alert("Silme işlemi başarısız oldu!");
                     }
@@ -199,23 +198,20 @@
             }
         });
 
-        // --- YENİ: ÖZEL MESAJ YAZMA ALANI KONTROLÜ ---
         const durumSec = document.getElementById('durum');
         const ozelMesajInput = document.getElementById('ozelMesaj');
         
         durumSec.addEventListener('change', () => {
             if(durumSec.value === "DİĞER") {
                 ozelMesajInput.style.display = 'block';
-                ozelMesajInput.value = ""; // Kutuyu temizle
+                ozelMesajInput.value = ""; 
             } else {
                 ozelMesajInput.style.display = 'none';
             }
         });
 
-        // Diğer Akıllı Form Fonksiyonları (Kod üret, Şehir ekle vs.)
         document.getElementById('kodUretBtn').addEventListener('click', () => {
-            const rastgeleSayi = Math.floor(100000 + Math.random() * 900000);
-            document.getElementById('kargoKodu').value = "MSK-" + rastgeleSayi;
+            document.getElementById('kargoKodu').value = "MSK-" + Math.floor(100000 + Math.random() * 900000);
         });
 
         const varsayilanKonumlar = {
@@ -284,8 +280,7 @@
         });
 
         document.getElementById('simdiBtn').addEventListener('click', () => {
-            const simdikiZaman = new Date();
-            document.getElementById('tarih').value = simdikiZaman.toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            document.getElementById('tarih').value = new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         });
 
         document.getElementById('kaydetBtn').addEventListener('click', async () => {
@@ -293,7 +288,6 @@
             const plaka = document.getElementById('tirPlakasi').value.toUpperCase(); 
             const tarih = document.getElementById('tarih').value;
             
-            // Eğer "DİĞER" seçildiyse alttaki yazı kutusundaki metni al, yoksa menüdeki hazır mesajı al.
             let durum = durumSec.value;
             if (durum === "DİĞER") {
                 durum = ozelMesajInput.value;
@@ -322,7 +316,7 @@
                 }
 
                 alert(kod + " numaralı gönderi güncellendi!");
-                aktifTirlariGetir(); // Tır eklendiğinde listeyi anında yenile
+                aktifTirlariGetir(); 
                 
                 document.getElementById('kargoKodu').value = "";
                 document.getElementById('tirPlakasi').value = "";

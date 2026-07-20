@@ -8,7 +8,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f0f4f8; color: #333; }
         
-        /* Ana Siteyle Uyumlu Ferah Gri Header */
         .header { background-color: #f4f5f7; padding: 15px; text-align: center; border-bottom: 4px solid #00c3ff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .header img { max-height: 90px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
         
@@ -24,13 +23,20 @@
         .info-msg { font-size: 13px; color: #6c7a89; background-color: #eef2f5; padding: 12px; border-radius: 6px; border-left: 4px solid #0b1c38; text-align: left; margin-top: 10px; line-height: 1.5; }
         .info-msg strong { color: #0b1c38; }
 
-        .result-container { max-width: 600px; margin: 0 auto 40px; padding: 25px; background: #fff; border-radius: 8px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); display: none; }
+        /* Kutu Genişletildi (Harita sığsın diye) */
+        .result-container { max-width: 900px; margin: 0 auto 40px; padding: 25px; background: #fff; border-radius: 8px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); display: none; }
         .result-header { border-bottom: 2px solid #f0f4f8; padding-bottom: 15px; margin-bottom: 20px; }
         .result-header h3 { color: #00c3ff; margin-bottom: 8px; font-size: 20px; }
         .result-header p { font-size: 16px; color: #333; }
         .result-header p strong { color: #0b1c38; }
         
-        .timeline { position: relative; border-left: 3px solid #00c3ff; padding-left: 25px; margin-left: 10px; }
+        /* Yan Yana Harita ve Çizelge Düzeni */
+        .result-body { display: flex; gap: 30px; flex-wrap: wrap; }
+        .timeline-wrapper { flex: 1; min-width: 250px; }
+        .map-wrapper { flex: 1; min-width: 300px; border-radius: 8px; overflow: hidden; border: 2px solid #e1e8ed; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .map-wrapper iframe { width: 100%; height: 100%; min-height: 350px; border: none; }
+
+        .timeline { position: relative; border-left: 3px solid #00c3ff; padding-left: 25px; margin-left: 10px; margin-top: 10px; }
         .timeline-item { margin-bottom: 25px; position: relative; }
         .timeline-item:first-child::before { content: ''; position: absolute; left: -34px; top: 0; width: 16px; height: 16px; background: #00c3ff; border: 3px solid #00c3ff; border-radius: 50%; box-shadow: 0 0 10px rgba(0, 195, 255, 0.6); }
         .timeline-item::before { content: ''; position: absolute; left: -34px; top: 0; width: 16px; height: 16px; background: #fff; border: 3px solid #ced4da; border-radius: 50%; }
@@ -68,7 +74,16 @@
             <p><strong>🚚 Araç Plakası:</strong> <span id="sonucPlaka"></span></p>
         </div>
         
-        <div class="timeline" id="timelineKutusu">
+        <div class="result-body">
+            <!-- Sol Taraf: Zaman Çizelgesi -->
+            <div class="timeline-wrapper">
+                <div class="timeline" id="timelineKutusu"></div>
+            </div>
+            
+            <!-- Sağ Taraf: Google Haritalar -->
+            <div class="map-wrapper">
+                <iframe id="mapIframe" src="" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
         </div>
     </div>
 
@@ -97,6 +112,7 @@
             const errorMsg = document.getElementById('errorMsg');
             const resultContainer = document.getElementById('resultContainer');
             const timelineKutusu = document.getElementById('timelineKutusu');
+            const mapIframe = document.getElementById('mapIframe');
 
             errorMsg.style.display = 'none';
             resultContainer.style.display = 'none';
@@ -119,9 +135,12 @@
                         if(veri.hareketler && veri.hareketler.length > 0) {
                             const gecmisListesi = [...veri.hareketler].reverse();
                             
+                            // Haritayı en güncel konuma (listenin en başındakine) göre ayarla
+                            const sonKonum = gecmisListesi[0].konum ? gecmisListesi[0].konum : "Türkiye";
+                            mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(sonKonum)}&t=&z=7&ie=UTF8&iwloc=&output=embed`;
+                            
                             gecmisListesi.forEach(hareket => {
                                 const konumBilgisi = hareket.konum ? hareket.konum : "Konum Belirtilmedi";
-                                
                                 timelineKutusu.innerHTML += `
                                     <div class="timeline-item">
                                         <div class="timeline-date">${hareket.tarih} • 📍 <span>${konumBilgisi}</span></div>
