@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MSK GLOBAL | Yönetici Paneli</title>
+    <!-- İŞTE BURASI SEKME İKONU (FAVICON) -->
+    <link rel="icon" href="MSK-GLOBAL-2022-LOGO-removebg-preview-1.png" type="image/png">
+    
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f0f4f8; color: #333; }
@@ -11,7 +14,6 @@
         .header { background-color: #f4f5f7; padding: 15px; text-align: center; border-bottom: 4px solid #00c3ff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .header img { max-height: 70px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
         
-        /* Yan Yana Dizilim İçin Ana Kasa (Dashboard) */
         .dashboard-wrapper { max-width: 1200px; margin: 30px auto; display: flex; gap: 30px; flex-wrap: wrap; padding: 0 20px; align-items: flex-start; }
         
         .admin-container { flex: 1; min-width: 350px; padding: 30px; background: #fff; border-radius: 8px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
@@ -53,10 +55,8 @@
         <img src="MSK-GLOBAL-2022-LOGO-removebg-preview-1.png" alt="MSK Global Lojistik">
     </div>
 
-    <!-- Yan Yana Düzen İçin Kapsayıcı (Dashboard) -->
     <div class="dashboard-wrapper">
         
-        <!-- Sol Taraf: Aktif Tırlar Listesi -->
         <div class="admin-container">
             <h2>🚚 Yoldaki Aktif Tırlar</h2>
             <p class="info-text" style="text-align: center; margin-bottom: 20px;">Güncellemek istediğiniz tırın kodunu seçebilir veya teslimatı bitenleri silebilirsiniz.</p>
@@ -65,7 +65,6 @@
             </div>
         </div>
 
-        <!-- Sağ Taraf: Form Alanı -->
         <div class="admin-container">
             <h2>Yeni Aşama Ekle</h2>
             
@@ -144,13 +143,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- AKTİF TIRLARI GETİRME VE İSTENİLEN BOŞ EKRAN UYARISI ---
         async function aktifTirlariGetir() {
             const listeDiv = document.getElementById('aktifTirlarListesi');
             try {
                 const querySnapshot = await getDocs(collection(db, "sevkiyatlar"));
                 if (querySnapshot.empty) {
-                    // Senin istediğin o özel uyarı metni eklendi!
                     listeDiv.innerHTML = "<div style='padding: 20px; background: #eef2f5; border-radius: 6px; text-align: center; border-left: 4px solid #00c3ff;'><strong style='color: #0b1c38; font-size: 15px;'>Şu anda mevcut tır bulunmamaktadır.</strong><br><span style='font-size:13px; color:#6c7a89;'>Yeni bir sevkiyat olduğunda yanda bulunan alandan ekleyebilirsiniz.</span></div>";
                     return;
                 }
@@ -158,6 +155,9 @@
                 let html = "";
                 querySnapshot.forEach((docSnap) => {
                     const veri = docSnap.data();
+                    // Firebase'in gerçek belge ID'sini (docSnap.id) alıyoruz!
+                    const gercekDocId = docSnap.id; 
+                    
                     html += `
                     <div class="truck-item">
                         <div class="truck-info">
@@ -166,7 +166,8 @@
                         </div>
                         <div class="truck-actions">
                             <button class="btn-copy" data-kod="${veri.takipKodu}">Kodu Seç</button>
-                            <button class="btn-delete" data-kod="${veri.takipKodu}">Bitir / Sil</button>
+                            <!-- Silmek için artık "gercekDocId" kullanıyoruz -->
+                            <button class="btn-delete" data-docid="${gercekDocId}" data-kod="${veri.takipKodu}">Bitir / Sil</button>
                         </div>
                     </div>`;
                 });
@@ -184,11 +185,14 @@
                 document.getElementById('kargoKodu').value = e.target.getAttribute('data-kod');
             }
             
+            // DÜZELTİLEN SİLME MEKANİZMASI
             if (e.target.classList.contains('btn-delete')) {
-                const silinecekKod = e.target.getAttribute('data-kod');
-                if (confirm(`DİKKAT! ${silinecekKod} kodlu aracın teslimatı bitti ve sistemden TAMAMEN SİLİNSİN Mİ?`)) {
+                const silinecekGercekId = e.target.getAttribute('data-docid'); // Firebase belge adı
+                const gosterilecekKod = e.target.getAttribute('data-kod');     // Ekranda görünen kod
+                
+                if (confirm(`DİKKAT! ${gosterilecekKod} kodlu aracın teslimatı bitti ve sistemden TAMAMEN SİLİNSİN Mİ?`)) {
                     try {
-                        await deleteDoc(doc(db, "sevkiyatlar", silinecekKod));
+                        await deleteDoc(doc(db, "sevkiyatlar", silinecekGercekId));
                         alert("Araç başarıyla sistemden silindi!");
                         aktifTirlariGetir(); 
                     } catch(err) {
