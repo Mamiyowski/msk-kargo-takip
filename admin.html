@@ -17,8 +17,14 @@
         .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; outline: none; }
         .form-group input:focus, .form-group select:focus { border-color: #e74c3c; }
         
-        button { width: 100%; padding: 12px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; margin-top: 10px; }
+        .date-group { display: flex; gap: 10px; }
+        .date-group input { flex: 1; }
+        .btn-suan { margin-top: 0 !important; width: auto !important; padding: 10px 15px !important; background-color: #34495e !important; }
+        .btn-suan:hover { background-color: #2c3e50 !important; }
+        
+        button { width: 100%; padding: 12px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; margin-top: 15px; }
         button:hover { background-color: #c0392b; }
+        .info-text { font-size: 12px; color: #777; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -28,7 +34,7 @@
     </div>
 
     <div class="admin-container">
-        <h2>Yeni Kargo Ekle / Güncelle</h2>
+        <h2>Kargo Aşaması Ekle</h2>
         
         <div class="form-group">
             <label>Takip Kodu (Örn: MSK-1002)</label>
@@ -36,13 +42,17 @@
         </div>
 
         <div class="form-group">
-            <label>Varış Noktası (Şehir/Ülke)</label>
+            <label>Varış Noktası (Sadece yeni kayıtta doldurun)</label>
             <input type="text" id="sehir" placeholder="Örn: Münih, Almanya">
+            <p class="info-text">Eğer yoldaki bir tıra yeni aşama ekliyorsanız burayı boş bırakabilirsiniz.</p>
         </div>
 
         <div class="form-group">
             <label>Tarih ve Saat</label>
-            <input type="text" id="tarih" placeholder="Örn: 21 Temmuz, 14:30">
+            <div class="date-group">
+                <input type="text" id="tarih" placeholder="Örn: 20 Temmuz 2026, 08:30">
+                <button type="button" id="simdiBtn" class="btn-suan">Şu An</button>
+            </div>
         </div>
 
         <div class="form-group">
@@ -57,20 +67,18 @@
             </select>
         </div>
 
-        <button id="kaydetBtn">Sisteme Kaydet / Güncelle</button>
+        <button id="kaydetBtn">Sisteme Ekle / Güncelle</button>
     </div>
 
-    <!-- Firebase Bağlantı Motoru -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        // DİKKAT: Burada 'doc' ve 'setDoc' komutlarını çağırıyoruz (Yazma işlemi için)
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // =====================================================================
-        // ŞİFRE BLOĞUNU BURAYA YAPIŞTIR! (m harfini düzeltmeyi unutma)
+        // ŞİFRE BLOĞUNU BURAYA YAPIŞTIR! (m harfine dikkat)
         // =====================================================================
         const firebaseConfig = {
-           apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
+            apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
             authDomain: "msk-global---kargo-takip.firebaseapp.com",
             projectId: "msk-global---kargo-takip",
             storageBucket: "msk-global---kargo-takip.firebasestorage.app",
@@ -83,36 +91,51 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // "Şu An" Butonuna Tıklanınca Kutuyu Otomatik Doldurur
+        document.getElementById('simdiBtn').addEventListener('click', () => {
+            const simdikiZaman = new Date();
+            const otomatikTarih = simdikiZaman.toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            document.getElementById('tarih').value = otomatikTarih;
+        });
+
+        // Sisteme Kaydetme İşlemi
         document.getElementById('kaydetBtn').addEventListener('click', async () => {
             const kod = document.getElementById('kargoKodu').value.toUpperCase();
             const sehir = document.getElementById('sehir').value;
             const tarih = document.getElementById('tarih').value;
             const durum = document.getElementById('durum').value;
 
-            if(kod === "" || sehir === "" || tarih === "") {
-                alert("Lütfen tüm alanları doldurun!");
-                return;
-            }
+            if(kod === "") { alert("Lütfen bir takip kodu girin!"); return; }
+            if(tarih === "") { alert("Lütfen bir tarih girin veya 'Şu An' butonuna basın!"); return; }
 
             try {
-                // merge: true komutu çok önemlidir. Kod yoksa sıfırdan oluşturur, kod varsa sadece durumunu günceller.
-                await setDoc(doc(db, "sevkiyatlar", kod), {
-                    takipKodu: kod,
-                    aliciSehir: sehir,
-                    tarih: tarih,
-                    guncelDurum: durum
-                }, { merge: true });
+                const docRef = doc(db, "sevkiyatlar", kod);
+                const docSnap = await getDoc(docRef);
 
-                alert(kod + " numaralı gönderi başarıyla sisteme kaydedildi!");
-                
-                // Formu temizle
+                if (docSnap.exists()) {
+                    // KAYIT VARSA: Eski listeye yeni aşamayı ekle
+                    await setDoc(docRef, {
+                        hareketler: arrayUnion({ tarih: tarih, durum: durum })
+                    }, { merge: true });
+                } else {
+                    // YENİ KAYITSA: Listeyi sıfırdan başlat
+                    if(sehir === "") { alert("Bu yeni bir kargo, lütfen varış şehrini girin!"); return; }
+                    
+                    await setDoc(docRef, {
+                        takipKodu: kod,
+                        aliciSehir: sehir,
+                        hareketler: [{ tarih: tarih, durum: durum }]
+                    });
+                }
+
+                alert(kod + " numaralı gönderiye yeni aşama eklendi!");
                 document.getElementById('kargoKodu').value = "";
                 document.getElementById('sehir').value = "";
                 document.getElementById('tarih').value = "";
                 
             } catch (error) {
                 console.error("Hata: ", error);
-                alert("Kaydetme işlemi başarısız oldu.");
+                alert("Sistemsel hata oluştu.");
             }
         });
     </script>

@@ -21,13 +21,16 @@
 
         .result-container { max-width: 600px; margin: 0 auto 40px; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: none; }
         .result-header { border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 15px; }
-        .result-header h3 { color: #ff6600; }
+        .result-header h3 { color: #ff6600; margin-bottom: 5px; }
         
         .timeline { position: relative; border-left: 3px solid #ff6600; padding-left: 20px; margin-left: 10px; margin-top: 20px; }
-        .timeline-item { margin-bottom: 20px; position: relative; }
-        .timeline-item::before { content: ''; position: absolute; left: -28px; top: 0; width: 14px; height: 14px; background: #fff; border: 3px solid #ff6600; border-radius: 50%; }
-        .timeline-date { font-size: 14px; color: #777; font-weight: bold; margin-bottom: 5px; }
-        .timeline-content { font-size: 16px; color: #333; }
+        .timeline-item { margin-bottom: 25px; position: relative; }
+        /* En son eklenen hareketin topunu turuncu yapıyoruz ki güncel durum belli olsun */
+        .timeline-item:first-child::before { content: ''; position: absolute; left: -28px; top: 0; width: 14px; height: 14px; background: #ff6600; border: 3px solid #ff6600; border-radius: 50%; box-shadow: 0 0 8px rgba(255, 102, 0, 0.5); }
+        .timeline-item::before { content: ''; position: absolute; left: -28px; top: 0; width: 14px; height: 14px; background: #fff; border: 3px solid #ccc; border-radius: 50%; }
+        
+        .timeline-date { font-size: 13px; color: #888; font-weight: bold; margin-bottom: 5px; }
+        .timeline-content { font-size: 16px; color: #333; font-weight: 500; }
         
         .error-msg { color: #d9534f; font-weight: bold; margin-top: 15px; display: none; }
     </style>
@@ -41,7 +44,7 @@
     <div class="search-container">
         <h2>Gönderi Durumunu Sorgula</h2>
         <div class="search-box">
-            <input type="text" id="kargoKodu" placeholder="Örn: MSK-1001">
+            <input type="text" id="kargoKodu" placeholder="Örn: MSK-1002">
             <button id="sorgulaBtn">Sorgula</button>
         </div>
         <div id="errorMsg" class="error-msg">Bu koda ait gönderi bulunamadı!</div>
@@ -53,25 +56,20 @@
             <p><strong>Varış Noktası:</strong> <span id="sonucSehir"></span></p>
         </div>
         
-        <div class="timeline">
-            <div class="timeline-item">
-                <div class="timeline-date" id="sonucTarih"></div>
-                <div class="timeline-content" id="sonucDurum"></div>
-            </div>
+        <!-- Dinamik olarak dolacak çizelge alanı -->
+        <div class="timeline" id="timelineKutusu">
         </div>
     </div>
 
-    <!-- Firebase Bağlantı Motoru -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // =====================================================================
-        // DİKKAT: AŞAĞIDAKİ const firebaseConfig = { ... }; KISMINI SİLİP 
-        // YERİNE KENDİ NOT DEFTERİNDEKİ KODLARI YAPIŞTIRACAKSIN!
+        // ŞİFRE BLOĞUNU BURAYA YAPIŞTIR! (m harfine dikkat)
         // =====================================================================
         const firebaseConfig = {
-            apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
+             apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
             authDomain: "msk-global---kargo-takip.firebaseapp.com",
             projectId: "msk-global---kargo-takip",
             storageBucket: "msk-global---kargo-takip.firebasestorage.app",
@@ -81,49 +79,55 @@
         };
         // =====================================================================
 
-        // Firebase'i Başlat
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Sorgula Butonuna Tıklanınca Çalışacak Kodlar
         document.getElementById('sorgulaBtn').addEventListener('click', async () => {
             const girilenKod = document.getElementById('kargoKodu').value.toUpperCase();
             const errorMsg = document.getElementById('errorMsg');
             const resultContainer = document.getElementById('resultContainer');
+            const timelineKutusu = document.getElementById('timelineKutusu');
 
-            // Ekranı sıfırla
             errorMsg.style.display = 'none';
             resultContainer.style.display = 'none';
+            timelineKutusu.innerHTML = ''; // Önceki aramadan kalan geçmişi temizle
 
             if(girilenKod === "") {
-                alert("Lütfen bir takip kodu giriniz!");
-                return;
+                alert("Lütfen bir takip kodu giriniz!"); return;
             }
 
             try {
-                // Veritabanında 'sevkiyatlar' tablosunda arama yap
                 const q = query(collection(db, "sevkiyatlar"), where("takipKodu", "==", girilenKod));
                 const querySnapshot = await getDocs(q);
 
                 if (querySnapshot.empty) {
-                    // Kayıt bulunamazsa hata göster
                     errorMsg.style.display = 'block';
                 } else {
-                    // Kayıt bulunursa verileri ekrana yazdır
                     querySnapshot.forEach((doc) => {
                         const veri = doc.data();
                         document.getElementById('sonucKodu').innerText = veri.takipKodu;
                         document.getElementById('sonucSehir').innerText = veri.aliciSehir;
-                        document.getElementById('sonucTarih').innerText = veri.tarih;
-                        document.getElementById('sonucDurum').innerText = veri.guncelDurum;
                         
-                        // Sonuç ekranını görünür yap
+                        // Veritabanından gelen 'hareketler' listesini tersine çevir (en güncel en üstte olsun)
+                        if(veri.hareketler && veri.hareketler.length > 0) {
+                            const gecmisListesi = [...veri.hareketler].reverse();
+                            
+                            gecmisListesi.forEach(hareket => {
+                                timelineKutusu.innerHTML += `
+                                    <div class="timeline-item">
+                                        <div class="timeline-date">${hareket.tarih}</div>
+                                        <div class="timeline-content">${hareket.durum}</div>
+                                    </div>
+                                `;
+                            });
+                        }
+                        
                         resultContainer.style.display = 'block';
                     });
                 }
             } catch (error) {
-                console.error("Veri çekilirken hata oluştu: ", error);
-                alert("Sistemsel bir hata oluştu. Lütfen bağlantınızı kontrol edin.");
+                console.error("Hata: ", error);
+                alert("Sistemsel bir hata oluştu.");
             }
         });
     </script>
