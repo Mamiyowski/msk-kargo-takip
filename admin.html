@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSK GLOBAL | Yönetici Paneli</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #eef2f3; color: #333; }
+        .header { background-color: #2c3e50; padding: 20px; text-align: center; color: #fff; border-bottom: 4px solid #e74c3c; }
+        
+        .admin-container { max-width: 500px; margin: 40px auto; padding: 30px; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .admin-container h2 { text-align: center; margin-bottom: 20px; color: #2c3e50; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; outline: none; }
+        .form-group input:focus, .form-group select:focus { border-color: #e74c3c; }
+        
+        button { width: 100%; padding: 12px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; margin-top: 10px; }
+        button:hover { background-color: #c0392b; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>MSK GLOBAL - <span>YÖNETİCİ PANELİ</span></h1>
+    </div>
+
+    <div class="admin-container">
+        <h2>Yeni Kargo Ekle / Güncelle</h2>
+        
+        <div class="form-group">
+            <label>Takip Kodu (Örn: MSK-1002)</label>
+            <input type="text" id="kargoKodu" placeholder="Kodu giriniz..." style="text-transform: uppercase;">
+        </div>
+
+        <div class="form-group">
+            <label>Varış Noktası (Şehir/Ülke)</label>
+            <input type="text" id="sehir" placeholder="Örn: Münih, Almanya">
+        </div>
+
+        <div class="form-group">
+            <label>Tarih ve Saat</label>
+            <input type="text" id="tarih" placeholder="Örn: 21 Temmuz, 14:30">
+        </div>
+
+        <div class="form-group">
+            <label>Güncel Durum Aşaması</label>
+            <select id="durum">
+                <option value="Araç Yüklendi, Yola Çıkmaya Hazır.">Araç Yüklendi, Yola Çıkmaya Hazır.</option>
+                <option value="İhracat Gümrük İşlemleri Devam Ediyor.">İhracat Gümrük İşlemleri Devam Ediyor.</option>
+                <option value="Gümrük İşlemleri Tamamlandı, Transit Yolda.">Gümrük İşlemleri Tamamlandı, Transit Yolda.</option>
+                <option value="Varış Gümrüğünde İşlem Görüyor.">Varış Gümrüğünde İşlem Görüyor.</option>
+                <option value="Teslimat Noktasına İlerliyor.">Teslimat Noktasına İlerliyor.</option>
+                <option value="Yük Başarıyla Teslim Edildi.">Yük Başarıyla Teslim Edildi.</option>
+            </select>
+        </div>
+
+        <button id="kaydetBtn">Sisteme Kaydet / Güncelle</button>
+    </div>
+
+    <!-- Firebase Bağlantı Motoru -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        // DİKKAT: Burada 'doc' ve 'setDoc' komutlarını çağırıyoruz (Yazma işlemi için)
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // =====================================================================
+        // ŞİFRE BLOĞUNU BURAYA YAPIŞTIR! (m harfini düzeltmeyi unutma)
+        // =====================================================================
+        const firebaseConfig = {
+           apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
+            authDomain: "msk-global---kargo-takip.firebaseapp.com",
+            projectId: "msk-global---kargo-takip",
+            storageBucket: "msk-global---kargo-takip.firebasestorage.app",
+            messagingSenderId: "608864535211",
+            appId: "1:608864535211:web:2fa07474ab410fc87fadee",
+            measurementId: "G-VXK3KR1LY8"
+        };
+        // =====================================================================
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.getElementById('kaydetBtn').addEventListener('click', async () => {
+            const kod = document.getElementById('kargoKodu').value.toUpperCase();
+            const sehir = document.getElementById('sehir').value;
+            const tarih = document.getElementById('tarih').value;
+            const durum = document.getElementById('durum').value;
+
+            if(kod === "" || sehir === "" || tarih === "") {
+                alert("Lütfen tüm alanları doldurun!");
+                return;
+            }
+
+            try {
+                // merge: true komutu çok önemlidir. Kod yoksa sıfırdan oluşturur, kod varsa sadece durumunu günceller.
+                await setDoc(doc(db, "sevkiyatlar", kod), {
+                    takipKodu: kod,
+                    aliciSehir: sehir,
+                    tarih: tarih,
+                    guncelDurum: durum
+                }, { merge: true });
+
+                alert(kod + " numaralı gönderi başarıyla sisteme kaydedildi!");
+                
+                // Formu temizle
+                document.getElementById('kargoKodu').value = "";
+                document.getElementById('sehir').value = "";
+                document.getElementById('tarih').value = "";
+                
+            } catch (error) {
+                console.error("Hata: ", error);
+                alert("Kaydetme işlemi başarısız oldu.");
+            }
+        });
+    </script>
+</body>
+</html>
