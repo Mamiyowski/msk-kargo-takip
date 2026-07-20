@@ -6,58 +6,60 @@
     <title>MSK GLOBAL | Yönetici Paneli</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #eef2f3; color: #333; }
-        .header { background-color: #2c3e50; padding: 20px; text-align: center; color: #fff; border-bottom: 4px solid #e74c3c; }
+        body { background-color: #f0f4f8; color: #333; }
+        .header { background-color: #0b1c38; padding: 15px; text-align: center; border-bottom: 5px solid #00c3ff; }
+        .header img { max-height: 70px; }
         
-        .admin-container { max-width: 550px; margin: 40px auto; padding: 30px; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .admin-container h2 { text-align: center; margin-bottom: 20px; color: #2c3e50; }
+        .admin-container { max-width: 550px; margin: 40px auto; padding: 30px; background: #fff; border-radius: 8px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
+        .admin-container h2 { text-align: center; margin-bottom: 25px; color: #0b1c38; }
         
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; outline: none; }
-        .form-group input:focus, .form-group select:focus { border-color: #e74c3c; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 14px; color: #2c3e50; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #e1e8ed; border-radius: 6px; font-size: 15px; outline: none; }
+        .form-group input:focus, .form-group select:focus { border-color: #00c3ff; }
         
         .flex-group { display: flex; gap: 10px; }
         .flex-group input, .flex-group select { flex: 1; }
         
-        .btn-action { margin-top: 0 !important; width: auto !important; padding: 10px 15px !important; background-color: #34495e !important; }
-        .btn-action:hover { background-color: #2c3e50 !important; }
+        .btn-action { margin-top: 0 !important; width: auto !important; padding: 12px 15px !important; background-color: #0b1c38 !important; color: white !important; }
+        .btn-action:hover { background-color: #152d54 !important; }
         
-        .btn-plus { padding: 10px 15px; background-color: #27ae60; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 18px; cursor: pointer; transition: 0.3s; }
-        .btn-plus:hover { background-color: #219150; }
-        .btn-plus:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        .btn-plus { padding: 10px 15px; background-color: #00c3ff; color: #0b1c38; border: none; border-radius: 6px; font-weight: 900; font-size: 18px; cursor: pointer; transition: 0.3s; }
+        .btn-plus:hover { background-color: #00a8dc; color: #fff; }
+        .btn-plus:disabled { background-color: #bdc3c7; color: #7f8c8d; cursor: not-allowed; }
         
-        button#kaydetBtn { width: 100%; padding: 12px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; margin-top: 15px; }
-        button#kaydetBtn:hover { background-color: #c0392b; }
-        .info-text { font-size: 12px; color: #777; margin-top: 5px; }
+        button#kaydetBtn { width: 100%; padding: 14px; background-color: #00c3ff; color: #0b1c38; border: none; border-radius: 6px; cursor: pointer; font-size: 18px; font-weight: 800; transition: 0.3s; margin-top: 15px; }
+        button#kaydetBtn:hover { background-color: #0b1c38; color: #fff; }
+        .info-text { font-size: 12px; color: #7f8c8d; margin-top: 5px; font-weight: 500; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>MSK GLOBAL - <span>YÖNETİCİ PANELİ</span></h1>
+        <img src="MSK-GLOBAL-2022-LOGO-removebg-preview-1.png" alt="MSK Global Lojistik">
     </div>
 
     <div class="admin-container">
-        <h2>Kargo Aşaması Ekle</h2>
+        <h2>Operasyon Yönetim Paneli</h2>
         
         <div class="form-group">
             <label>Takip Kodu</label>
             <div class="flex-group">
-                <input type="text" id="kargoKodu" placeholder="Kodu buraya yazın veya yanda üretin ->" style="text-transform: uppercase;">
+                <input type="text" id="kargoKodu" placeholder="Kodu yazın veya yanda üretin ->" style="text-transform: uppercase;">
                 <button type="button" id="kodUretBtn" class="btn-action">Yeni Kod Üret</button>
             </div>
         </div>
 
+        <!-- Varış Noktası Kaldırıldı, Tır Plakası Eklendi -->
         <div class="form-group">
-            <label>Nihai Varış Noktası (Sadece yeni kayıtta doldurun)</label>
-            <input type="text" id="sehir" placeholder="Örn: Münih, Almanya">
+            <label>Tır Plakası (Sadece yeni kayıtta doldurmanız yeterlidir)</label>
+            <input type="text" id="tirPlakasi" placeholder="Örn: 34 MSK 01" style="text-transform: uppercase;">
+            <p class="info-text">Yoldaki tırı güncelliyorsanız burayı boş bırakabilirsiniz.</p>
         </div>
 
         <div class="form-group">
             <label>Şu Anki Konum (Tır şu an nerede?)</label>
             <div class="flex-group">
-                <!-- Ülke Seçimi ve Ekleme Butonu -->
                 <div style="display: flex; flex: 1; gap: 5px;">
                     <select id="ulkeSec" style="flex: 1;">
                         <option value="">-- Ülke Seç --</option>
@@ -65,7 +67,6 @@
                     <button type="button" id="ulkeEkleBtn" class="btn-plus" title="Listeye Yeni Ülke Ekle">+</button>
                 </div>
                 
-                <!-- Şehir Seçimi ve Ekleme Butonu -->
                 <div style="display: flex; flex: 1; gap: 5px;">
                     <select id="sehirSec" disabled style="flex: 1;">
                         <option value="">-- Önce Ülke Seçin --</option>
@@ -91,7 +92,7 @@
                 <option value="İhracat Gümrük İşlemleri Devam Ediyor.">İhracat Gümrük İşlemleri Devam Ediyor.</option>
                 <option value="Gümrük İşlemleri Tamamlandı, Transit Yolda.">Gümrük İşlemleri Tamamlandı, Transit Yolda.</option>
                 <option value="Varış Gümrüğünde İşlem Görüyor.">Varış Gümrüğünde İşlem Görüyor.</option>
-                <option value="Teslimat Noktasına İlerliyor.">Teslimat Noktasına İlerliyor.</option>
+                <option value="Teslimat Bölgelerine Dağıtım Sürüyor.">Teslimat Bölgelerine Dağıtım Sürüyor.</option>
                 <option value="Yük Başarıyla Teslim Edildi.">Yük Başarıyla Teslim Edildi.</option>
             </select>
         </div>
@@ -107,35 +108,31 @@
         // ŞİFRE BLOĞUNU BURAYA YAPIŞTIR!
         // =====================================================================
         const firebaseConfig = {
-                       apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
+            apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
             authDomain: "msk-global---kargo-takip.firebaseapp.com",
             projectId: "msk-global---kargo-takip",
             storageBucket: "msk-global---kargo-takip.firebasestorage.app",
             messagingSenderId: "608864535211",
             appId: "1:608864535211:web:2fa07474ab410fc87fadee",
-            measurementId: "G-VXK3KR1LY8"
-        };
+            measurementId: "G-VXK3KR1LY8"        };
         // =====================================================================
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- OTOMATİK KOD ÜRETİCİ ---
         document.getElementById('kodUretBtn').addEventListener('click', () => {
             const rastgeleSayi = Math.floor(100000 + Math.random() * 900000);
             document.getElementById('kargoKodu').value = "MSK-" + rastgeleSayi;
         });
 
-        // --- AKILLI VE ÖĞRENEN KATEGORİ SİSTEMİ ---
         const varsayilanKonumlar = {
-            "Türkiye": ["İstanbul", "Ankara", "İzmir", "Bursa", "Edirne / Kapıkule"],
+            "Türkiye": ["İstanbul", "Ankara", "İzmir", "Bursa", "Edirne / Kapıkule", "Hamzabeyli Sınır Kapısı"],
             "Almanya": ["Münih", "Berlin", "Köln", "Frankfurt", "Stuttgart"],
             "Fransa": ["Paris", "Lyon", "Marsilya"],
             "Sırbistan": ["Belgrad", "Niş", "Sınır Kapısı"],
-            "Bulgaristan": ["Sofya", "Filibe", "Sınır Kapısı"]
+            "Bulgaristan": ["Sofya", "Filibe", "Kapıkule Sınır Kapısı"]
         };
 
-        // Eğer tarayıcıda önceden kaydedilmiş liste varsa onu al, yoksa varsayılanı kullan
         let konumVerileri = JSON.parse(localStorage.getItem('mskKategoriHafizasi')) || varsayilanKonumlar;
 
         const ulkeSec = document.getElementById('ulkeSec');
@@ -144,7 +141,6 @@
         const ulkeEkleBtn = document.getElementById('ulkeEkleBtn');
         const sehirEkleBtn = document.getElementById('sehirEkleBtn');
 
-        // Ülkeleri Ekrana Basma Fonksiyonu
         function ulkeleriYukle() {
             ulkeSec.innerHTML = '<option value="">-- Ülke Seç --</option>';
             for (let ulke in konumVerileri) {
@@ -152,9 +148,8 @@
             }
             ulkeSec.innerHTML += `<option value="Diğer (Manuel Giriş)">Diğer (Manuel Giriş)</option>`;
         }
-        ulkeleriYukle(); // Sayfa açılınca çalıştır
+        ulkeleriYukle(); 
 
-        // Ülke Seçilince Şehirleri Getir
         ulkeSec.addEventListener('change', function() {
             const secilenUlke = this.value;
             sehirSec.innerHTML = '<option value="">-- Şehir Seç --</option>';
@@ -167,7 +162,7 @@
                 sehirSec.style.display = 'block';
                 manuelKonum.style.display = 'none';
                 sehirSec.disabled = false;
-                sehirEkleBtn.disabled = false; // Şehir ekleme butonunu aktif et
+                sehirEkleBtn.disabled = false; 
                 
                 konumVerileri[secilenUlke].forEach(sehir => {
                     sehirSec.innerHTML += `<option value="${sehir}">${sehir}</option>`;
@@ -178,16 +173,15 @@
             }
         });
 
-        // YENİ ÜLKE EKLEME
         ulkeEkleBtn.addEventListener('click', () => {
             const yeniUlke = prompt("Sisteme eklenecek yeni ülkenin adını yazın:");
             if(yeniUlke && yeniUlke.trim() !== "") {
                 if(!konumVerileri[yeniUlke]) {
-                    konumVerileri[yeniUlke] = []; // Yeni ülkeyi boş şehir listesiyle oluştur
-                    localStorage.setItem('mskKategoriHafizasi', JSON.stringify(konumVerileri)); // Hafızaya kaydet
-                    ulkeleriYukle(); // Menüyü yenile
-                    ulkeSec.value = yeniUlke; // Yeni eklenen ülkeyi otomatik seç
-                    ulkeSec.dispatchEvent(new Event('change')); // Şehir menüsünü tetikle
+                    konumVerileri[yeniUlke] = []; 
+                    localStorage.setItem('mskKategoriHafizasi', JSON.stringify(konumVerileri)); 
+                    ulkeleriYukle(); 
+                    ulkeSec.value = yeniUlke; 
+                    ulkeSec.dispatchEvent(new Event('change')); 
                     alert(yeniUlke + " başarıyla sisteme eklendi!");
                 } else {
                     alert("Bu ülke zaten listede var!");
@@ -195,16 +189,15 @@
             }
         });
 
-        // YENİ ŞEHİR EKLEME
         sehirEkleBtn.addEventListener('click', () => {
             const secilenUlke = ulkeSec.value;
             const yeniSehir = prompt(secilenUlke + " için eklenecek yeni şehrin adını yazın:");
             if(yeniSehir && yeniSehir.trim() !== "") {
                 if(!konumVerileri[secilenUlke].includes(yeniSehir)) {
-                    konumVerileri[secilenUlke].push(yeniSehir); // Seçili ülkenin içine şehri ekle
-                    localStorage.setItem('mskKategoriHafizasi', JSON.stringify(konumVerileri)); // Hafızaya kaydet
-                    ulkeSec.dispatchEvent(new Event('change')); // Şehirleri yenile
-                    sehirSec.value = yeniSehir; // Yeni eklenen şehri otomatik seç
+                    konumVerileri[secilenUlke].push(yeniSehir); 
+                    localStorage.setItem('mskKategoriHafizasi', JSON.stringify(konumVerileri)); 
+                    ulkeSec.dispatchEvent(new Event('change')); 
+                    sehirSec.value = yeniSehir; 
                     alert(yeniSehir + " şehri " + secilenUlke + " listesine başarıyla eklendi!");
                 } else {
                     alert("Bu şehir zaten var!");
@@ -212,17 +205,15 @@
             }
         });
 
-        // --- ŞU AN BUTONU ---
         document.getElementById('simdiBtn').addEventListener('click', () => {
             const simdikiZaman = new Date();
             const otomatikTarih = simdikiZaman.toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
             document.getElementById('tarih').value = otomatikTarih;
         });
 
-        // --- SİSTEME KAYDETME ---
         document.getElementById('kaydetBtn').addEventListener('click', async () => {
             const kod = document.getElementById('kargoKodu').value.toUpperCase();
-            const sehir = document.getElementById('sehir').value;
+            const plaka = document.getElementById('tirPlakasi').value.toUpperCase(); // Şehir gitti, plaka geldi
             const tarih = document.getElementById('tarih').value;
             const durum = document.getElementById('durum').value;
 
@@ -242,22 +233,28 @@
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
-                    await setDoc(docRef, {
+                    // Kayıt varsa hareketleri birleştir, eğer yeni bir plaka yazıldıysa onu da güncelle
+                    let guncellenecekVeri = {
                         hareketler: arrayUnion({ tarih: tarih, durum: durum, konum: anlikKonum })
-                    }, { merge: true });
+                    };
+                    if (plaka !== "") { guncellenecekVeri.tirPlakasi = plaka; }
+                    
+                    await setDoc(docRef, guncellenecekVeri, { merge: true });
                 } else {
-                    if(sehir === "") { alert("Bu yeni bir kargo, lütfen nihai varış noktasını girin!"); return; }
+                    // İlk defa ekleniyorsa plakayı girmesi mecburi
+                    if(plaka === "") { alert("Bu yeni bir rota, lütfen Tır Plakasını girin!"); return; }
                     
                     await setDoc(docRef, {
                         takipKodu: kod,
-                        aliciSehir: sehir,
+                        tirPlakasi: plaka, // Veritabanına plaka kaydediliyor
                         hareketler: [{ tarih: tarih, durum: durum, konum: anlikKonum }]
                     });
                 }
 
-                alert(kod + " numaralı kargo hareketi sisteme başarıyla eklendi!");
+                alert(kod + " numaralı gönderi başarıyla eklendi / güncellendi!");
                 
                 document.getElementById('kargoKodu').value = "";
+                document.getElementById('tirPlakasi').value = "";
                 ulkeSec.value = "";
                 sehirSec.innerHTML = '<option value="">-- Önce Ülke Seçin --</option>';
                 sehirSec.disabled = true;

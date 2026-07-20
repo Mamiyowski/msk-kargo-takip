@@ -6,39 +6,50 @@
     <title>MSK GLOBAL | Kargo Takip</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f4f7f6; color: #333; }
-        .header { background-color: #1a1a1a; padding: 20px; text-align: center; color: #fff; border-bottom: 4px solid #ff6600; }
-        .header h1 { font-size: 24px; letter-spacing: 2px; }
-        .header span { color: #ff6600; }
+        body { background-color: #f0f4f8; color: #333; }
         
-        .search-container { max-width: 600px; margin: 40px auto; padding: 20px; text-align: center; background: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .search-container h2 { margin-bottom: 20px; font-size: 20px; color: #444; }
-        .search-box { display: flex; gap: 10px; justify-content: center; }
-        .search-box input { padding: 12px; width: 70%; border: 2px solid #ddd; border-radius: 4px; font-size: 16px; outline: none; text-transform: uppercase; }
-        .search-box input:focus { border-color: #ff6600; }
-        .search-box button { padding: 12px 24px; background-color: #ff6600; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
-        .search-box button:hover { background-color: #e65c00; }
+        /* Yeni Logonun Renkleriyle Kurumsal Header */
+        .header { background-color: #0b1c38; padding: 20px; text-align: center; border-bottom: 5px solid #00c3ff; }
+        .header img { max-height: 90px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
+        
+        .search-container { max-width: 600px; margin: 40px auto; padding: 30px 20px; text-align: center; background: #fff; border-radius: 8px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
+        .search-container h2 { margin-bottom: 20px; font-size: 22px; color: #0b1c38; }
+        .search-box { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .search-box input { padding: 14px; width: 70%; border: 2px solid #e1e8ed; border-radius: 6px; font-size: 16px; outline: none; text-transform: uppercase; font-weight: bold; color: #0b1c38; }
+        .search-box input:focus { border-color: #00c3ff; }
+        
+        /* Buton Rengi Logonun Açık Mavisi Yapıldı */
+        .search-box button { padding: 14px 24px; background-color: #00c3ff; color: #0b1c38; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 800; transition: 0.3s; }
+        .search-box button:hover { background-color: #00a8dc; color: #fff; }
 
-        .result-container { max-width: 600px; margin: 0 auto 40px; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: none; }
-        .result-header { border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 15px; }
-        .result-header h3 { color: #ff6600; margin-bottom: 5px; }
+        /* Bilgilendirme Mesajı Alanı */
+        .info-msg { font-size: 13px; color: #6c7a89; background-color: #eef2f5; padding: 12px; border-radius: 6px; border-left: 4px solid #0b1c38; text-align: left; margin-top: 10px; line-height: 1.5; }
+        .info-msg strong { color: #0b1c38; }
+
+        .result-container { max-width: 600px; margin: 0 auto 40px; padding: 25px; background: #fff; border-radius: 8px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); display: none; }
+        .result-header { border-bottom: 2px solid #f0f4f8; padding-bottom: 15px; margin-bottom: 20px; }
+        .result-header h3 { color: #00c3ff; margin-bottom: 8px; font-size: 20px; }
+        .result-header p { font-size: 16px; color: #333; }
+        .result-header p strong { color: #0b1c38; }
         
-        .timeline { position: relative; border-left: 3px solid #ff6600; padding-left: 20px; margin-left: 10px; margin-top: 20px; }
+        /* Zaman Çizelgesi Renkleri Güncellendi */
+        .timeline { position: relative; border-left: 3px solid #00c3ff; padding-left: 25px; margin-left: 10px; }
         .timeline-item { margin-bottom: 25px; position: relative; }
-        .timeline-item:first-child::before { content: ''; position: absolute; left: -28px; top: 0; width: 14px; height: 14px; background: #ff6600; border: 3px solid #ff6600; border-radius: 50%; box-shadow: 0 0 8px rgba(255, 102, 0, 0.5); }
-        .timeline-item::before { content: ''; position: absolute; left: -28px; top: 0; width: 14px; height: 14px; background: #fff; border: 3px solid #ccc; border-radius: 50%; }
+        .timeline-item:first-child::before { content: ''; position: absolute; left: -34px; top: 0; width: 16px; height: 16px; background: #00c3ff; border: 3px solid #00c3ff; border-radius: 50%; box-shadow: 0 0 10px rgba(0, 195, 255, 0.6); }
+        .timeline-item::before { content: ''; position: absolute; left: -34px; top: 0; width: 16px; height: 16px; background: #fff; border: 3px solid #ced4da; border-radius: 50%; }
         
-        .timeline-date { font-size: 14px; color: #888; font-weight: bold; margin-bottom: 5px; }
-        .timeline-date span { color: #2c3e50; font-weight: 800; }
-        .timeline-content { font-size: 16px; color: #333; font-weight: 500; }
+        .timeline-date { font-size: 14px; color: #6c7a89; font-weight: bold; margin-bottom: 6px; }
+        .timeline-date span { color: #0b1c38; font-weight: 800; }
+        .timeline-content { font-size: 16px; color: #2c3e50; font-weight: 600; }
         
-        .error-msg { color: #d9534f; font-weight: bold; margin-top: 15px; display: none; }
+        .error-msg { color: #e74c3c; font-weight: bold; margin-top: 15px; display: none; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>MSK <span>GLOBAL</span> LOJİSTİK</h1>
+        <!-- Logo Buraya Eklendi -->
+        <img src="MSK-GLOBAL-2022-LOGO-removebg-preview-1.png" alt="MSK Global Lojistik">
     </div>
 
     <div class="search-container">
@@ -47,13 +58,20 @@
             <input type="text" id="kargoKodu" placeholder="Örn: MSK-1002">
             <button id="sorgulaBtn">Sorgula</button>
         </div>
-        <div id="errorMsg" class="error-msg">Bu koda ait gönderi bulunamadı!</div>
+        
+        <!-- İstenilen Bilgilendirme Mesajı -->
+        <div class="info-msg">
+            <strong>ℹ️ Bilgilendirme:</strong> Uluslararası seyrine devam eden araçlarımızın konum ve gümrük bilgileri, sınır geçiş durumlarına bağlı olarak günde <strong>1 ila 2 kez</strong> güncellenmektedir.
+        </div>
+        
+        <div id="errorMsg" class="error-msg">Bu koda ait gönderi bulunamadı veya kod hatalı!</div>
     </div>
 
     <div class="result-container" id="resultContainer">
         <div class="result-header">
             <h3>Takip Kodu: <span id="sonucKodu"></span></h3>
-            <p><strong>Nihai Varış Noktası:</strong> <span id="sonucSehir"></span></p>
+            <!-- Varış Noktası Kaldırıldı, Araç Plakası Eklendi -->
+            <p><strong>🚚 Araç Plakası:</strong> <span id="sonucPlaka"></span></p>
         </div>
         
         <div class="timeline" id="timelineKutusu">
@@ -65,10 +83,10 @@
         import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // =====================================================================
-        // ŞİFRE BLOĞUNU BURAYA YAPIŞTIR! (m harfine dikkat)
+        // KENDİ ŞİFRELERİNİ BURAYA YAPIŞTIR!
         // =====================================================================
         const firebaseConfig = {
-                       apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
+             apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
             authDomain: "msk-global---kargo-takip.firebaseapp.com",
             projectId: "msk-global---kargo-takip",
             storageBucket: "msk-global---kargo-takip.firebasestorage.app",
@@ -91,9 +109,7 @@
             resultContainer.style.display = 'none';
             timelineKutusu.innerHTML = ''; 
 
-            if(girilenKod === "") {
-                alert("Lütfen bir takip kodu giriniz!"); return;
-            }
+            if(girilenKod === "") { alert("Lütfen bir takip kodu giriniz!"); return; }
 
             try {
                 const q = query(collection(db, "sevkiyatlar"), where("takipKodu", "==", girilenKod));
@@ -105,13 +121,13 @@
                     querySnapshot.forEach((doc) => {
                         const veri = doc.data();
                         document.getElementById('sonucKodu').innerText = veri.takipKodu;
-                        document.getElementById('sonucSehir').innerText = veri.aliciSehir;
+                        // Tır Plakasını ekrana basıyoruz
+                        document.getElementById('sonucPlaka').innerText = veri.tirPlakasi || "Plaka Belirtilmedi";
                         
                         if(veri.hareketler && veri.hareketler.length > 0) {
                             const gecmisListesi = [...veri.hareketler].reverse();
                             
                             gecmisListesi.forEach(hareket => {
-                                // Eski kayıtlarda konum bilgisi yoksa çökmesin diye ufak bir güvenlik kontrolü (hareket.konum || 'Konum Belirtilmedi')
                                 const konumBilgisi = hareket.konum ? hareket.konum : "Konum Belirtilmedi";
                                 
                                 timelineKutusu.innerHTML += `
@@ -122,7 +138,6 @@
                                 `;
                             });
                         }
-                        
                         resultContainer.style.display = 'block';
                     });
                 }
