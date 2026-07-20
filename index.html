@@ -8,9 +8,9 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f0f4f8; color: #333; }
         
-        /* Yeni Logonun Renkleriyle Kurumsal Header */
-        .header { background-color: #0b1c38; padding: 20px; text-align: center; border-bottom: 5px solid #00c3ff; }
-        .header img { max-height: 90px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
+        /* Ana Siteyle Uyumlu Ferah Gri Header */
+        .header { background-color: #f4f5f7; padding: 15px; text-align: center; border-bottom: 4px solid #00c3ff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .header img { max-height: 90px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
         
         .search-container { max-width: 600px; margin: 40px auto; padding: 30px 20px; text-align: center; background: #fff; border-radius: 8px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
         .search-container h2 { margin-bottom: 20px; font-size: 22px; color: #0b1c38; }
@@ -18,11 +18,9 @@
         .search-box input { padding: 14px; width: 70%; border: 2px solid #e1e8ed; border-radius: 6px; font-size: 16px; outline: none; text-transform: uppercase; font-weight: bold; color: #0b1c38; }
         .search-box input:focus { border-color: #00c3ff; }
         
-        /* Buton Rengi Logonun Açık Mavisi Yapıldı */
         .search-box button { padding: 14px 24px; background-color: #00c3ff; color: #0b1c38; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 800; transition: 0.3s; }
         .search-box button:hover { background-color: #00a8dc; color: #fff; }
 
-        /* Bilgilendirme Mesajı Alanı */
         .info-msg { font-size: 13px; color: #6c7a89; background-color: #eef2f5; padding: 12px; border-radius: 6px; border-left: 4px solid #0b1c38; text-align: left; margin-top: 10px; line-height: 1.5; }
         .info-msg strong { color: #0b1c38; }
 
@@ -32,7 +30,6 @@
         .result-header p { font-size: 16px; color: #333; }
         .result-header p strong { color: #0b1c38; }
         
-        /* Zaman Çizelgesi Renkleri Güncellendi */
         .timeline { position: relative; border-left: 3px solid #00c3ff; padding-left: 25px; margin-left: 10px; }
         .timeline-item { margin-bottom: 25px; position: relative; }
         .timeline-item:first-child::before { content: ''; position: absolute; left: -34px; top: 0; width: 16px; height: 16px; background: #00c3ff; border: 3px solid #00c3ff; border-radius: 50%; box-shadow: 0 0 10px rgba(0, 195, 255, 0.6); }
@@ -48,7 +45,6 @@
 <body>
 
     <div class="header">
-        <!-- Logo Buraya Eklendi -->
         <img src="MSK-GLOBAL-2022-LOGO-removebg-preview-1.png" alt="MSK Global Lojistik">
     </div>
 
@@ -59,7 +55,6 @@
             <button id="sorgulaBtn">Sorgula</button>
         </div>
         
-        <!-- İstenilen Bilgilendirme Mesajı -->
         <div class="info-msg">
             <strong>ℹ️ Bilgilendirme:</strong> Uluslararası seyrine devam eden araçlarımızın konum ve gümrük bilgileri, sınır geçiş durumlarına bağlı olarak günde <strong>1 ila 2 kez</strong> güncellenmektedir.
         </div>
@@ -70,7 +65,6 @@
     <div class="result-container" id="resultContainer">
         <div class="result-header">
             <h3>Takip Kodu: <span id="sonucKodu"></span></h3>
-            <!-- Varış Noktası Kaldırıldı, Araç Plakası Eklendi -->
             <p><strong>🚚 Araç Plakası:</strong> <span id="sonucPlaka"></span></p>
         </div>
         
@@ -83,17 +77,16 @@
         import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // =====================================================================
-        // KENDİ ŞİFRELERİNİ BURAYA YAPIŞTIR!
+        // ŞİFRELERİNİ BURAYA YAPIŞTIR!
         // =====================================================================
         const firebaseConfig = {
-             apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
+            apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
             authDomain: "msk-global---kargo-takip.firebaseapp.com",
             projectId: "msk-global---kargo-takip",
             storageBucket: "msk-global---kargo-takip.firebasestorage.app",
             messagingSenderId: "608864535211",
             appId: "1:608864535211:web:2fa07474ab410fc87fadee",
-            measurementId: "G-VXK3KR1LY8"
-        };
+            measurementId: "G-VXK3KR1LY8"        };
         // =====================================================================
 
         const app = initializeApp(firebaseConfig);
@@ -121,7 +114,6 @@
                     querySnapshot.forEach((doc) => {
                         const veri = doc.data();
                         document.getElementById('sonucKodu').innerText = veri.takipKodu;
-                        // Tır Plakasını ekrana basıyoruz
                         document.getElementById('sonucPlaka').innerText = veri.tirPlakasi || "Plaka Belirtilmedi";
                         
                         if(veri.hareketler && veri.hareketler.length > 0) {
