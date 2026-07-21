@@ -41,13 +41,13 @@
 <body>
 
     <div class="header">
-        <img src="MSK-GLOBAL-2022-LOGO-removebg-preview-1.png" alt="MSK Global Lojistik">
+        <img src="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" alt="MSK Global Lojistik">
     </div>
 
     <div class="search-container">
         <h2>Gönderi Durumunu Sorgula</h2>
         <div class="search-box">
-            <input type="text" id="kargoKodu" placeholder="Örn: MSK-1002">
+            <input type="text" id="kargoKodu" placeholder="Örn: MSK-1002 veya DEP-12345">
             <button id="sorgulaBtn">Sorgula</button>
         </div>
         
@@ -62,6 +62,7 @@
         <div class="result-header">
             <h3>Takip Kodu: <span id="sonucKodu"></span></h3>
             <p><strong>🚚 Araç Plakası:</strong> <span id="sonucPlaka"></span></p>
+            <p id="aliciBilgisi" style="display:none; font-size: 15px; margin-top: 5px; color: #2ecc71;"><strong>👤 Alıcı:</strong> <span id="sonucAlici"></span></p>
         </div>
         
         <div class="result-body">
@@ -81,16 +82,25 @@
 
         const firebaseConfig = {
             apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
-            authDomain: "msk-global---kargo-takip.firebaseapp.com",
-            projectId: "msk-global---kargo-takip",
-            storageBucket: "msk-global---kargo-takip.firebasestorage.app",
-            messagingSenderId: "608864535211",
-            appId: "1:608864535211:web:2fa07474ab410fc87fadee",
-            measurementId: "G-VXK3KR1LY8"
-                };
+  authDomain: "msk-global---kargo-takip.firebaseapp.com",
+  projectId: "msk-global---kargo-takip",
+  storageBucket: "msk-global---kargo-takip.firebasestorage.app",
+  messagingSenderId: "608864535211",
+  appId: "1:608864535211:web:2fa07474ab410fc87fadee",
+  measurementId: "G-VXK3KR1LY8"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const kod = urlParams.get('kargo');
+            if (kod) {
+                document.getElementById('kargoKodu').value = kod.toUpperCase();
+                setTimeout(() => document.getElementById('sorgulaBtn').click(), 500);
+            }
+        };
 
         document.getElementById('sorgulaBtn').addEventListener('click', async () => {
             const girilenKod = document.getElementById('kargoKodu').value.toUpperCase();
@@ -98,9 +108,11 @@
             const resultContainer = document.getElementById('resultContainer');
             const timelineKutusu = document.getElementById('timelineKutusu');
             const mapIframe = document.getElementById('mapIframe');
+            const aliciBilgisi = document.getElementById('aliciBilgisi');
 
             errorMsg.style.display = 'none';
             resultContainer.style.display = 'none';
+            aliciBilgisi.style.display = 'none';
             timelineKutusu.innerHTML = ''; 
 
             if(girilenKod === "") { alert("Lütfen bir takip kodu giriniz!"); return; }
@@ -116,6 +128,11 @@
                         const veri = doc.data();
                         document.getElementById('sonucKodu').innerText = veri.takipKodu;
                         document.getElementById('sonucPlaka').innerText = veri.tirPlakasi || "Plaka Belirtilmedi";
+                        
+                        if (veri.aliciAdi) {
+                            document.getElementById('sonucAlici').innerText = veri.aliciAdi;
+                            aliciBilgisi.style.display = 'block';
+                        }
                         
                         if(veri.hareketler && veri.hareketler.length > 0) {
                             const gecmisListesi = [...veri.hareketler];
@@ -142,7 +159,6 @@
                     });
                 }
             } catch (error) {
-                console.error(error);
                 alert("Sistemsel bir hata oluştu.");
             }
         });

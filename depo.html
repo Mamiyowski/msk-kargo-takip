@@ -32,7 +32,10 @@
         .btn-kaydet:hover { background-color: #27ae60; }
 
         .table-container { flex: 3; min-width: 600px; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 4px solid #00c3ff; }
-        .table-container h2 { margin-bottom: 20px; color: #0b1c38; font-size: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        .table-header-flex { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+        .table-header-flex h2 { color: #0b1c38; font-size: 20px; margin: 0; }
+        .sort-select { padding: 8px 12px; border-radius: 4px; border: 1px solid #ccc; outline: none; font-weight: bold; color: #333; cursor: pointer; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
@@ -43,6 +46,8 @@
         .code-badge { color: #e74c3c; font-weight: bold; }
         .btn-sil { background-color: #e74c3c; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
         .btn-sil:hover { background-color: #c0392b; }
+        .btn-link { background-color: #27ae60; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 5px; }
+        .btn-link:hover { background-color: #2ecc71; }
     </style>
 </head>
 <body>
@@ -65,8 +70,13 @@
             </div>
 
             <div class="form-group">
+                <label>Alıcı Adı Soyadı</label>
+                <input type="text" id="aliciAdi" placeholder="Örn: Ahmet Yılmaz">
+            </div>
+
+            <div class="form-group">
                 <label>Ürün / Yük Adı</label>
-                <input type="text" id="urunAdi" placeholder="Örn: 3 Palet Otomotiv Yedek Parça">
+                <input type="text" id="urunAdi" placeholder="Örn: 3 Palet Yedek Parça">
             </div>
             
             <div class="form-group">
@@ -88,21 +98,29 @@
         </div>
 
         <div class="table-container">
-            <h2>📦 Anlık Depo Mevcudu</h2>
+            <div class="table-header-flex">
+                <h2>📦 Anlık Depo Mevcudu</h2>
+                <select id="siralamaFiltresi" class="sort-select">
+                    <option value="tarih_yeni">Geliş Zamanı (En Yeni)</option>
+                    <option value="tarih_eski">Geliş Zamanı (En Eski)</option>
+                    <option value="konum_az">Konuma Göre (A-Z)</option>
+                    <option value="konum_za">Konuma Göre (Z-A)</option>
+                </select>
+            </div>
+            
             <table>
                 <thead>
                     <tr>
-                        <th>Giriş Zamanı</th>
+                        <th>Tarih</th>
                         <th>Kabul Kodu</th>
-                        <th>Ürün Adı</th>
+                        <th>Alıcı / Ürün</th>
                         <th>Hedef Bölge</th>
-                        <th>Parça</th>
-                        <th>Alan / Hacim</th>
+                        <th>Prc. / Hacim</th>
                         <th>İşlem</th>
                     </tr>
                 </thead>
                 <tbody id="depoListesi">
-                    <tr><td colspan="7" style="text-align: center; color: #777;">Yükleniyor...</td></tr>
+                    <tr><td colspan="6" style="text-align: center; color: #777;">Yükleniyor...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -111,7 +129,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, setDoc, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
   apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
@@ -126,6 +144,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        let anlikDepoListesi = [];
+        let siralamaModu = "tarih_yeni";
+
         document.getElementById('kodUretBtn').addEventListener('click', () => {
             const rastgeleSayi = Math.floor(100000 + Math.random() * 900000);
             document.getElementById('urunKodu').value = "DEP-" + rastgeleSayi;
@@ -133,6 +154,7 @@
 
         document.getElementById('kaydetBtn').addEventListener('click', async () => {
             const urunKodu = document.getElementById('urunKodu').value.toUpperCase();
+            const aliciAdi = document.getElementById('aliciAdi').value;
             const urunAdi = document.getElementById('urunAdi').value;
             const hedef = document.getElementById('hedef').value;
             const parca = document.getElementById('parca').value;
@@ -141,23 +163,27 @@
             const girisZamani = new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
             const timestamp = Date.now();
 
-            if (urunKodu === "" || urunAdi === "" || hedef === "") {
-                alert("Lütfen Depo Kabul Kodu, Ürün Adı ve Hedef alanlarını doldurun!");
+            if (urunKodu === "" || urunAdi === "" || hedef === "" || aliciAdi === "") {
+                alert("Lütfen Kod, Alıcı, Ürün ve Hedef alanlarını doldurun!");
                 return;
             }
 
             try {
-                await addDoc(collection(db, "depo_envanter"), {
-                    urunKodu: urunKodu,
-                    urunAdi: urunAdi,
-                    hedef: hedef,
-                    parca: parca || "-",
-                    hacim: hacim || "-",
-                    girisZamani: girisZamani,
-                    timestamp: timestamp
+                await setDoc(doc(db, "depo_envanter", urunKodu), {
+                    urunKodu, aliciAdi, urunAdi, hedef, parca: parca || "-", hacim: hacim || "-", girisZamani, timestamp
+                });
+
+                await setDoc(doc(db, "sevkiyatlar", urunKodu), {
+                    takipKodu: urunKodu,
+                    aliciAdi: aliciAdi,
+                    tirPlakasi: "Depoda - Araca Yüklenmesi Bekleniyor",
+                    hareketler: [
+                        { tarih: girisZamani, durum: "Üretici Firmadan Teslim Alındı ve MSK Merkez Depoya Girişi Yapıldı.", konum: "MSK Merkez Depo, İstanbul", timestamp: timestamp }
+                    ]
                 });
 
                 document.getElementById('urunKodu').value = "";
+                document.getElementById('aliciAdi').value = "";
                 document.getElementById('urunAdi').value = "";
                 document.getElementById('hedef').value = "";
                 document.getElementById('parca').value = "";
@@ -168,36 +194,50 @@
             }
         });
 
-        const depoRef = collection(db, "depo_envanter");
-        const siralamaSorgusu = query(depoRef, orderBy("timestamp", "desc"));
+        onSnapshot(collection(db, "depo_envanter"), (snapshot) => {
+            anlikDepoListesi = [];
+            snapshot.forEach((docSnap) => {
+                anlikDepoListesi.push({ id: docSnap.id, ...docSnap.data() });
+            });
+            tabloyuCiz();
+        });
 
-        onSnapshot(siralamaSorgusu, (snapshot) => {
+        document.getElementById('siralamaFiltresi').addEventListener('change', (e) => {
+            siralamaModu = e.target.value;
+            tabloyuCiz();
+        });
+
+        function tabloyuCiz() {
             const liste = document.getElementById('depoListesi');
             
-            if (snapshot.empty) {
-                liste.innerHTML = "<tr><td colspan='7' style='text-align:center;'>Depoda şu an hiç ürün bulunmuyor.</td></tr>";
+            if (anlikDepoListesi.length === 0) {
+                liste.innerHTML = "<tr><td colspan='6' style='text-align:center;'>Depoda şu an hiç ürün bulunmuyor.</td></tr>";
                 return;
             }
 
+            if (siralamaModu === "tarih_yeni") anlikDepoListesi.sort((a, b) => b.timestamp - a.timestamp);
+            if (siralamaModu === "tarih_eski") anlikDepoListesi.sort((a, b) => a.timestamp - b.timestamp);
+            if (siralamaModu === "konum_az") anlikDepoListesi.sort((a, b) => a.hedef.localeCompare(b.hedef));
+            if (siralamaModu === "konum_za") anlikDepoListesi.sort((a, b) => b.hedef.localeCompare(a.hedef));
+
             let html = "";
-            snapshot.forEach((docSnap) => {
-                const veri = docSnap.data();
-                const id = docSnap.id;
-                
+            anlikDepoListesi.forEach((veri) => {
                 html += `
                 <tr>
                     <td style="font-size:12px; color:#555;">${veri.girisZamani}</td>
                     <td class="code-badge">${veri.urunKodu}</td>
-                    <td><strong>${veri.urunAdi}</strong></td>
+                    <td><strong style="color:#2ecc71;">${veri.aliciAdi}</strong><br>${veri.urunAdi}</td>
                     <td><span class="badge">${veri.hedef}</span></td>
-                    <td>${veri.parca}</td>
-                    <td>${veri.hacim}</td>
-                    <td><button class="btn-sil" data-id="${id}">Sil</button></td>
+                    <td>${veri.parca} Prç.<br><span style="font-size:11px; color:#777;">${veri.hacim}</span></td>
+                    <td>
+                        <button class="btn-link" data-kod="${veri.urunKodu}">Linki Kopyala</button>
+                        <button class="btn-sil" data-id="${veri.id}">Sil</button>
+                    </td>
                 </tr>`;
             });
             
             liste.innerHTML = html;
-        });
+        }
 
         document.getElementById('depoListesi').addEventListener('click', async (e) => {
             if (e.target.classList.contains('btn-sil')) {
@@ -205,6 +245,13 @@
                 if (confirm("Bu ürünü depodan silmek istediğinize emin misiniz?")) {
                     await deleteDoc(doc(db, "depo_envanter", silinecekId));
                 }
+            }
+            if (e.target.classList.contains('btn-link')) {
+                const kod = e.target.getAttribute('data-kod');
+                const link = `https://kargotakip.mskglobal.com.tr/?kargo=${kod}`;
+                navigator.clipboard.writeText(link).then(() => {
+                    alert("Müşteri takip linki kopyalandı:\n" + link);
+                });
             }
         });
     </script>
