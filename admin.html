@@ -27,14 +27,19 @@
 
         .dashboard-wrapper { max-width: 1200px; margin: 30px auto; display: flex; gap: 30px; flex-wrap: wrap; padding: 0 20px; align-items: flex-start; }
         .admin-container { flex: 1; min-width: 350px; padding: 30px; background: #fff; border-radius: 8px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
-        .admin-container h2 { text-align: center; margin-bottom: 25px; color: #0b1c38; }
+        
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .admin-header h2 { color: #0b1c38; margin: 0; font-size: 22px; }
+        .btn-depo-yonet { background: #8e44ad; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.3s; }
+        .btn-depo-yonet:hover { background: #9b59b6; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
         .form-group { margin-bottom: 18px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 14px; color: #2c3e50; }
         .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #e1e8ed; border-radius: 6px; font-size: 15px; outline: none; }
         .form-group input:focus, .form-group select:focus { border-color: #00c3ff; }
         .flex-group { display: flex; gap: 10px; }
         .flex-group input, .flex-group select { flex: 1; }
-        .btn-action { margin-top: 0 !important; width: auto !important; padding: 12px 15px !important; background-color: #0b1c38 !important; color: white !important; }
+        .btn-action { margin-top: 0 !important; width: auto !important; padding: 12px 15px !important; background-color: #0b1c38 !important; color: white !important; border:none; border-radius:6px; cursor:pointer;}
         .btn-action:hover { background-color: #152d54 !important; }
         .btn-plus { padding: 10px 15px; background-color: #00c3ff; color: #0b1c38; border: none; border-radius: 6px; font-weight: 900; font-size: 18px; cursor: pointer; transition: 0.3s; }
         .btn-plus:hover { background-color: #00a8dc; color: #fff; }
@@ -42,6 +47,7 @@
         button#kaydetBtn { width: 100%; padding: 14px; background-color: #00c3ff; color: #0b1c38; border: none; border-radius: 6px; cursor: pointer; font-size: 18px; font-weight: 800; transition: 0.3s; margin-top: 15px; }
         button#kaydetBtn:hover { background-color: #0b1c38; color: #fff; }
         .info-text { font-size: 12px; color: #7f8c8d; margin-top: 5px; font-weight: 500; }
+        
         .truck-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #e1e8ed; border-radius: 6px; margin-bottom: 10px; background-color: #f8f9fa; }
         .truck-info { font-size: 15px; color: #2c3e50; }
         .truck-info strong { color: #0b1c38; font-size: 16px; display: block; }
@@ -56,6 +62,11 @@
         .btn-detay:hover { background-color: #d35400; }
         .btn-delete { background-color: #e74c3c; }
         .btn-delete:hover { background-color: #c0392b; }
+
+        /* MODAL TASARIMLARI */
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); overflow-y: auto; }
+        .modal-box { background-color: #fff; margin: 5% auto; padding: 25px; border-radius: 8px; width: 90%; max-width: 600px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-close { float: right; font-size: 28px; cursor: pointer; font-weight: bold; color: #7f8c8d; }
     </style>
 </head>
 <body>
@@ -71,7 +82,7 @@
         </div>
     </div>
 
-    <!-- ANA SİSTEM (Giriş Yapılana Kadar Gizli) -->
+    <!-- ANA SİSTEM -->
     <div id="anaSistem">
         <div class="header">
             <img src="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" alt="MSK Global Lojistik">
@@ -79,19 +90,24 @@
 
         <div class="dashboard-wrapper">
             <div class="admin-container">
-                <h2>🚚 Yoldaki Aktif Tırlar</h2>
-                <p class="info-text" style="text-align: center; margin-bottom: 20px;">Güncellemek istediğiniz tırın kodunu seçebilir, müşteriye kopyalayabilir veya hatalı aşamaları detaylardan silebilirsiniz. <br> <strong style="color:#e74c3c;">(Depo yükleri burada gizlenmiştir, sadece tırlar görünür.)</strong></p>
+                <div class="admin-header">
+                    <h2>🚚 Yoldaki Tırlar</h2>
+                    <button id="btnDepoYukleriAc" class="btn-depo-yonet" title="Gizli Depo Yüklerini Yönet">📦 DEP Yükleri</button>
+                </div>
+                <p class="info-text" style="text-align: center; margin-bottom: 20px;">
+                    Güncellemek istediğiniz tırın kodunu seçebilir, müşteriye kopyalayabilir veya hatalı aşamaları detaylardan silebilirsiniz. 
+                </p>
                 <div id="aktifTirlarListesi">
                     <p style="text-align:center; color:#7f8c8d;">Sistemdeki araçlar yükleniyor...</p>
                 </div>
             </div>
 
             <div class="admin-container">
-                <h2>Yeni Aşama Ekle</h2>
+                <h2 style="color:#0b1c38; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 25px;">Yeni Aşama Ekle</h2>
                 <div class="form-group">
-                    <label>Takip Kodu (Tır Kodu)</label>
+                    <label>Takip Kodu (Tır / DEP Kodu)</label>
                     <div class="flex-group">
-                        <input type="text" id="kargoKodu" placeholder="Örn: MSK-1000" style="text-transform: uppercase;">
+                        <input type="text" id="kargoKodu" placeholder="Örn: MSK-1000 veya DEP-1001" style="text-transform: uppercase;">
                     </div>
                 </div>
                 <div class="form-group">
@@ -127,16 +143,29 @@
                     </div>
                     <input type="text" id="ozelMesaj" placeholder="Müşteriye gösterilecek özel mesajı buraya yazın..." style="display:none; margin-top:10px; border-color:#e74c3c;">
                 </div>
-                <button id="kaydetBtn">Tır Konumunu Güncelle</button>
+                <button id="kaydetBtn">Sistemi Güncelle</button>
             </div>
         </div>
 
-        <div id="detayModal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
-            <div style="background-color:#fff; margin:5% auto; padding:25px; border-radius:8px; width:90%; max-width:600px; max-height:85vh; overflow-y:auto; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
-                <span id="modalKapat" style="float:right; font-size:28px; cursor:pointer; font-weight:bold; color:#7f8c8d;">&times;</span>
-                <h3 style="color:#0b1c38; margin-bottom:15px; border-bottom:2px solid #eee; padding-bottom:10px;">🚚 Tır Hareket Detayları</h3>
+        <!-- HAREKET DETAYLARI / DÜZENLEME MODALI -->
+        <div id="detayModal" class="modal-overlay">
+            <div class="modal-box">
+                <span id="modalKapat" class="modal-close">&times;</span>
+                <h3 style="color:#0b1c38; margin-bottom:15px; border-bottom:2px solid #eee; padding-bottom:10px;">🚚 Hareket Detayları</h3>
                 <p style="font-size:13px; color:#e74c3c; margin-bottom:15px; font-weight:bold;">Sadece hatalı girdiğiniz aşamanın yanındaki "Sil" butonuna basarak o adımı temizleyebilirsiniz.</p>
                 <div id="modalIcerik"></div>
+            </div>
+        </div>
+
+        <!-- GİZLİ DEP YÜKLERİ MODALI -->
+        <div id="depoYukleriModal" class="modal-overlay">
+            <div class="modal-box" style="max-width: 700px;">
+                <span id="kapatDepoYukleri" class="modal-close">&times;</span>
+                <h3 style="color:#0b1c38; margin-bottom:15px; border-bottom:2px solid #eee; padding-bottom:10px;">📦 Gizli Depo Yükleri (Manuel Yönetim)</h3>
+                <p style="font-size:13px; color:#555; margin-bottom:15px;">Buradan depoda oluşturulmuş bireysel (DEP-...) yüklerin aşamalarına müdahale edebilir veya takiplerini silebilirsiniz.</p>
+                <div id="depoYukModalIcerik" style="max-height: 50vh; overflow-y: auto;">
+                    <!-- DEP Listesi Buraya Gelecek -->
+                </div>
             </div>
         </div>
     </div>
@@ -183,26 +212,21 @@
                 sifreInput.value = '';
             }
         });
-
         sifreInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') girisBtn.click(); });
 
 
         // SİSTEM KODLARI
         let guncelSeciliDocId = "";
         let guncelSeciliHareketler = [];
+        let depYukuListesi = []; // Gizli listeyi tutacak dizi
 
         function tarihMetniniCevir(tarihMetni) {
             const aylar = {"Ocak":0, "Şubat":1, "Mart":2, "Nisan":3, "Mayıs":4, "Haziran":5, "Temmuz":6, "Ağustos":7, "Eylül":8, "Ekim":9, "Kasım":10, "Aralık":11};
             try {
                 let temiz = tarihMetni.replace(/,/g, '').trim().split(/\s+/);
                 if(temiz.length >= 4) {
-                    let gun = parseInt(temiz[0]);
-                    let ay = aylar[temiz[1]];
-                    if(ay === undefined) return Date.now();
-                    let yil = parseInt(temiz[2]);
-                    let saatDakika = temiz[3].split(':');
-                    let saat = parseInt(saatDakika[0]);
-                    let dakika = parseInt(saatDakika[1]);
+                    let gun = parseInt(temiz[0]); let ay = aylar[temiz[1]]; if(ay === undefined) return Date.now();
+                    let yil = parseInt(temiz[2]); let saatDakika = temiz[3].split(':'); let saat = parseInt(saatDakika[0]); let dakika = parseInt(saatDakika[1]);
                     return new Date(yil, ay, gun, saat, dakika).getTime();
                 }
             } catch(e) {}
@@ -214,24 +238,25 @@
             try {
                 const querySnapshot = await getDocs(collection(db, "sevkiyatlar"));
                 if (querySnapshot.empty) {
-                    listeDiv.innerHTML = "<div style='padding: 20px; background: #eef2f5; border-radius: 6px; text-align: center; border-left: 4px solid #00c3ff;'><strong style='color: #0b1c38; font-size: 15px;'>Şu anda mevcut tır bulunmamaktadır.</strong></div>";
+                    listeDiv.innerHTML = "<div style='padding: 20px; background: #eef2f5; border-radius: 6px; text-align: center;'><strong style='color: #0b1c38;'>Şu anda mevcut araç bulunmamaktadır.</strong></div>";
                     return;
                 }
                 
                 let html = "";
                 let gosterilenTirSayisi = 0;
+                depYukuListesi = []; // Diziyi sıfırla
 
                 querySnapshot.forEach((docSnap) => {
                     const veri = docSnap.data();
                     const gercekDocId = docSnap.id; 
                     
-                    // 🌟 İŞTE SİHİRLİ FİLTRE: DEP- İLE BAŞLAYAN DEPO YÜKLERİNİ BU LİSTEYE EKLEME!
+                    // FİLTRE: DEP Yüklerini ayırıp farklı listeye atarız
                     if (veri.takipKodu && veri.takipKodu.startsWith("DEP-")) {
+                        depYukuListesi.push({ id: gercekDocId, ...veri });
                         return; 
                     }
 
                     gosterilenTirSayisi++;
-                    
                     html += `
                     <div class="truck-item">
                         <div class="truck-info">
@@ -239,7 +264,7 @@
                             <span class="truck-code">[${veri.takipKodu}]</span>
                         </div>
                         <div class="truck-actions">
-                            <button class="btn-kopyala" data-kod="${veri.takipKodu}">Müşteri Linki</button>
+                            <button class="btn-kopyala" data-kod="${veri.takipKodu}">Link</button>
                             <button class="btn-sec" data-kod="${veri.takipKodu}">Seç</button>
                             <button class="btn-detay" data-docid="${gercekDocId}">Detaylar</button>
                             <button class="btn-delete" data-docid="${gercekDocId}" data-kod="${veri.takipKodu}">Bitir/Sil</button>
@@ -248,16 +273,76 @@
                 });
 
                 if(gosterilenTirSayisi === 0) {
-                    listeDiv.innerHTML = "<div style='padding: 20px; background: #eef2f5; border-radius: 6px; text-align: center; border-left: 4px solid #00c3ff;'><strong style='color: #0b1c38; font-size: 15px;'>Şu anda yolda aktif tır bulunmamaktadır.</strong><br><span style='font-size:13px; color:#6c7a89;'>Depo yükleri panelden gizlenmiştir. Sadece tır planları listelenir.</span></div>";
+                    listeDiv.innerHTML = "<div style='padding: 20px; background: #eef2f5; border-radius: 6px; text-align: center;'><strong style='color: #0b1c38;'>Şu anda yolda aktif tır bulunmamaktadır.</strong></div>";
                 } else {
                     listeDiv.innerHTML = html;
                 }
                 
-            } catch (error) {
-                listeDiv.innerHTML = "<p style='color:red;'>Araçlar yüklenirken hata oluştu!</p>";
-            }
+            } catch (error) { listeDiv.innerHTML = "<p style='color:red;'>Araçlar yüklenirken hata oluştu!</p>"; }
         }
 
+        // --- GİZLİ DEP YÜKLERİ (MODAL) YÖNETİMİ ---
+        document.getElementById('btnDepoYukleriAc').addEventListener('click', () => {
+            const icerik = document.getElementById('depoYukModalIcerik');
+            let html = "";
+            if(depYukuListesi.length === 0) {
+                html = "<p style='color:#777; text-align:center; padding:20px;'>Sistemde yönetilebilir aktif DEP yükü bulunmuyor.</p>";
+            } else {
+                depYukuListesi.forEach(v => {
+                    html += `
+                    <div class="truck-item">
+                        <div class="truck-info">
+                            <strong>${v.aliciAdi || 'Alıcı Yok'}</strong>
+                            <span class="truck-code">[${v.takipKodu}]</span>
+                        </div>
+                        <div class="truck-actions">
+                            <button class="btn-sec" data-kod="${v.takipKodu}">Girdi Seç</button>
+                            <button class="btn-detay" data-docid="${v.id}">Aşamaları Düzenle</button>
+                            <button class="btn-delete-dep" data-docid="${v.id}" data-kod="${v.takipKodu}" style="background:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">Takibi Sil</button>
+                        </div>
+                    </div>`;
+                });
+            }
+            icerik.innerHTML = html;
+            document.getElementById('depoYukleriModal').style.display = 'block';
+        });
+
+        document.getElementById('kapatDepoYukleri').addEventListener('click', () => {
+            document.getElementById('depoYukleriModal').style.display = 'none';
+        });
+
+        // DEP Modal İçindeki Butonların Görevleri
+        document.getElementById('depoYukModalIcerik').addEventListener('click', async (e) => {
+            if (e.target.classList.contains('btn-sec')) {
+                document.getElementById('kargoKodu').value = e.target.getAttribute('data-kod');
+                document.getElementById('depoYukleriModal').style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            
+            if (e.target.classList.contains('btn-detay')) {
+                guncelSeciliDocId = e.target.getAttribute('data-docid');
+                const snap = await getDoc(doc(db, "sevkiyatlar", guncelSeciliDocId));
+                if(snap.exists()) {
+                    guncelSeciliHareketler = snap.data().hareketler || [];
+                    modalCiz();
+                    document.getElementById('detayModal').style.display = 'block';
+                }
+            }
+            
+            if (e.target.classList.contains('btn-delete-dep')) {
+                const silId = e.target.getAttribute('data-docid');
+                const kod = e.target.getAttribute('data-kod');
+                if(confirm(`DİKKAT! ${kod} kodlu ürünün kargo takibi tamamen silinsin mi?`)) {
+                    await deleteDoc(doc(db, "sevkiyatlar", silId));
+                    alert("Takip kaydı silindi!");
+                    document.getElementById('depoYukleriModal').style.display = 'none';
+                    aktifTirlariGetir();
+                }
+            }
+        });
+
+
+        // --- ANA TIRLARIN YÖNETİMİ VE SİLME ENTEGRASYONU ---
         document.getElementById('aktifTirlarListesi').addEventListener('click', async (e) => {
             if (e.target.classList.contains('btn-sec')) {
                 document.getElementById('kargoKodu').value = e.target.getAttribute('data-kod');
@@ -265,11 +350,8 @@
             }
             
             if (e.target.classList.contains('btn-kopyala')) {
-                const kopyalanacakKod = e.target.getAttribute('data-kod');
-                const link = `https://kargotakip.mskglobal.com.tr/?kargo=${kopyalanacakKod}`;
-                navigator.clipboard.writeText(link).then(() => {
-                    alert("Tır takip linki kopyalandı:\n" + link);
-                });
+                const k = e.target.getAttribute('data-kod');
+                navigator.clipboard.writeText(`https://kargotakip.mskglobal.com.tr/?kargo=${k}`).then(() => alert("Tır takip linki kopyalandı!"));
             }
 
             if (e.target.classList.contains('btn-detay')) {
@@ -282,14 +364,32 @@
                 }
             }
             
+            // 🌟 EĞER BİR TIR SİLİNİRSE DEPO SİSTEMİNE "Havuza Geri Dön" MESAJI GÖNDER!
             if (e.target.classList.contains('btn-delete')) {
                 const silinecekGercekId = e.target.getAttribute('data-docid');
                 const gosterilecekKod = e.target.getAttribute('data-kod');
                 
-                if (confirm(`DİKKAT! ${gosterilecekKod} kodlu aracın teslimatı bitti ve sistemden TAMAMEN SİLİNSİN Mİ?`)) {
+                if (confirm(`DİKKAT! ${gosterilecekKod} kodlu aracın seferi bitti ve sistemden SİLİNSİN Mİ?\n\n(Bu işlem Tırı kaldıracak ve içindeki yükleri Depo sisteminde tekrar Aktif Havuza bırakacaktır!)`)) {
                     try {
+                        // Tır planını kontrol et ve yükleri depoya iade et!
+                        const planSnap = await getDoc(doc(db, "tir_planlari", silinecekGercekId));
+                        if(planSnap.exists()) {
+                            const planData = planSnap.data();
+                            if(planData.yukler) {
+                                for(let u of planData.yukler) {
+                                    await setDoc(doc(db, "depo_envanter", u.urunKodu), { 
+                                        aracaYuklendi: false, 
+                                        bagliTirKodu: "", 
+                                        urunDurumu: "MSK Merkez Depoda Teslim Alındı." 
+                                    }, { merge: true });
+                                }
+                            }
+                            await deleteDoc(doc(db, "tir_planlari", silinecekGercekId));
+                        }
+                        
+                        // Kargo takibinden sil
                         await deleteDoc(doc(db, "sevkiyatlar", silinecekGercekId));
-                        alert("Araç başarıyla sistemden silindi!");
+                        alert("Araç sistemden silindi ve yükler Depo Havuzuna sağ salim döndürüldü!");
                         aktifTirlariGetir(); 
                     } catch(err) {
                         alert("Silme işlemi başarısız oldu!");
@@ -298,27 +398,18 @@
             }
         });
 
+        // --- HAREKET DETAYLARI SİLME ---
         function modalCiz() {
             const icerik = document.getElementById('modalIcerik');
             icerik.innerHTML = '';
-            if(guncelSeciliHareketler.length === 0) {
-                icerik.innerHTML = '<p>Kayıtlı hareket yok.</p>';
-                return;
-            }
+            if(guncelSeciliHareketler.length === 0) { icerik.innerHTML = '<p>Kayıtlı hareket yok.</p>'; return; }
             
-            guncelSeciliHareketler.sort((a, b) => {
-                const tA = a.timestamp || 0;
-                const tB = b.timestamp || 0;
-                return tB - tA;
-            });
+            guncelSeciliHareketler.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
             let html = '';
             guncelSeciliHareketler.forEach((h, index) => {
                 html += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="color:#0b1c38; font-size:15px;">${h.tarih}</strong><br>
-                        <span style="font-size:14px; color:#555;">📍 ${h.konum} - ${h.durum}</span>
-                    </div>
+                    <div><strong style="color:#0b1c38; font-size:15px;">${h.tarih}</strong><br><span style="font-size:14px; color:#555;">📍 ${h.konum} - ${h.durum}</span></div>
                     <button class="btn-hareket-sil" data-index="${index}" style="background-color:#e74c3c; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-weight:bold;">Sil</button>
                 </div>`;
             });
@@ -336,21 +427,14 @@
             }
         });
 
-        document.getElementById('modalKapat').addEventListener('click', () => {
-            document.getElementById('detayModal').style.display = 'none';
-        });
+        document.getElementById('modalKapat').addEventListener('click', () => { document.getElementById('detayModal').style.display = 'none'; });
 
-        const varsayilanDurumlar = [
-            "Araç Yüklendi, Yola Çıktı.",
-            "Yolda.",
-            "Gümrük İşlemleri Bekleniyor.",
-            "Teslimat Bölgelerine Dağıtım Sürüyor."
-        ];
+        // --- DURUM / ÜLKE / ŞEHİR FORM YAPISI ---
+        const varsayilanDurumlar = [ "Araç Yüklendi, Yola Çıktı.", "Yolda.", "Gümrük İşlemleri Bekleniyor.", "Teslimat Bölgelerine Dağıtım Sürüyor." ];
         let durumVerileri = JSON.parse(localStorage.getItem('mskDurumHafizasi')) || varsayilanDurumlar;
         const durumSec = document.getElementById('durum');
         const ozelMesajInput = document.getElementById('ozelMesaj');
-        const durumEkleBtn = document.getElementById('durumEkleBtn');
-
+        
         function durumlariYukle() {
             durumSec.innerHTML = '';
             durumVerileri.forEach(d => { durumSec.innerHTML += `<option value="${d}">${d}</option>`; });
@@ -358,42 +442,25 @@
         }
         durumlariYukle();
 
-        durumSec.addEventListener('change', () => {
-            if(durumSec.value === "DİĞER") {
-                ozelMesajInput.style.display = 'block';
-                ozelMesajInput.value = ""; 
-            } else {
-                ozelMesajInput.style.display = 'none';
-            }
-        });
+        durumSec.addEventListener('change', () => { ozelMesajInput.style.display = durumSec.value === "DİĞER" ? 'block' : 'none'; if(durumSec.value==="DİĞER") ozelMesajInput.value=""; });
 
-        durumEkleBtn.addEventListener('click', () => {
-            const yeniDurum = prompt("Sisteme kalıcı olarak eklenecek yeni hazır mesajı yazın:");
-            if(yeniDurum && yeniDurum.trim() !== "") {
-                if(!durumVerileri.includes(yeniDurum)) {
-                    durumVerileri.push(yeniDurum);
-                    localStorage.setItem('mskDurumHafizasi', JSON.stringify(durumVerileri));
-                    durumlariYukle();
-                    durumSec.value = yeniDurum;
-                    durumSec.dispatchEvent(new Event('change'));
-                }
+        document.getElementById('durumEkleBtn').addEventListener('click', () => {
+            const yeniDurum = prompt("Sisteme kalıcı eklenecek yeni mesajı yazın:");
+            if(yeniDurum && yeniDurum.trim() !== "" && !durumVerileri.includes(yeniDurum)) {
+                durumVerileri.push(yeniDurum); localStorage.setItem('mskDurumHafizasi', JSON.stringify(durumVerileri));
+                durumlariYukle(); durumSec.value = yeniDurum; durumSec.dispatchEvent(new Event('change'));
             }
         });
 
         const varsayilanKonumlar = {
-            "Türkiye": ["İstanbul", "Ankara", "İzmir", "Bursa", "Edirne / Kapıkule", "Hamzabeyli Sınır Kapısı"],
-            "Almanya": ["Münih", "Berlin", "Köln", "Frankfurt", "Stuttgart"],
-            "Fransa": ["Paris", "Lyon", "Marsilya"],
+            "Türkiye": ["İstanbul", "Ankara", "İzmir", "Edirne / Kapıkule"],
+            "Almanya": ["Münih", "Berlin", "Köln"],
+            "Fransa": ["Paris", "Lyon"],
             "Sırbistan": ["Belgrad", "Niş", "Sınır Kapısı"],
-            "Bulgaristan": ["Sofya", "Filibe", "Kapıkule Sınır Kapısı"]
+            "Bulgaristan": ["Sofya", "Kapıkule Sınır Kapısı"]
         };
-
         let konumVerileri = JSON.parse(localStorage.getItem('mskKategoriHafizasi')) || varsayilanKonumlar;
-        const ulkeSec = document.getElementById('ulkeSec');
-        const sehirSec = document.getElementById('sehirSec');
-        const manuelKonum = document.getElementById('manuelKonum');
-        const ulkeEkleBtn = document.getElementById('ulkeEkleBtn');
-        const sehirEkleBtn = document.getElementById('sehirEkleBtn');
+        const ulkeSec = document.getElementById('ulkeSec'), sehirSec = document.getElementById('sehirSec'), manuelKonum = document.getElementById('manuelKonum');
 
         function ulkeleriYukle() {
             ulkeSec.innerHTML = '<option value="">-- Ülke Seç --</option>';
@@ -403,101 +470,61 @@
         ulkeleriYukle(); 
 
         ulkeSec.addEventListener('change', function() {
-            const secilenUlke = this.value;
+            const secilen = this.value;
             sehirSec.innerHTML = '<option value="">-- Şehir Seç --</option>';
-            
-            if (secilenUlke === "Diğer (Manuel Giriş)") {
-                sehirSec.style.display = 'none';
-                manuelKonum.style.display = 'block';
-                sehirEkleBtn.disabled = true;
-            } else if (secilenUlke !== "") {
-                sehirSec.style.display = 'block';
-                manuelKonum.style.display = 'none';
-                sehirSec.disabled = false;
-                sehirEkleBtn.disabled = false; 
-                konumVerileri[secilenUlke].forEach(sehir => { sehirSec.innerHTML += `<option value="${sehir}">${sehir}</option>`; });
+            if (secilen === "Diğer (Manuel Giriş)") {
+                sehirSec.style.display = 'none'; manuelKonum.style.display = 'block'; document.getElementById('sehirEkleBtn').disabled = true;
+            } else if (secilen !== "") {
+                sehirSec.style.display = 'block'; manuelKonum.style.display = 'none'; sehirSec.disabled = false; document.getElementById('sehirEkleBtn').disabled = false; 
+                konumVerileri[secilen].forEach(sehir => { sehirSec.innerHTML += `<option value="${sehir}">${sehir}</option>`; });
             } else {
-                sehirSec.disabled = true;
-                sehirEkleBtn.disabled = true;
+                sehirSec.disabled = true; document.getElementById('sehirEkleBtn').disabled = true;
             }
         });
 
-        ulkeEkleBtn.addEventListener('click', () => {
-            const yeniUlke = prompt("Sisteme eklenecek yeni ülkenin adını yazın:");
-            if(yeniUlke && yeniUlke.trim() !== "") {
-                if(!konumVerileri[yeniUlke]) {
-                    konumVerileri[yeniUlke] = []; 
-                    localStorage.setItem('mskKategoriHafizasi', JSON.stringify(konumVerileri)); 
-                    ulkeleriYukle(); ulkeSec.value = yeniUlke; ulkeSec.dispatchEvent(new Event('change')); 
-                }
-            }
+        document.getElementById('ulkeEkleBtn').addEventListener('click', () => {
+            const y = prompt("Yeni ülkenin adını yazın:");
+            if(y && y.trim() !== "" && !konumVerileri[y]) { konumVerileri[y] = []; localStorage.setItem('mskKategoriHafizasi', JSON.stringify(konumVerileri)); ulkeleriYukle(); ulkeSec.value = y; ulkeSec.dispatchEvent(new Event('change')); }
         });
 
-        sehirEkleBtn.addEventListener('click', () => {
-            const secilenUlke = ulkeSec.value;
-            const yeniSehir = prompt(secilenUlke + " için eklenecek yeni şehrin adını yazın:");
-            if(yeniSehir && yeniSehir.trim() !== "") {
-                if(!konumVerileri[secilenUlke].includes(yeniSehir)) {
-                    konumVerileri[secilenUlke].push(yeniSehir); 
-                    localStorage.setItem('mskKategoriHafizasi', JSON.stringify(konumVerileri)); 
-                    ulkeSec.dispatchEvent(new Event('change')); sehirSec.value = yeniSehir; 
-                }
-            }
+        document.getElementById('sehirEkleBtn').addEventListener('click', () => {
+            const u = ulkeSec.value; const y = prompt(u + " için yeni şehir adını yazın:");
+            if(y && y.trim() !== "" && !konumVerileri[u].includes(y)) { konumVerileri[u].push(y); localStorage.setItem('mskKategoriHafizasi', JSON.stringify(konumVerileri)); ulkeSec.dispatchEvent(new Event('change')); sehirSec.value = y; }
         });
 
-        document.getElementById('simdiBtn').addEventListener('click', () => {
-            document.getElementById('tarih').value = new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        });
+        document.getElementById('simdiBtn').addEventListener('click', () => { document.getElementById('tarih').value = new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }); });
 
         document.getElementById('kaydetBtn').addEventListener('click', async () => {
             const kod = document.getElementById('kargoKodu').value.toUpperCase();
             const plaka = document.getElementById('tirPlakasi').value.toUpperCase(); 
             const tarih = document.getElementById('tarih').value;
             
-            let durum = durumSec.value;
-            if (durum === "DİĞER") {
-                durum = ozelMesajInput.value;
-                if(durum === "") { alert("Lütfen özel mesajınızı yazın!"); return; }
-            }
+            let durum = durumSec.value === "DİĞER" ? ozelMesajInput.value : durumSec.value;
+            let anlikKonum = ulkeSec.value === "Diğer (Manuel Giriş)" ? manuelKonum.value : (ulkeSec.value && sehirSec.value ? sehirSec.value + ", " + ulkeSec.value : "");
 
-            let anlikKonum = "";
-            if (ulkeSec.value === "Diğer (Manuel Giriş)") { anlikKonum = manuelKonum.value; } 
-            else if (ulkeSec.value !== "" && sehirSec.value !== "") { anlikKonum = sehirSec.value + ", " + ulkeSec.value; }
-
-            if(kod === "") { alert("Lütfen bir takip kodu girin!"); return; }
-            if(tarih === "") { alert("Lütfen tarih girin!"); return; }
-            if(anlikKonum === "") { alert("Lütfen tırın şu anki konumunu seçin!"); return; }
-
-            const timestampValue = tarihMetniniCevir(tarih);
+            if(kod === "") return alert("Lütfen bir takip kodu girin!");
+            if(tarih === "") return alert("Lütfen tarih girin!");
+            if(anlikKonum === "") return alert("Lütfen konum seçin!");
 
             try {
                 const docRef = doc(db, "sevkiyatlar", kod);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
-                    let guncellenecekVeri = { hareketler: arrayUnion({ tarih: tarih, durum: durum, konum: anlikKonum, timestamp: timestampValue }) };
-                    if (plaka !== "") { guncellenecekVeri.tirPlakasi = plaka; }
-                    await setDoc(docRef, guncellenecekVeri, { merge: true });
+                    let gunVeri = { hareketler: arrayUnion({ tarih: tarih, durum: durum, konum: anlikKonum, timestamp: tarihMetniniCevir(tarih) }) };
+                    if (plaka !== "") gunVeri.tirPlakasi = plaka;
+                    await setDoc(docRef, gunVeri, { merge: true });
                 } else {
-                    if(plaka === "") { alert("Bu yeni bir rota, lütfen Tır Plakasını girin!"); return; }
-                    await setDoc(docRef, { takipKodu: kod, tirPlakasi: plaka, hareketler: [{ tarih: tarih, durum: durum, konum: anlikKonum, timestamp: timestampValue }] });
+                    if(plaka === "") return alert("Yeni rota oluşturuyorsunuz, Plaka girmek zorunludur!");
+                    await setDoc(docRef, { takipKodu: kod, tirPlakasi: plaka, hareketler: [{ tarih: tarih, durum: durum, konum: anlikKonum, timestamp: tarihMetniniCevir(tarih) }] });
                 }
 
-                alert(kod + " numaralı gönderi güncellendi!");
+                alert(kod + " güncellendi!");
                 aktifTirlariGetir(); 
+                document.getElementById('kargoKodu').value = ""; document.getElementById('tirPlakasi').value = ""; document.getElementById('tarih').value = "";
+                ulkeSec.value = ""; ulkeSec.dispatchEvent(new Event('change')); durumSec.value = "Araç Yüklendi, Yola Çıktı.";
                 
-                document.getElementById('kargoKodu').value = "";
-                document.getElementById('tirPlakasi').value = "";
-                ulkeSec.value = "";
-                sehirSec.innerHTML = '<option value="">-- Önce Ülke Seçin --</option>';
-                manuelKonum.style.display = 'none';
-                document.getElementById('tarih').value = "";
-                ozelMesajInput.style.display = 'none';
-                durumSec.value = "Araç Yüklendi, Yola Çıktı.";
-                
-            } catch (error) {
-                alert("Sistemsel hata oluştu.");
-            }
+            } catch (error) { alert("Sistemsel hata!"); }
         });
     </script>
 </body>
