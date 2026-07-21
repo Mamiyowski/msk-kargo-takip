@@ -300,13 +300,12 @@
         onSnapshot(collection(db, "tir_planlari"), (snapshot) => { anlikTtpListesi = []; snapshot.forEach(d => anlikTtpListesi.push({ id: d.id, ...d.data() })); ttpKartlariniCiz(); tabloyuCiz(); });
         onSnapshot(collection(db, "depo_envanter"), (snapshot) => { anlikDepoListesi = []; snapshot.forEach(d => anlikDepoListesi.push({ id: d.id, ...d.data() })); tabloyuCiz(); if(document.getElementById('ttpModal').style.display === 'block') ttpEkraniniGuncelle(); });
 
-        // İPTAL ET FONKSİYONU
         window.planIptalEt = async function(kodId) {
             if(confirm("DİKKAT! Netleştirmeyi iptal etmek üzeresiniz. Ürünler Aktif Havuza geri dönecek. Onaylıyor musunuz?")) {
                 try {
                     const plan = anlikTtpListesi.find(p => p.id === kodId);
                     await setDoc(doc(db, "tir_planlari", kodId), { netlesti: false, plaka: "" }, { merge: true });
-                    await deleteDoc(doc(db, "sevkiyatlar", kodId)); // Kargo Takipten Tırı Sil
+                    await deleteDoc(doc(db, "sevkiyatlar", kodId)); 
                     
                     if(plan && plan.yukler) {
                         const yZaman = new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -320,7 +319,6 @@
             }
         };
 
-        // SİL FONKSİYONU (Eğer tır direk silinirse)
         window.ttpSil = async function(kodId) { 
             if(confirm("Tır planını silmek istediğinize emin misiniz? (İçindeki yükler havuza döner)")) {
                 try {
@@ -381,14 +379,13 @@
                 }
                 
                 let islem = "";
-                // BURASI ÇOK ÖNEMLİ: Link artık HER ZAMAN ürünün kendi kodunu (DEP-...) kopyalar.
                 let lKod = v.urunKodu; 
                 
                 if(gosterimModu === "aktif") {
                     let hBtn = (v.urunDurumu !== "MSK Merkez Depoda Teslim Alındı.") ? `<button class="btn-depoya-al" data-kod="${v.urunKodu}">Depoya Al</button>` : "";
                     islem = `${hBtn}<button class="btn-duzenle" data-kod="${v.urunKodu}">Düzenle</button><button class="btn-link" data-kod="${lKod}">Link</button><button class="btn-sil" data-id="${v.id}">Sil</button>`;
                 } else {
-                    islem = `<button class="btn-link" data-kod="${lKod}">Müşteri Linki (Ürün Geçmişi + Tır)</button> <button class="btn-havuza-cek" data-kod="${v.urunKodu}">Havuza Çek</button> <button class="btn-sil" data-id="${v.id}">Sil</button>`;
+                    islem = `<button class="btn-link" data-kod="${lKod}">Müşteri Linki</button> <button class="btn-havuza-cek" data-kod="${v.urunKodu}">Havuza Çek</button> <button class="btn-sil" data-id="${v.id}">Sil</button>`;
                 }
 
                 html += `<tr>
@@ -479,6 +476,7 @@
             } catch(e) { alert("Hata."); }
         });
 
+        // 🌟 KOD BURADA DEĞİŞTİ: TIRA ARTIK "YÜKLEME İŞLEMLERİ BAŞLADI" MESAJI GÖNDERİLMİYOR! 🌟
         document.getElementById('btnTtpNetlestir').addEventListener('click', async () => {
             const plan = anlikTtpListesi.find(p => (p.planKodu || p.ttpKodu || p.id) === planAktifKod);
             if(plan && plan.netlesti) return alert("Bu araç zaten yüklendi ve kargoya aktarıldı!");
@@ -488,11 +486,14 @@
 
             const sZaman = new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
             try {
-                await setDoc(doc(db, "sevkiyatlar", planAktifKod), { takipKodu: planAktifKod, tirPlakasi: plaka, hareketler: arrayUnion({ tarih: sZaman, durum: "Yükleme İşlemleri Başladı, Çıkış Bekliyor.", konum: "MSK Merkez Depo", timestamp: Date.now() }) }, { merge: true });
+                // TIRA BAŞLANGIÇ MESAJI GÖNDERMİYORUZ Kİ ÇİFT MESAJ OLMASIN
+                await setDoc(doc(db, "sevkiyatlar", planAktifKod), { takipKodu: planAktifKod, tirPlakasi: plaka }, { merge: true });
                 await setDoc(doc(db, "tir_planlari", planAktifKod), { planKodu: planAktifKod, planAdi: document.getElementById('ttpPlanAdiInput').value || "İsimsiz Plan", yukler: ttpYuklenenListe, plaka: plaka, netlesti: true, timestamp: Date.now() }, { merge: true });
+                
                 for(let u of ttpYuklenenListe) {
-                    await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: true, bagliTirKodu: planAktifKod, plaka: plaka, urunDurumu: "Araca Yükleniyor..." }, { merge: true });
-                    await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: planAktifKod, hareketler: arrayUnion({ tarih: sZaman, durum: "Ürününüz Araca Yükleniyor...", konum: "MSK Merkez Depo", timestamp: Date.now() }) }, { merge: true });
+                    await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: true, bagliTirKodu: planAktifKod, plaka: plaka, urunDurumu: "Araca Yüklendi" }, { merge: true });
+                    // SADECE MÜŞTERİYE "Araca Yüklendi" MESAJI GİDİYOR
+                    await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: planAktifKod, hareketler: arrayUnion({ tarih: sZaman, durum: "Ürününüz Araca Yüklendi.", konum: "MSK Merkez Depo", timestamp: Date.now() }) }, { merge: true });
                 }
                 if(planAktifKod === "MSK-" + planSayac) { planSayac++; localStorage.setItem('mskPlanSayac', planSayac); }
                 alert("Harika! Ürünler araca yüklendi ve Kargo Takip Sistemine aktarıldı!");

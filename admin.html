@@ -22,7 +22,7 @@
         .login-box button:hover { background-color: #00a8dc; color: #fff; }
         #loginHata { color: #e74c3c; margin-top: 15px; font-weight: bold; display: none; }
 
-        /* ANA SİSTEM (BAŞLANGIÇTA GİZLİ) */
+        /* ANA SİSTEM */
         #anaSistem { display: none; }
 
         .dashboard-wrapper { max-width: 1200px; margin: 30px auto; display: flex; gap: 30px; flex-wrap: wrap; padding: 0 20px; align-items: flex-start; }
@@ -67,11 +67,13 @@
         .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); overflow-y: auto; }
         .modal-box { background-color: #fff; margin: 5% auto; padding: 25px; border-radius: 8px; width: 90%; max-width: 600px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .modal-close { float: right; font-size: 28px; cursor: pointer; font-weight: bold; color: #7f8c8d; }
+
+        /* 🌟 Z-INDEX DÜZELTMESİ: Detaylar Modalı Her Zaman En Üstte Açılacak 🌟 */
+        #detayModal { z-index: 1050 !important; }
     </style>
 </head>
 <body>
 
-    <!-- ŞİFRE EKRANI -->
     <div id="loginEkrani">
         <div class="login-box">
             <img src="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" alt="MSK Logo" style="max-width: 150px; margin-bottom: 20px;">
@@ -82,7 +84,6 @@
         </div>
     </div>
 
-    <!-- ANA SİSTEM -->
     <div id="anaSistem">
         <div class="header">
             <img src="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" alt="MSK Global Lojistik">
@@ -147,7 +148,7 @@
             </div>
         </div>
 
-        <!-- HAREKET DETAYLARI / DÜZENLEME MODALI -->
+        <!-- HAREKET DETAYLARI (Z-INDEX 1050 YAPILDI) -->
         <div id="detayModal" class="modal-overlay">
             <div class="modal-box">
                 <span id="modalKapat" class="modal-close">&times;</span>
@@ -187,7 +188,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // ŞİFRE SİSTEMİ
         const dogruSifre = "MSK2026"; 
         const loginEkrani = document.getElementById('loginEkrani');
         const anaSistem = document.getElementById('anaSistem');
@@ -215,10 +215,9 @@
         sifreInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') girisBtn.click(); });
 
 
-        // SİSTEM KODLARI
         let guncelSeciliDocId = "";
         let guncelSeciliHareketler = [];
-        let depYukuListesi = []; // Gizli listeyi tutacak dizi
+        let depYukuListesi = []; 
 
         function tarihMetniniCevir(tarihMetni) {
             const aylar = {"Ocak":0, "Şubat":1, "Mart":2, "Nisan":3, "Mayıs":4, "Haziran":5, "Temmuz":6, "Ağustos":7, "Eylül":8, "Ekim":9, "Kasım":10, "Aralık":11};
@@ -244,13 +243,12 @@
                 
                 let html = "";
                 let gosterilenTirSayisi = 0;
-                depYukuListesi = []; // Diziyi sıfırla
+                depYukuListesi = []; 
 
                 querySnapshot.forEach((docSnap) => {
                     const veri = docSnap.data();
                     const gercekDocId = docSnap.id; 
                     
-                    // FİLTRE: DEP Yüklerini ayırıp farklı listeye atarız
                     if (veri.takipKodu && veri.takipKodu.startsWith("DEP-")) {
                         depYukuListesi.push({ id: gercekDocId, ...veri });
                         return; 
@@ -281,7 +279,6 @@
             } catch (error) { listeDiv.innerHTML = "<p style='color:red;'>Araçlar yüklenirken hata oluştu!</p>"; }
         }
 
-        // --- GİZLİ DEP YÜKLERİ (MODAL) YÖNETİMİ ---
         document.getElementById('btnDepoYukleriAc').addEventListener('click', () => {
             const icerik = document.getElementById('depoYukModalIcerik');
             let html = "";
@@ -311,7 +308,6 @@
             document.getElementById('depoYukleriModal').style.display = 'none';
         });
 
-        // DEP Modal İçindeki Butonların Görevleri
         document.getElementById('depoYukModalIcerik').addEventListener('click', async (e) => {
             if (e.target.classList.contains('btn-sec')) {
                 document.getElementById('kargoKodu').value = e.target.getAttribute('data-kod');
@@ -342,7 +338,6 @@
         });
 
 
-        // --- ANA TIRLARIN YÖNETİMİ VE SİLME ENTEGRASYONU ---
         document.getElementById('aktifTirlarListesi').addEventListener('click', async (e) => {
             if (e.target.classList.contains('btn-sec')) {
                 document.getElementById('kargoKodu').value = e.target.getAttribute('data-kod');
@@ -364,14 +359,12 @@
                 }
             }
             
-            // 🌟 EĞER BİR TIR SİLİNİRSE DEPO SİSTEMİNE "Havuza Geri Dön" MESAJI GÖNDER!
             if (e.target.classList.contains('btn-delete')) {
                 const silinecekGercekId = e.target.getAttribute('data-docid');
                 const gosterilecekKod = e.target.getAttribute('data-kod');
                 
                 if (confirm(`DİKKAT! ${gosterilecekKod} kodlu aracın seferi bitti ve sistemden SİLİNSİN Mİ?\n\n(Bu işlem Tırı kaldıracak ve içindeki yükleri Depo sisteminde tekrar Aktif Havuza bırakacaktır!)`)) {
                     try {
-                        // Tır planını kontrol et ve yükleri depoya iade et!
                         const planSnap = await getDoc(doc(db, "tir_planlari", silinecekGercekId));
                         if(planSnap.exists()) {
                             const planData = planSnap.data();
@@ -387,7 +380,6 @@
                             await deleteDoc(doc(db, "tir_planlari", silinecekGercekId));
                         }
                         
-                        // Kargo takibinden sil
                         await deleteDoc(doc(db, "sevkiyatlar", silinecekGercekId));
                         alert("Araç sistemden silindi ve yükler Depo Havuzuna sağ salim döndürüldü!");
                         aktifTirlariGetir(); 
@@ -398,7 +390,6 @@
             }
         });
 
-        // --- HAREKET DETAYLARI SİLME ---
         function modalCiz() {
             const icerik = document.getElementById('modalIcerik');
             icerik.innerHTML = '';
@@ -427,9 +418,9 @@
             }
         });
 
+        // Kapatıldığında Gizli Depo Yükleri arkada kalmaya devam eder!
         document.getElementById('modalKapat').addEventListener('click', () => { document.getElementById('detayModal').style.display = 'none'; });
 
-        // --- DURUM / ÜLKE / ŞEHİR FORM YAPISI ---
         const varsayilanDurumlar = [ "Araç Yüklendi, Yola Çıktı.", "Yolda.", "Gümrük İşlemleri Bekleniyor.", "Teslimat Bölgelerine Dağıtım Sürüyor." ];
         let durumVerileri = JSON.parse(localStorage.getItem('mskDurumHafizasi')) || varsayilanDurumlar;
         const durumSec = document.getElementById('durum');
