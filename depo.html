@@ -64,6 +64,8 @@
         .btn-duzenle:hover { background-color: #2980b9 !important; }
         .btn-depoya-al { background-color: #f39c12 !important; }
         .btn-depoya-al:hover { background-color: #d35400 !important; }
+        .btn-havuza-cek { background-color: #f39c12 !important; }
+        .btn-havuza-cek:hover { background-color: #d35400 !important; }
         
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; overflow-y: auto; }
         .modal-content { background: #fff; width: 95%; max-width: 1100px; margin: 3vh auto; padding: 25px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
@@ -414,7 +416,6 @@
             tabloyuCiz(); if(document.getElementById('ttpModal').style.display === 'block') ttpEkraniniGuncelle();
         });
 
-        // 🌟 GEÇMİŞTEN AKTİFE GERİ DÖNDÜRME (İPTAL ET)
         window.planIptalEt = async function(kodId) {
             if(confirm("DİKKAT! Netleştirmeyi iptal etmek üzeresiniz. Bu tırdaki tüm ürünler 'Aktif Havuz' sekmesine geri düşecek. Onaylıyor musunuz?")) {
                 try {
@@ -431,7 +432,6 @@
             }
         };
 
-        // 🌟 EĞER TIR PLANI DİREKT SİLİNİRSE YÜKLERİ HAVUZA GERİ DÖNDÜR!
         window.ttpSil = async function(kodId) { 
             if(confirm("DİKKAT! Tır planını tamamen silmek istediğinize emin misiniz? (İçindeki yükler tekrar Aktif Havuz'a dönecektir.)")) {
                 try {
@@ -528,7 +528,12 @@
                 if(gosterimModu === "aktif") {
                     islemButonlari = `${hizliBtn}<button class="btn-duzenle" data-kod="${veri.urunKodu}">Düzenle</button><button class="btn-link" data-kod="${linkKodu}">Link</button><button class="btn-sil" data-id="${veri.id}">Sil</button>`;
                 } else {
-                    islemButonlari = `<button class="btn-link" data-kod="${linkKodu}">Müşteri Linki (MSK)</button>`;
+                    // GEÇMİŞ YÜKLER EKRANINA EKLENEN HAYAT KURTARICI BUTONLAR!
+                    islemButonlari = `
+                        <button class="btn-link" data-kod="${linkKodu}">Müşteri Linki</button>
+                        <button class="btn-havuza-cek" data-kod="${veri.urunKodu}">Havuza Çek</button>
+                        <button class="btn-sil" data-id="${veri.id}">Sil</button>
+                    `;
                 }
 
                 html += `
@@ -553,6 +558,24 @@
                 await setDoc(doc(db, "depo_envanter", kod), { urunDurumu: "MSK Merkez Depoda Teslim Alındı.", yuklemeAdresi: "MSK GLOBAL DEPO" }, { merge: true });
                 await setDoc(doc(db, "sevkiyatlar", kod), { hareketler: arrayUnion({ tarih: yZaman, durum: "Ürün Merkez Depoya Ulaştı.", konum: "MSK GLOBAL DEPO", timestamp: Date.now() }) }, { merge: true });
             }
+            
+            // GEÇMİŞ YÜKLERDEN HAVUZA ZORLA ÇEKME İŞLEMİ
+            if (e.target.classList.contains('btn-havuza-cek')) {
+                const kod = e.target.getAttribute('data-kod');
+                if(confirm("Bu ürünü zorla 'Aktif Havuza' geri almak istiyor musunuz?")) {
+                    try {
+                        await setDoc(doc(db, "depo_envanter", kod), { 
+                            aracaYuklendi: false, 
+                            bagliTirKodu: "", 
+                            urunDurumu: "MSK Merkez Depoda Teslim Alındı." 
+                        }, { merge: true });
+                        alert("Ürün başarıyla aktif havuza döndü!");
+                    } catch(err) {
+                        alert("Hata oluştu.");
+                    }
+                }
+            }
+
             if (e.target.classList.contains('btn-duzenle')) {
                 const u = anlikDepoListesi.find(x => x.urunKodu === e.target.getAttribute('data-kod'));
                 if(u) {
@@ -693,6 +716,7 @@
 
                 for(let u of ttpYuklenenListe) {
                     await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: true, bagliTirKodu: planAktifKod, plaka: plaka, urunDurumu: "Araca Yükleniyor..." }, { merge: true });
+                    
                     await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { 
                         bagliTirKodu: planAktifKod, 
                         hareketler: arrayUnion({ tarih: sZaman, durum: "Ürününüz Araca Yükleniyor...", konum: "MSK Merkez Depo", timestamp: sSayi }) 
