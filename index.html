@@ -23,7 +23,6 @@
         .result-header { border-bottom: 2px solid #f0f4f8; padding-bottom: 15px; margin-bottom: 20px; }
         .result-header h3 { color: #00c3ff; margin-bottom: 8px; font-size: 20px; }
         .result-header p { font-size: 16px; color: #333; }
-        .result-header p strong { color: #0b1c38; }
         .result-body { display: flex; gap: 30px; flex-wrap: wrap; }
         .timeline-wrapper { flex: 1; min-width: 250px; }
         .map-wrapper { flex: 1; min-width: 300px; border-radius: 8px; overflow: hidden; border: 2px solid #e1e8ed; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -47,14 +46,13 @@
     <div class="search-container">
         <h2>Gönderi Durumunu Sorgula</h2>
         <div class="search-box">
-            <input type="text" id="kargoKodu" placeholder="Örn: MSK-1002 veya DEP-12345">
+            <input type="text" id="kargoKodu" placeholder="Örn: MSK-1002 veya DEP-1000">
             <button id="sorgulaBtn">Sorgula</button>
         </div>
         
         <div class="info-msg">
-            <strong>ℹ️ Bilgilendirme:</strong> Uluslararası seyrine devam eden araçlarımızın konum ve gümrük bilgileri, sınır geçiş durumlarına bağlı olarak günde <strong>1 ila 2 kez</strong> güncellenmektedir.
+            <strong>ℹ️ Bilgilendirme:</strong> Uluslararası araçlarımızın konum bilgileri günde <strong>1 ila 2 kez</strong> güncellenmektedir.
         </div>
-        
         <div id="errorMsg" class="error-msg">Bu koda ait gönderi bulunamadı veya kod hatalı!</div>
     </div>
 
@@ -66,22 +64,17 @@
         </div>
         
         <div class="result-body">
-            <div class="timeline-wrapper">
-                <div class="timeline" id="timelineKutusu"></div>
-            </div>
-            
-            <div class="map-wrapper">
-                <iframe id="mapIframe" src="" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-            </div>
+            <div class="timeline-wrapper"><div class="timeline" id="timelineKutusu"></div></div>
+            <div class="map-wrapper"><iframe id="mapIframe" src="" allowfullscreen="" loading="lazy"></iframe></div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
+  apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
   authDomain: "msk-global---kargo-takip.firebaseapp.com",
   projectId: "msk-global---kargo-takip",
   storageBucket: "msk-global---kargo-takip.firebasestorage.app",
@@ -104,63 +97,59 @@
 
         document.getElementById('sorgulaBtn').addEventListener('click', async () => {
             const girilenKod = document.getElementById('kargoKodu').value.toUpperCase();
-            const errorMsg = document.getElementById('errorMsg');
-            const resultContainer = document.getElementById('resultContainer');
-            const timelineKutusu = document.getElementById('timelineKutusu');
-            const mapIframe = document.getElementById('mapIframe');
-            const aliciBilgisi = document.getElementById('aliciBilgisi');
+            document.getElementById('errorMsg').style.display = 'none';
+            document.getElementById('resultContainer').style.display = 'none';
+            document.getElementById('aliciBilgisi').style.display = 'none';
+            document.getElementById('timelineKutusu').innerHTML = ''; 
 
-            errorMsg.style.display = 'none';
-            resultContainer.style.display = 'none';
-            aliciBilgisi.style.display = 'none';
-            timelineKutusu.innerHTML = ''; 
-
-            if(girilenKod === "") { alert("Lütfen bir takip kodu giriniz!"); return; }
+            if(girilenKod === "") return alert("Lütfen bir takip kodu giriniz!");
 
             try {
-                const q = query(collection(db, "sevkiyatlar"), where("takipKodu", "==", girilenKod));
-                const querySnapshot = await getDocs(q);
+                const querySnapshot = await getDocs(query(collection(db, "sevkiyatlar"), where("takipKodu", "==", girilenKod)));
 
                 if (querySnapshot.empty) {
-                    errorMsg.style.display = 'block';
+                    document.getElementById('errorMsg').style.display = 'block';
                 } else {
-                    querySnapshot.forEach((doc) => {
-                        const veri = doc.data();
-                        document.getElementById('sonucKodu').innerText = veri.takipKodu;
-                        document.getElementById('sonucPlaka').innerText = veri.tirPlakasi || "Plaka Belirtilmedi";
-                        
-                        if (veri.aliciAdi) {
-                            document.getElementById('sonucAlici').innerText = veri.aliciAdi;
-                            aliciBilgisi.style.display = 'block';
+                    let anaVeri = null;
+                    querySnapshot.forEach(d => anaVeri = d.data());
+                    
+                    document.getElementById('sonucKodu').innerText = anaVeri.takipKodu;
+                    document.getElementById('sonucPlaka').innerText = anaVeri.tirPlakasi || "Plaka Belirtilmedi";
+                    
+                    if (anaVeri.aliciAdi) {
+                        document.getElementById('sonucAlici').innerText = anaVeri.aliciAdi;
+                        document.getElementById('aliciBilgisi').style.display = 'block';
+                    }
+                    
+                    let tumHareketler = anaVeri.hareketler ? [...anaVeri.hareketler] : [];
+
+                    // EĞER BU YÜK BİR TIRA (TTP) BAĞLIYSA TIRIN HAREKETLERİNİ DE ÇEK VE BİRLEŞTİR!
+                    if (anaVeri.bagliTirKodu) {
+                        const tirDoc = await getDoc(doc(db, "sevkiyatlar", anaVeri.bagliTirKodu));
+                        if(tirDoc.exists()) {
+                            const tirVeri = tirDoc.data();
+                            if(tirVeri.tirPlakasi) document.getElementById('sonucPlaka').innerText = tirVeri.tirPlakasi;
+                            if(tirVeri.hareketler) tumHareketler = tumHareketler.concat(tirVeri.hareketler);
                         }
+                    }
+
+                    if(tumHareketler.length > 0) {
+                        tumHareketler.sort((a, b) => b.timestamp - a.timestamp); // En yeni en üstte
                         
-                        if(veri.hareketler && veri.hareketler.length > 0) {
-                            const gecmisListesi = [...veri.hareketler];
-                            gecmisListesi.sort((a, b) => {
-                                const tA = a.timestamp || 0;
-                                const tB = b.timestamp || 0;
-                                return tB - tA;
-                            });
-                            
-                            const sonKonum = gecmisListesi[0].konum ? gecmisListesi[0].konum : "Türkiye";
-                            mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(sonKonum)}&t=&z=7&ie=UTF8&iwloc=&output=embed`;
-                            
-                            gecmisListesi.forEach(hareket => {
-                                const konumBilgisi = hareket.konum ? hareket.konum : "Konum Belirtilmedi";
-                                timelineKutusu.innerHTML += `
-                                    <div class="timeline-item">
-                                        <div class="timeline-date">${hareket.tarih} • 📍 <span>${konumBilgisi}</span></div>
-                                        <div class="timeline-content">${hareket.durum}</div>
-                                    </div>
-                                `;
-                            });
-                        }
-                        resultContainer.style.display = 'block';
-                    });
+                        document.getElementById('mapIframe').src = `https://maps.google.com/maps?q=${encodeURIComponent(tumHareketler[0].konum || "Türkiye")}&t=&z=7&ie=UTF8&iwloc=&output=embed`;
+                        
+                        tumHareketler.forEach(h => {
+                            document.getElementById('timelineKutusu').innerHTML += `
+                                <div class="timeline-item">
+                                    <div class="timeline-date">${h.tarih} • 📍 <span>${h.konum || "Bilinmiyor"}</span></div>
+                                    <div class="timeline-content">${h.durum}</div>
+                                </div>
+                            `;
+                        });
+                    }
+                    document.getElementById('resultContainer').style.display = 'block';
                 }
-            } catch (error) {
-                alert("Sistemsel bir hata oluştu.");
-            }
+            } catch (error) { alert("Sistemsel bir hata oluştu."); }
         });
     </script>
 </body>
