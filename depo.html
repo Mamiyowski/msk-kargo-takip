@@ -55,7 +55,6 @@
         .note-text { font-size: 12px; color: #8e44ad; font-style: italic; display: block; margin-top: 6px; }
         
         .action-btns { display: flex; flex-wrap: wrap; gap: 6px; }
-        /* BUTON RENKLERİ !IMPORTANT İLE DÜZELTİLDİ */
         .action-btns button { padding: 8px 12px !important; border: none !important; border-radius: 4px !important; cursor: pointer !important; font-size: 12px !important; font-weight: bold !important; color: white !important; }
         .btn-sil { background-color: #e74c3c !important; }
         .btn-sil:hover { background-color: #c0392b !important; }
@@ -85,9 +84,9 @@
         .ttp-split { display: flex; gap: 15px; margin-top: 15px; }
         .ttp-box { flex: 1; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e1e8ed; height: 400px; overflow-y: auto; }
         .yuk-karti { background: white; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
-        .yuk-info strong { color: #0b1c38; font-size: 14px; }
-        .yuk-info span { font-size: 11px; color: #666; display: block; margin-top: 3px; }
-        .btn-ekle, .btn-cikar, .sira-btn { border: none; padding: 6px 10px; font-weight: bold; border-radius: 4px; cursor: pointer; color: white; }
+        .yuk-info strong { color: #0b1c38; font-size: 13px; display:block; }
+        .yuk-info span { font-size: 12px; color: #666; display: block; margin-top: 3px; font-weight:bold; }
+        .btn-ekle, .btn-cikar { border: none; padding: 6px 10px; font-weight: bold; border-radius: 4px; cursor: pointer; color: white; }
     </style>
 </head>
 <body>
@@ -216,7 +215,7 @@
                     <label>Fiyat Bilgisi</label>
                     <div class="flex-group">
                         <input type="number" id="fiyat" placeholder="Tutar">
-                        <select id="fiyatBirim" style="flex:0.4;">
+                        <select id="fiyatBirim" style="flex: 0.8; min-width: 65px;">
                             <option value="€">€</option>
                             <option value="₺">₺</option>
                             <option value="$">$</option>
@@ -232,7 +231,7 @@
                             <option value="Evet">Evet</option>
                         </select>
                         <input type="number" id="kapidaOdemeMiktari" placeholder="Miktar" style="display:none; flex: 1;">
-                        <select id="kapidaOdemeBirim" style="display:none; flex:0.5;">
+                        <select id="kapidaOdemeBirim" style="display:none; flex: 0.8; min-width: 65px;">
                             <option value="€">€</option>
                             <option value="₺">₺</option>
                             <option value="$">$</option>
@@ -274,12 +273,12 @@
             
             <div class="ttp-split">
                 <div class="ttp-box">
-                    <h3 style="text-align: center; border-bottom:2px solid #ddd; padding-bottom:10px; margin-bottom:10px;">📦 Aktif Depodaki Yükler</h3>
+                    <h3 style="text-align: center; border-bottom:2px solid #ddd; padding-bottom:10px; margin-bottom:10px;">📦 Havuzdaki Yükler</h3>
                     <div id="ttpBekleyenler"></div>
                 </div>
                 
                 <div class="ttp-box" style="border: 3px solid #00c3ff;">
-                    <h3 style="text-align: center; border-bottom:2px solid #ddd; padding-bottom:10px; margin-bottom:10px;">🚚 Bu Plana Eklenen Yükler</h3>
+                    <h3 style="text-align: center; border-bottom:2px solid #ddd; padding-bottom:10px; margin-bottom:10px;">🚚 Bu Plana Eklenen Yükler <br><span style="font-size:11px; color:#777;">(↕ Farenizle sürükleyip bırakarak sıralayabilirsiniz)</span></h3>
                     <div id="ttpYuklenenler"></div>
                 </div>
             </div>
@@ -306,15 +305,14 @@
         let anlikDepoListesi = [];
         let anlikTtpListesi = [];
         let siralamaModu = "durum_grupla";
-        let gosterimModu = "aktif"; // aktif veya gecmis
+        let gosterimModu = "aktif"; 
         
         let depoSayac = parseInt(localStorage.getItem('mskDepoSayac')) || 1000;
-        let planSayac = parseInt(localStorage.getItem('mskPlanSayac')) || 1000; // TTP yerine MSK-1000
+        let planSayac = parseInt(localStorage.getItem('mskPlanSayac')) || 1000; 
         
         let planAktifKod = "";
         let ttpYuklenenListe = []; 
 
-        // FORM YARDIMCILARI
         document.getElementById('btnYeniUrunAc').addEventListener('click', () => {
             document.querySelectorAll('.compact-grid input, .compact-grid textarea').forEach(el => el.value = '');
             document.getElementById('urunDurumu').value = "MSK Merkez Depoda Teslim Alındı.";
@@ -354,7 +352,6 @@
             return Date.now();
         }
 
-        // DEPO KAYIT İŞLEMİ
         document.getElementById('kaydetBtn').addEventListener('click', async () => {
             const urunKodu = document.getElementById('urunKodu').value.toUpperCase();
             let tarih = document.getElementById('tarih').value || new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -394,7 +391,6 @@
             } catch (error) { alert("Hata oluştu."); }
         });
 
-        // TABLO SEKME GEÇİŞLERİ (AKTİF / GEÇMİŞ)
         document.getElementById('btnTabAktif').addEventListener('click', () => {
             gosterimModu = "aktif";
             document.getElementById('btnTabAktif').classList.replace('inactive', 'active');
@@ -408,9 +404,8 @@
             tabloyuCiz();
         });
 
-        // VERİ ÇEKME VE LİSTELEME
         onSnapshot(collection(db, "tir_planlari"), (snapshot) => {
-            anlikTtpListesi = []; snapshot.forEach(d => anlikTtpListesi.push(d.data()));
+            anlikTtpListesi = []; snapshot.forEach(d => anlikTtpListesi.push({ id: d.id, ...d.data() }));
             ttpKartlariniCiz(); tabloyuCiz(); 
         });
 
@@ -419,19 +414,19 @@
             tabloyuCiz(); if(document.getElementById('ttpModal').style.display === 'block') ttpEkraniniGuncelle();
         });
 
-        // KARTLAR VE İPTAL ET FONKSİYONU
-        window.planIptalEt = async function(kod) {
-            if(confirm("DİKKAT! Bu planın netleştirmesini iptal etmek üzeresiniz. Tırın içindeki tüm ürünler tekrar AKTİF HAVUZA düşecek. Onaylıyor musunuz?")) {
+        // GEÇMİŞTEN AKTİFE GERİ DÖNDÜRME (İPTAL ET)
+        window.planIptalEt = async function(kodId) {
+            if(confirm("DİKKAT! Netleştirmeyi iptal etmek üzeresiniz. Bu tırdaki tüm ürünler 'Aktif Havuz' sekmesine geri düşecek. Onaylıyor musunuz?")) {
                 try {
-                    const plan = anlikTtpListesi.find(p => p.planKodu === kod);
-                    await setDoc(doc(db, "tir_planlari", kod), { netlesti: false, plaka: "" }, { merge: true });
+                    const plan = anlikTtpListesi.find(p => p.id === kodId);
+                    await setDoc(doc(db, "tir_planlari", kodId), { netlesti: false, plaka: "" }, { merge: true });
                     
                     if(plan && plan.yukler) {
                         for (let u of plan.yukler) {
                             await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: false, bagliTirKodu: "", urunDurumu: "MSK Merkez Depoda Teslim Alındı." }, { merge: true });
                         }
                     }
-                    alert("İptal işlemi başarılı! Ürünler tekrar havuza döndü.");
+                    alert("İptal Başarılı! Ürünler aktif havuza geri döndü.");
                 } catch(err) { alert("Hata oluştu."); }
             }
         };
@@ -443,18 +438,21 @@
             anlikTtpListesi.sort((a, b) => b.timestamp - a.timestamp);
             let html = "";
             anlikTtpListesi.forEach(plan => {
+                const gercekKod = plan.planKodu || plan.ttpKodu || plan.id; // Hata temizleyici
                 const isNet = plan.netlesti ? 'netlesmis' : '';
                 const btnText = plan.netlesti ? "Görüntüle (Yüklendi)" : "Düzenle";
-                const iptalBtn = plan.netlesti ? `<button style="background:#f39c12; flex:0.6;" onclick="planIptalEt('${plan.planKodu}')">İptal Et</button>` : '';
+                
+                const iptalBtn = plan.netlesti ? `<button style="background:#f39c12; flex:0.6;" onclick="planIptalEt('${plan.id}')">İptal Et</button>` : '';
+                
                 html += `
                 <div class="ttp-card ${isNet}">
-                    <h3>${plan.planAdi || plan.planKodu}</h3>
-                    <span class="kod">${plan.planKodu} ${plan.plaka ? `| 🚚 ${plan.plaka}` : ''}</span>
+                    <h3>${plan.planAdi || gercekKod}</h3>
+                    <span class="kod">${gercekKod} ${plan.plaka ? `| 🚚 ${plan.plaka}` : ''}</span>
                     <div class="detay">📦 İçindeki Yük: <strong>${plan.yukler ? plan.yukler.length : 0} Parça</strong></div>
                     <div class="ttp-card-actions">
-                        <button style="background:#3498db;" onclick="ttpDuzenle('${plan.planKodu}')">${btnText}</button>
+                        <button style="background:#3498db;" onclick="ttpDuzenle('${plan.id}')">${btnText}</button>
                         ${iptalBtn}
-                        <button style="background:#e74c3c; flex:0.4;" onclick="ttpSil('${plan.planKodu}')">Sil</button>
+                        <button style="background:#e74c3c; flex:0.4;" onclick="ttpSil('${plan.id}')">Sil</button>
                     </div>
                 </div>`;
             });
@@ -483,11 +481,10 @@
             gosterilecekListe.forEach((veri) => {
                 let kOdeHtml = veri.kapidaOdeme === "Evet" ? `K.Ö: EVET<br>${veri.kapidaOdemeMiktari}` : "K.Ö: Hayır";
                 
-                // Eğer Geçmiş sekmesindeysek, aracın kodunu ve plakasını vurgulu göster
                 let rotaDurumAlani = "";
                 if(gosterimModu === "aktif") {
                     const urununPlanlari = anlikTtpListesi.filter(p => p.yukler && !p.netlesti && p.yukler.some(y => y.urunKodu === veri.urunKodu));
-                    let planHtml = urununPlanlari.length > 0 ? `<br><span class="badge" style="background:#8e44ad;">Taslak: ${urununPlanlari.map(p => p.planKodu).join(', ')}</span>` : "";
+                    let planHtml = urununPlanlari.length > 0 ? `<br><span class="badge" style="background:#8e44ad;">Taslak: ${urununPlanlari.map(p => p.planKodu || p.ttpKodu).join(', ')}</span>` : "";
                     rotaDurumAlani = `
                         <span class="badge">Nereye: ${veri.hedef}</span><br>
                         <span class="badge badge-status" style="background:#34495e;">Nereden: ${veri.yuklemeAdresi}</span><br>
@@ -505,10 +502,12 @@
                 let hizliBtn = (gosterimModu === "aktif" && veri.urunDurumu !== "MSK Merkez Depoda Teslim Alındı.") ? `<button class="btn-depoya-al" data-kod="${veri.urunKodu}">Depoya Al</button>` : "";
                 
                 let islemButonlari = "";
+                let linkKodu = (veri.aracaYuklendi && veri.bagliTirKodu) ? veri.bagliTirKodu : veri.urunKodu;
+                
                 if(gosterimModu === "aktif") {
-                    islemButonlari = `${hizliBtn}<button class="btn-duzenle" data-kod="${veri.urunKodu}">Düzenle</button><button class="btn-link" data-kod="${veri.urunKodu}">Link</button><button class="btn-sil" data-id="${veri.id}">Sil</button>`;
+                    islemButonlari = `${hizliBtn}<button class="btn-duzenle" data-kod="${veri.urunKodu}">Düzenle</button><button class="btn-link" data-kod="${linkKodu}">Link</button><button class="btn-sil" data-id="${veri.id}">Sil</button>`;
                 } else {
-                    islemButonlari = `<button class="btn-link" data-kod="${veri.urunKodu}">Müşteri Linkini Kopyala</button>`;
+                    islemButonlari = `<button class="btn-link" data-kod="${linkKodu}">Müşteri Linki (MSK)</button>`;
                 }
 
                 html += `
@@ -561,7 +560,7 @@
             }
         });
 
-        // --- MSK TIR PLANLAMA & NETLEŞTİR (KARGOYA AKTAR) ---
+        // --- MSK TIR PLANLAMA & SÜRÜKLE BIRAK SİSTEMİ ---
         document.getElementById('btnPlanSifirla').addEventListener('click', () => {
             if(confirm("Tır Planı (MSK) sayacını 1000'den başlatmak istiyor musunuz?")) {
                 planSayac = 1000; localStorage.setItem('mskPlanSayac', planSayac);
@@ -577,19 +576,35 @@
 
         document.getElementById('btnTtpKapat').addEventListener('click', () => document.getElementById('ttpModal').style.display = 'none');
 
-        window.ttpDuzenle = function(kod) {
-            const plan = anlikTtpListesi.find(p => p.planKodu === kod);
+        window.ttpDuzenle = function(kodId) {
+            const plan = anlikTtpListesi.find(p => p.id === kodId);
             if(plan) {
-                planAktifKod = plan.planKodu; document.getElementById('aktifPlanBaslik').innerText = plan.planKodu;
-                document.getElementById('ttpPlanAdiInput').value = plan.planAdi || ""; ttpYuklenenListe = plan.yukler ? [...plan.yukler] : [];
+                planAktifKod = plan.planKodu || plan.ttpKodu || plan.id; 
+                document.getElementById('aktifPlanBaslik').innerText = planAktifKod;
+                document.getElementById('ttpPlanAdiInput').value = plan.planAdi || ""; 
+                ttpYuklenenListe = plan.yukler ? [...plan.yukler] : [];
                 ttpEkraniniGuncelle(); document.getElementById('ttpModal').style.display = 'block';
             }
         };
 
-        window.ttpSil = async function(kod) { if(confirm("Tır planı silinsin mi? (Yükler depoda kalır)")) await deleteDoc(doc(db, "tir_planlari", kod)); };
+        window.ttpSil = async function(kodId) { if(confirm("Tır planını tamamen silmek istediğinize emin misiniz?")) await deleteDoc(doc(db, "tir_planlari", kodId)); };
+
+        // SÜRÜKLE BIRAK (DRAG & DROP) FONKSİYONLARI
+        window.draggedIndex = null;
+        window.startDrag = function(index) { window.draggedIndex = index; };
+        window.allowDrop = function(ev) { ev.preventDefault(); };
+        window.dropDrag = function(index) {
+            if (window.draggedIndex !== null && window.draggedIndex !== index) {
+                const temp = ttpYuklenenListe[window.draggedIndex];
+                ttpYuklenenListe.splice(window.draggedIndex, 1);
+                ttpYuklenenListe.splice(index, 0, temp);
+                ttpEkraniniGuncelle();
+            }
+            window.draggedIndex = null;
+        };
 
         function ttpEkraniniGuncelle() {
-            const plan = anlikTtpListesi.find(p => p.planKodu === planAktifKod);
+            const plan = anlikTtpListesi.find(p => (p.planKodu || p.ttpKodu || p.id) === planAktifKod);
             const isNet = plan && plan.netlesti;
             
             document.getElementById('btnTtpKaydet').style.display = isNet ? 'none' : 'inline-block';
@@ -599,7 +614,10 @@
             anlikDepoListesi.forEach(urun => {
                 if (!urun.aracaYuklendi && !ttpYuklenenListe.some(y => y.urunKodu === urun.urunKodu)) {
                     bekleyenHtml += `<div class="yuk-karti">
-                        <div class="yuk-info"><strong>${urun.urunKodu} - ${urun.urunAdi}</strong><span>📍 H: ${urun.hedef} | 📦 ${urun.parca} Prç</span></div>
+                        <div class="yuk-info">
+                            <strong style="display:block;">A: ${urun.aliciAdi || '-'} | G: ${urun.referans || '-'}</strong>
+                            <span>📍 H: ${urun.hedef} | 📦 ${urun.parca} Prç | 📏 ${urun.ldm} LDM</span>
+                        </div>
                         ${!isNet ? `<button class="btn-ekle" style="background:#2ecc71;" onclick="ttpyeEkle('${urun.urunKodu}')">Ekle ➔</button>` : ''}
                     </div>`;
                 }
@@ -608,11 +626,12 @@
 
             let yuklenenHtml = "";
             ttpYuklenenListe.forEach((urun, index) => {
-                yuklenenHtml += `<div class="yuk-karti" style="border-left: 4px solid #3498db;">
-                    <div class="yuk-info"><strong>${index + 1}. SIRA | ${urun.urunKodu}</strong><span>📍 H: ${urun.hedef} | 📦 ${urun.parca} Prç</span></div>
+                yuklenenHtml += `<div class="yuk-karti" ${!isNet ? `draggable="true" ondragstart="startDrag(${index})" ondragover="allowDrop(event)" ondrop="dropDrag(${index})"` : ''} style="border-left: 4px solid #3498db; cursor: ${!isNet ? 'grab' : 'default'};">
+                    <div class="yuk-info" style="pointer-events:none;">
+                        <strong style="display:block;">${index + 1}. A: ${urun.aliciAdi || '-'} | G: ${urun.referans || '-'}</strong>
+                        <span>📍 H: ${urun.hedef} | 📦 ${urun.parca} Prç | 📏 ${urun.ldm} LDM</span>
+                    </div>
                     ${!isNet ? `<div>
-                        ${index > 0 ? `<button class="sira-btn" onclick="ttpSiraDegistir(${index}, -1)">⬆</button>` : ''}
-                        ${index < ttpYuklenenListe.length - 1 ? `<button class="sira-btn" onclick="ttpSiraDegistir(${index}, 1)">⬇</button>` : ''}
                         <button class="btn-cikar" style="background:#e74c3c;" onclick="ttptenCikar('${urun.urunKodu}')">✖</button>
                     </div>` : ''}
                 </div>`;
@@ -622,9 +641,6 @@
 
         window.ttpyeEkle = function(kod) { const u = anlikDepoListesi.find(x => x.urunKodu === kod); if(u) { ttpYuklenenListe.push(u); ttpEkraniniGuncelle(); } };
         window.ttptenCikar = function(kod) { ttpYuklenenListe = ttpYuklenenListe.filter(u => u.urunKodu !== kod); ttpEkraniniGuncelle(); };
-        window.ttpSiraDegistir = function(index, yon) {
-            const temp = ttpYuklenenListe[index]; ttpYuklenenListe[index] = ttpYuklenenListe[index + yon]; ttpYuklenenListe[index + yon] = temp; ttpEkraniniGuncelle();
-        };
 
         document.getElementById('btnTtpKaydet').addEventListener('click', async () => {
             if (ttpYuklenenListe.length === 0) return alert("Plan boş!");
@@ -636,7 +652,7 @@
         });
 
         document.getElementById('btnTtpNetlestir').addEventListener('click', async () => {
-            const plan = anlikTtpListesi.find(p => p.planKodu === planAktifKod);
+            const plan = anlikTtpListesi.find(p => (p.planKodu || p.ttpKodu || p.id) === planAktifKod);
             if(plan && plan.netlesti) return alert("Bu araç zaten yüklendi ve kargoya aktarıldı!");
             
             if (ttpYuklenenListe.length === 0) return alert("Plan boş!");
@@ -669,8 +685,6 @@
                 if(planAktifKod === "MSK-" + planSayac) { planSayac++; localStorage.setItem('mskPlanSayac', planSayac); }
                 alert("Harika! Ürünler araca yüklendi ve Kargo Takip Sistemine aktarıldı!");
                 document.getElementById('ttpModal').style.display = 'none';
-                
-                // Başarılı işlem sonrası "Geçmiş Yükler" sekmesine geçiş yaptır
                 document.getElementById('btnTabGecmis').click();
             } catch(e) { alert("Hata oluştu."); }
         });
