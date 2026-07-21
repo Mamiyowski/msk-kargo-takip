@@ -60,10 +60,10 @@
 </head>
 <body>
 
-    <!-- YENİ: ŞİFRE EKRANI -->
+    <!-- ŞİFRE EKRANI -->
     <div id="loginEkrani">
         <div class="login-box">
-            <img src="MSK-GLOBAL-2022-LOGO-removebg-preview-1.png" alt="MSK Logo" style="max-width: 150px; margin-bottom: 20px;">
+            <img src="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" alt="MSK Logo" style="max-width: 150px; margin-bottom: 20px;">
             <h2>Yönetici Girişi</h2>
             <input type="password" id="sifreInput" placeholder="Sistem Şifresi">
             <button id="girisBtn">Sistemi Aç</button>
@@ -74,13 +74,13 @@
     <!-- ANA SİSTEM (Giriş Yapılana Kadar Gizli) -->
     <div id="anaSistem">
         <div class="header">
-            <img src="MSK-GLOBAL-2022-LOGO-removebg-preview-1.png" alt="MSK Global Lojistik">
+            <img src="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" alt="MSK Global Lojistik">
         </div>
 
         <div class="dashboard-wrapper">
             <div class="admin-container">
                 <h2>🚚 Yoldaki Aktif Tırlar</h2>
-                <p class="info-text" style="text-align: center; margin-bottom: 20px;">Güncellemek istediğiniz tırın kodunu seçebilir, müşteriye kopyalayabilir veya hatalı aşamaları detaylardan silebilirsiniz.</p>
+                <p class="info-text" style="text-align: center; margin-bottom: 20px;">Güncellemek istediğiniz tırın kodunu seçebilir, müşteriye kopyalayabilir veya hatalı aşamaları detaylardan silebilirsiniz. <br> <strong style="color:#e74c3c;">(Depo yükleri burada gizlenmiştir, sadece tırlar görünür.)</strong></p>
                 <div id="aktifTirlarListesi">
                     <p style="text-align:center; color:#7f8c8d;">Sistemdeki araçlar yükleniyor...</p>
                 </div>
@@ -89,15 +89,14 @@
             <div class="admin-container">
                 <h2>Yeni Aşama Ekle</h2>
                 <div class="form-group">
-                    <label>Takip Kodu</label>
+                    <label>Takip Kodu (Tır Kodu)</label>
                     <div class="flex-group">
-                        <input type="text" id="kargoKodu" placeholder="Kodu yazın veya üretin ->" style="text-transform: uppercase;">
-                        <button type="button" id="kodUretBtn" class="btn-action">Yeni Kod Üret</button>
+                        <input type="text" id="kargoKodu" placeholder="Örn: MSK-1000" style="text-transform: uppercase;">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Tır Plakası</label>
-                    <input type="text" id="tirPlakasi" placeholder="Örn: 06 MSK 06" style="text-transform: uppercase;">
+                    <input type="text" id="tirPlakasi" placeholder="Örn: 34 MSK 01" style="text-transform: uppercase;">
                 </div>
                 <div class="form-group">
                     <label>Şu Anki Konum</label>
@@ -116,7 +115,7 @@
                 <div class="form-group">
                     <label>Tarih ve Saat</label>
                     <div class="flex-group">
-                        <input type="text" id="tarih" placeholder="Örn: 19 Mayıs 2026, 08:30">
+                        <input type="text" id="tarih" placeholder="Örn: 20 Temmuz 2026, 08:30">
                         <button type="button" id="simdiBtn" class="btn-action">Şu An</button>
                     </div>
                 </div>
@@ -128,7 +127,7 @@
                     </div>
                     <input type="text" id="ozelMesaj" placeholder="Müşteriye gösterilecek özel mesajı buraya yazın..." style="display:none; margin-top:10px; border-color:#e74c3c;">
                 </div>
-                <button id="kaydetBtn">Sisteme Ekle / Güncelle</button>
+                <button id="kaydetBtn">Tır Konumunu Güncelle</button>
             </div>
         </div>
 
@@ -147,18 +146,19 @@
         import { getFirestore, doc, setDoc, getDoc, arrayUnion, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
-            authDomain: "msk-global---kargo-takip.firebaseapp.com",
-            projectId: "msk-global---kargo-takip",
-            storageBucket: "msk-global---kargo-takip.firebasestorage.app",
-            messagingSenderId: "608864535211",
-            appId: "1:608864535211:web:2fa07474ab410fc87fadee",
-            measurementId: "G-VXK3KR1LY8"
-           };
+  apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
+  authDomain: "msk-global---kargo-takip.firebaseapp.com",
+  projectId: "msk-global---kargo-takip",
+  storageBucket: "msk-global---kargo-takip.firebasestorage.app",
+  messagingSenderId: "608864535211",
+  appId: "1:608864535211:web:2fa07474ab410fc87fadee",
+  measurementId: "G-VXK3KR1LY8"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // ŞİFRE SİSTEMİ
         const dogruSifre = "MSK2026"; 
         const loginEkrani = document.getElementById('loginEkrani');
         const anaSistem = document.getElementById('anaSistem');
@@ -184,11 +184,10 @@
             }
         });
 
-        sifreInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') girisBtn.click();
-        });
+        sifreInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') girisBtn.click(); });
 
 
+        // SİSTEM KODLARI
         let guncelSeciliDocId = "";
         let guncelSeciliHareketler = [];
 
@@ -215,14 +214,23 @@
             try {
                 const querySnapshot = await getDocs(collection(db, "sevkiyatlar"));
                 if (querySnapshot.empty) {
-                    listeDiv.innerHTML = "<div style='padding: 20px; background: #eef2f5; border-radius: 6px; text-align: center; border-left: 4px solid #00c3ff;'><strong style='color: #0b1c38; font-size: 15px;'>Şu anda mevcut tır bulunmamaktadır.</strong><br><span style='font-size:13px; color:#6c7a89;'>Yeni bir sevkiyat olduğunda yanda bulunan alandan ekleyebilirsiniz.</span></div>";
+                    listeDiv.innerHTML = "<div style='padding: 20px; background: #eef2f5; border-radius: 6px; text-align: center; border-left: 4px solid #00c3ff;'><strong style='color: #0b1c38; font-size: 15px;'>Şu anda mevcut tır bulunmamaktadır.</strong></div>";
                     return;
                 }
                 
                 let html = "";
+                let gosterilenTirSayisi = 0;
+
                 querySnapshot.forEach((docSnap) => {
                     const veri = docSnap.data();
                     const gercekDocId = docSnap.id; 
+                    
+                    // 🌟 İŞTE SİHİRLİ FİLTRE: DEP- İLE BAŞLAYAN DEPO YÜKLERİNİ BU LİSTEYE EKLEME!
+                    if (veri.takipKodu && veri.takipKodu.startsWith("DEP-")) {
+                        return; 
+                    }
+
+                    gosterilenTirSayisi++;
                     
                     html += `
                     <div class="truck-item">
@@ -231,14 +239,20 @@
                             <span class="truck-code">[${veri.takipKodu}]</span>
                         </div>
                         <div class="truck-actions">
-                            <button class="btn-kopyala" data-kod="${veri.takipKodu}">Kodu Kopyala</button>
+                            <button class="btn-kopyala" data-kod="${veri.takipKodu}">Müşteri Linki</button>
                             <button class="btn-sec" data-kod="${veri.takipKodu}">Seç</button>
                             <button class="btn-detay" data-docid="${gercekDocId}">Detaylar</button>
                             <button class="btn-delete" data-docid="${gercekDocId}" data-kod="${veri.takipKodu}">Bitir/Sil</button>
                         </div>
                     </div>`;
                 });
-                listeDiv.innerHTML = html;
+
+                if(gosterilenTirSayisi === 0) {
+                    listeDiv.innerHTML = "<div style='padding: 20px; background: #eef2f5; border-radius: 6px; text-align: center; border-left: 4px solid #00c3ff;'><strong style='color: #0b1c38; font-size: 15px;'>Şu anda yolda aktif tır bulunmamaktadır.</strong><br><span style='font-size:13px; color:#6c7a89;'>Depo yükleri panelden gizlenmiştir. Sadece tır planları listelenir.</span></div>";
+                } else {
+                    listeDiv.innerHTML = html;
+                }
+                
             } catch (error) {
                 listeDiv.innerHTML = "<p style='color:red;'>Araçlar yüklenirken hata oluştu!</p>";
             }
@@ -247,12 +261,14 @@
         document.getElementById('aktifTirlarListesi').addEventListener('click', async (e) => {
             if (e.target.classList.contains('btn-sec')) {
                 document.getElementById('kargoKodu').value = e.target.getAttribute('data-kod');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
             
             if (e.target.classList.contains('btn-kopyala')) {
                 const kopyalanacakKod = e.target.getAttribute('data-kod');
-                navigator.clipboard.writeText(kopyalanacakKod).then(() => {
-                    alert(kopyalanacakKod + " panoya kopyalandı!");
+                const link = `https://kargotakip.mskglobal.com.tr/?kargo=${kopyalanacakKod}`;
+                navigator.clipboard.writeText(link).then(() => {
+                    alert("Tır takip linki kopyalandı:\n" + link);
                 });
             }
 
@@ -327,6 +343,7 @@
         const varsayilanDurumlar = [
             "Araç Yüklendi, Yola Çıktı.",
             "Yolda.",
+            "Gümrük İşlemleri Bekleniyor.",
             "Teslimat Bölgelerine Dağıtım Sürüyor."
         ];
         let durumVerileri = JSON.parse(localStorage.getItem('mskDurumHafizasi')) || varsayilanDurumlar;
@@ -361,10 +378,6 @@
                     durumSec.dispatchEvent(new Event('change'));
                 }
             }
-        });
-
-        document.getElementById('kodUretBtn').addEventListener('click', () => {
-            document.getElementById('kargoKodu').value = "MSK-" + Math.floor(100000 + Math.random() * 900000);
         });
 
         const varsayilanKonumlar = {

@@ -273,7 +273,7 @@
             
             <div class="ttp-split">
                 <div class="ttp-box">
-                    <h3 style="text-align: center; border-bottom:2px solid #ddd; padding-bottom:10px; margin-bottom:10px;">📦 Aktif Depodaki Yükler</h3>
+                    <h3 style="text-align: center; border-bottom:2px solid #ddd; padding-bottom:10px; margin-bottom:10px;">📦 Havuzdaki Yükler</h3>
                     <div id="ttpBekleyenler"></div>
                 </div>
                 
@@ -414,6 +414,7 @@
             tabloyuCiz(); if(document.getElementById('ttpModal').style.display === 'block') ttpEkraniniGuncelle();
         });
 
+        // 🌟 GEÇMİŞTEN AKTİFE GERİ DÖNDÜRME (İPTAL ET)
         window.planIptalEt = async function(kodId) {
             if(confirm("DİKKAT! Netleştirmeyi iptal etmek üzeresiniz. Bu tırdaki tüm ürünler 'Aktif Havuz' sekmesine geri düşecek. Onaylıyor musunuz?")) {
                 try {
@@ -430,6 +431,28 @@
             }
         };
 
+        // 🌟 EĞER TIR PLANI DİREKT SİLİNİRSE YÜKLERİ HAVUZA GERİ DÖNDÜR!
+        window.ttpSil = async function(kodId) { 
+            if(confirm("DİKKAT! Tır planını tamamen silmek istediğinize emin misiniz? (İçindeki yükler tekrar Aktif Havuz'a dönecektir.)")) {
+                try {
+                    const plan = anlikTtpListesi.find(p => p.id === kodId);
+                    if(plan && plan.yukler) {
+                        for (let u of plan.yukler) {
+                            await setDoc(doc(db, "depo_envanter", u.urunKodu), { 
+                                aracaYuklendi: false, 
+                                bagliTirKodu: "", 
+                                urunDurumu: "MSK Merkez Depoda Teslim Alındı." 
+                            }, { merge: true });
+                        }
+                    }
+                    await deleteDoc(doc(db, "tir_planlari", kodId));
+                    alert("Plan silindi ve içindeki tüm ürünler havuza geri döndü!");
+                } catch(e) {
+                    alert("Silinirken hata oluştu.");
+                }
+            } 
+        };
+
         function ttpKartlariniCiz() {
             const container = document.getElementById('ttpKartlariListesi');
             if (anlikTtpListesi.length === 0) return container.innerHTML = '<p style="color:#777; width:100%; text-align:center;">Kayıtlı plan yok.</p>';
@@ -440,7 +463,6 @@
                 const gercekKod = plan.planKodu || plan.ttpKodu || plan.id; 
                 const isNet = plan.netlesti ? 'netlesmis' : '';
                 const btnText = plan.netlesti ? "Görüntüle (Yüklendi)" : "Düzenle";
-                
                 const iptalBtn = plan.netlesti ? `<button style="background:#f39c12; flex:0.6;" onclick="planIptalEt('${plan.id}')">İptal Et</button>` : '';
                 
                 html += `
@@ -586,8 +608,6 @@
             }
         };
 
-        window.ttpSil = async function(kodId) { if(confirm("Tır planını tamamen silmek istediğinize emin misiniz?")) await deleteDoc(doc(db, "tir_planlari", kodId)); };
-
         // SÜRÜKLE BIRAK (DRAG & DROP)
         window.draggedIndex = null;
         window.startDrag = function(index) { window.draggedIndex = index; };
@@ -648,7 +668,6 @@
             } catch(e) { alert("Hata."); }
         });
 
-        // 🌟 YENİ NETLEŞTİRME MESAJLARI VE KARGO AKTARIMI 🌟
         document.getElementById('btnTtpNetlestir').addEventListener('click', async () => {
             const plan = anlikTtpListesi.find(p => (p.planKodu || p.ttpKodu || p.id) === planAktifKod);
             if(plan && plan.netlesti) return alert("Bu araç zaten yüklendi ve kargoya aktarıldı!");
@@ -662,7 +681,6 @@
             const sSayi = Date.now();
 
             try {
-                // Tırın Kendisine Düşen Not
                 await setDoc(doc(db, "sevkiyatlar", planAktifKod), {
                     takipKodu: planAktifKod, tirPlakasi: plaka,
                     hareketler: arrayUnion({ tarih: sZaman, durum: "Yükleme İşlemleri Başladı, Çıkış Bekliyor.", konum: "MSK Merkez Depo", timestamp: sSayi })
@@ -675,8 +693,6 @@
 
                 for(let u of ttpYuklenenListe) {
                     await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: true, bagliTirKodu: planAktifKod, plaka: plaka, urunDurumu: "Araca Yükleniyor..." }, { merge: true });
-                    
-                    // Ürünün (Müşterinin) Takip Ekranına Düşen Not
                     await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { 
                         bagliTirKodu: planAktifKod, 
                         hareketler: arrayUnion({ tarih: sZaman, durum: "Ürününüz Araca Yükleniyor...", konum: "MSK Merkez Depo", timestamp: sSayi }) 
