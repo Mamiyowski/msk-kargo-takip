@@ -22,11 +22,12 @@
         .full-width { grid-column: span 2; }
         
         .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; color: #555; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; outline: none; }
-        .form-group input:focus, .form-group select:focus { border-color: #2ecc71; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; outline: none; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #2ecc71; }
+        .form-group textarea { resize: vertical; min-height: 60px; }
         
-        .flex-group { display: flex; gap: 10px; }
-        .flex-group input { flex: 1; text-transform: uppercase; font-weight: bold; }
+        .flex-group { display: flex; gap: 5px; }
+        .flex-group input, .flex-group select { flex: 1; text-transform: uppercase; font-weight: bold; }
         .btn-action { margin-top: 0 !important; width: auto !important; padding: 10px 15px !important; background-color: #0b1c38; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; }
         .btn-action:hover { background-color: #152d54; }
 
@@ -48,12 +49,17 @@
         .badge-status { background-color: #f39c12; }
         .code-badge { color: #e74c3c; font-weight: bold; font-size: 14px; }
         .info-text { font-size: 12px; color: #777; margin-top: 3px; }
+        .note-text { font-size: 12px; color: #8e44ad; font-style: italic; display: block; margin-top: 4px; }
         
         .action-btns { display: flex; flex-direction: column; gap: 5px; }
         .btn-sil { background-color: #e74c3c; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;}
         .btn-sil:hover { background-color: #c0392b; }
         .btn-link { background-color: #27ae60; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
         .btn-link:hover { background-color: #2ecc71; }
+        .btn-duzenle { background-color: #3498db; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .btn-duzenle:hover { background-color: #2980b9; }
+        .btn-depoya-al { background-color: #f39c12; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .btn-depoya-al:hover { background-color: #d35400; }
     </style>
 </head>
 <body>
@@ -65,15 +71,16 @@
     <div class="dashboard">
         
         <div class="form-container">
-            <h2>📥 Depoya Ürün Ekle</h2>
+            <h2>📥 Depoya Ürün Ekle / Düzenle</h2>
             
             <div class="form-grid">
                 
                 <div class="form-group full-width">
                     <label>Depo Kabul Kodu</label>
                     <div class="flex-group">
-                        <input type="text" id="urunKodu" placeholder="Kodu üretin ->">
-                        <button type="button" id="kodUretBtn" class="btn-action">Kod Üret</button>
+                        <input type="text" id="urunKodu" placeholder="DEP-1000">
+                        <button type="button" id="kodUretBtn" class="btn-action">Sıradaki Kod</button>
+                        <button type="button" id="kodSifirlaBtn" class="btn-action" style="background-color:#e74c3c;" title="Sayacı 1000'e Sıfırla">↺</button>
                     </div>
                 </div>
 
@@ -142,25 +149,33 @@
 
                 <div class="form-group">
                     <label>Kapıda Ödeme</label>
-                    <select id="kapidaOdeme">
-                        <option value="Hayır">Hayır</option>
-                        <option value="Evet">Evet</option>
-                    </select>
+                    <div class="flex-group">
+                        <select id="kapidaOdeme" style="flex: 1;">
+                            <option value="Hayır">Hayır</option>
+                            <option value="Evet">Evet</option>
+                        </select>
+                        <input type="text" id="kapidaOdemeMiktari" placeholder="Miktar" style="display:none; flex: 1;">
+                    </div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label>Açıklama / Özel Notlar (Eksik parça vb.)</label>
+                    <textarea id="notlar" placeholder="Örn: Ürün 2 parça eksik geldi, yarın tamamlanacak..."></textarea>
                 </div>
 
             </div>
 
-            <button id="kaydetBtn" class="btn-kaydet">Sisteme Kaydet</button>
+            <button id="kaydetBtn" class="btn-kaydet">Sisteme Kaydet / Güncelle</button>
         </div>
 
         <div class="table-container">
             <div class="table-header-flex">
                 <h2>📦 Anlık Depo Mevcudu</h2>
                 <select id="siralamaFiltresi" class="sort-select">
+                    <option value="durum_grupla">Duruma Göre Grupla (Önce Depodakiler)</option>
                     <option value="tarih_yeni">Tarih (En Yeni)</option>
                     <option value="tarih_eski">Tarih (En Eski)</option>
                     <option value="konum_az">Hedefe Göre (A-Z)</option>
-                    <option value="konum_za">Hedefe Göre (Z-A)</option>
                 </select>
             </div>
             
@@ -185,7 +200,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, setDoc, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, setDoc, onSnapshot, doc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
   apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
@@ -201,7 +216,9 @@
         const db = getFirestore(app);
 
         let anlikDepoListesi = [];
-        let siralamaModu = "tarih_yeni";
+        let siralamaModu = "durum_grupla";
+        
+        let depoSayac = parseInt(localStorage.getItem('mskDepoSayac')) || 1000;
 
         document.getElementById('simdiBtn').addEventListener('click', () => {
             document.getElementById('tarih').value = new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -216,10 +233,28 @@
                 manuelYukleme.style.display = 'none';
             }
         });
+        
+        const kapidaOdemeSec = document.getElementById('kapidaOdeme');
+        const kapidaOdemeMiktari = document.getElementById('kapidaOdemeMiktari');
+        kapidaOdemeSec.addEventListener('change', () => {
+            if(kapidaOdemeSec.value === "Evet") {
+                kapidaOdemeMiktari.style.display = 'block';
+            } else {
+                kapidaOdemeMiktari.style.display = 'none';
+                kapidaOdemeMiktari.value = '';
+            }
+        });
 
         document.getElementById('kodUretBtn').addEventListener('click', () => {
-            const rastgeleSayi = Math.floor(100000 + Math.random() * 900000);
-            document.getElementById('urunKodu').value = "DEP-" + rastgeleSayi;
+            document.getElementById('urunKodu').value = "DEP-" + depoSayac;
+        });
+
+        document.getElementById('kodSifirlaBtn').addEventListener('click', () => {
+            if(confirm("Sayacı DEP-1000'den başlayacak şekilde sıfırlamak istiyor musunuz?")) {
+                depoSayac = 1000;
+                localStorage.setItem('mskDepoSayac', depoSayac);
+                document.getElementById('urunKodu').value = "DEP-" + depoSayac;
+            }
         });
 
         function tarihMetniniCevir(tarihMetni) {
@@ -256,6 +291,8 @@
             const ldm = document.getElementById('ldm').value;
             const fiyat = document.getElementById('fiyat').value;
             const kapidaOdeme = document.getElementById('kapidaOdeme').value;
+            const miktar = document.getElementById('kapidaOdemeMiktari').value;
+            const notlar = document.getElementById('notlar').value;
             
             if(tarih === "") tarih = new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
             const timestamp = tarihMetniniCevir(tarih);
@@ -268,17 +305,20 @@
             try {
                 await setDoc(doc(db, "depo_envanter", urunKodu), {
                     urunKodu, tarih, urunDurumu, yuklemeAdresi, referans, aliciAdi, urunAdi, hedef, 
-                    parca: parca || "-", ldm: ldm || "-", fiyat: fiyat || "-", kapidaOdeme, timestamp
+                    parca: parca || "-", ldm: ldm || "-", fiyat: fiyat || "-", kapidaOdeme, kapidaOdemeMiktari: miktar, notlar, timestamp
                 });
 
                 await setDoc(doc(db, "sevkiyatlar", urunKodu), {
                     takipKodu: urunKodu,
                     aliciAdi: aliciAdi,
                     tirPlakasi: "Depo / Hazırlık Aşamasında",
-                    hareketler: [
-                        { tarih: tarih, durum: urunDurumu, konum: yuklemeAdresi, timestamp: timestamp }
-                    ]
-                });
+                    hareketler: arrayUnion({ tarih: tarih, durum: urunDurumu, konum: yuklemeAdresi, timestamp: timestamp })
+                }, { merge: true });
+
+                if (urunKodu === "DEP-" + depoSayac) {
+                    depoSayac++;
+                    localStorage.setItem('mskDepoSayac', depoSayac);
+                }
 
                 document.getElementById('urunKodu').value = "";
                 document.getElementById('tarih').value = "";
@@ -289,9 +329,14 @@
                 document.getElementById('parca').value = "";
                 document.getElementById('ldm').value = "";
                 document.getElementById('fiyat').value = "";
+                document.getElementById('notlar').value = "";
+                kapidaOdemeSec.value = "Hayır";
+                kapidaOdemeMiktari.style.display = "none";
+                kapidaOdemeMiktari.value = "";
                 manuelYukleme.value = "";
                 yuklemeSec.value = "MSK GLOBAL DEPO";
                 manuelYukleme.style.display = "none";
+                document.getElementById('urunDurumu').value = "MSK Merkez Depoda Teslim Alındı.";
                 
             } catch (error) {
                 alert("Kaydedilirken hata oluştu.");
@@ -319,15 +364,30 @@
                 return;
             }
 
-            if (siralamaModu === "tarih_yeni") anlikDepoListesi.sort((a, b) => b.timestamp - a.timestamp);
-            if (siralamaModu === "tarih_eski") anlikDepoListesi.sort((a, b) => a.timestamp - b.timestamp);
-            if (siralamaModu === "konum_az") anlikDepoListesi.sort((a, b) => a.hedef.localeCompare(b.hedef));
-            if (siralamaModu === "konum_za") anlikDepoListesi.sort((a, b) => b.hedef.localeCompare(a.hedef));
+            if (siralamaModu === "durum_grupla") {
+                anlikDepoListesi.sort((a, b) => {
+                    if(a.urunDurumu === b.urunDurumu) return b.timestamp - a.timestamp;
+                    return a.urunDurumu.localeCompare(b.urunDurumu);
+                });
+            } else if (siralamaModu === "tarih_yeni") {
+                anlikDepoListesi.sort((a, b) => b.timestamp - a.timestamp);
+            } else if (siralamaModu === "tarih_eski") {
+                anlikDepoListesi.sort((a, b) => a.timestamp - b.timestamp);
+            } else if (siralamaModu === "konum_az") {
+                anlikDepoListesi.sort((a, b) => a.hedef.localeCompare(b.hedef));
+            }
 
             let html = "";
             anlikDepoListesi.forEach((veri) => {
                 let kapidaOdeRenk = veri.kapidaOdeme === "Evet" ? "#e74c3c" : "#777";
-                let kapidaOdeYazi = veri.kapidaOdeme === "Evet" ? "K. Ödeme: EVET" : "K. Ödeme: Hayır";
+                let kapidaOdeYazi = veri.kapidaOdeme === "Evet" ? "K. Ödeme: EVET<br>" + (veri.kapidaOdemeMiktari || "") : "K. Ödeme: Hayır";
+                
+                let notHtml = veri.notlar ? `<span class="note-text">📝 Not: ${veri.notlar}</span>` : "";
+                
+                let hizliButonHtml = "";
+                if (veri.urunDurumu !== "MSK Merkez Depoda Teslim Alındı.") {
+                    hizliButonHtml = `<button class="btn-depoya-al" data-kod="${veri.urunKodu}">Depoya Al</button>`;
+                }
 
                 html += `
                 <tr>
@@ -342,6 +402,7 @@
                     <td>
                         <strong>${veri.urunAdi}</strong><br>
                         <span class="info-text">${veri.parca} Prç. | ${veri.ldm} LDM</span>
+                        ${notHtml}
                     </td>
                     <td>
                         <span class="badge">Nereye: ${veri.hedef}</span><br>
@@ -354,6 +415,8 @@
                     </td>
                     <td>
                         <div class="action-btns">
+                            ${hizliButonHtml}
+                            <button class="btn-duzenle" data-kod="${veri.urunKodu}">Düzenle</button>
                             <button class="btn-link" data-kod="${veri.urunKodu}">Linki Kopyala</button>
                             <button class="btn-sil" data-id="${veri.id}">Sil</button>
                         </div>
@@ -377,6 +440,62 @@
                 navigator.clipboard.writeText(link).then(() => {
                     alert("Müşteri takip linki kopyalandı:\n" + link);
                 });
+            }
+            if (e.target.classList.contains('btn-duzenle')) {
+                const kod = e.target.getAttribute('data-kod');
+                const urun = anlikDepoListesi.find(u => u.urunKodu === kod);
+                if(urun) {
+                    document.getElementById('urunKodu').value = urun.urunKodu;
+                    document.getElementById('tarih').value = urun.tarih || "";
+                    document.getElementById('urunDurumu').value = urun.urunDurumu || "MSK Merkez Depoda Teslim Alındı.";
+                    if(urun.yuklemeAdresi === "MSK GLOBAL DEPO") {
+                         yuklemeSec.value = "MSK GLOBAL DEPO";
+                         manuelYukleme.style.display = "none";
+                    } else {
+                         yuklemeSec.value = "DİĞER";
+                         manuelYukleme.value = urun.yuklemeAdresi || "";
+                         manuelYukleme.style.display = "block";
+                    }
+                    document.getElementById('referans').value = urun.referans || "";
+                    document.getElementById('aliciAdi').value = urun.aliciAdi || "";
+                    document.getElementById('urunAdi').value = urun.urunAdi || "";
+                    document.getElementById('hedef').value = urun.hedef || "";
+                    document.getElementById('parca').value = urun.parca || "";
+                    document.getElementById('ldm').value = urun.ldm || "";
+                    document.getElementById('fiyat').value = urun.fiyat || "";
+                    
+                    document.getElementById('kapidaOdeme').value = urun.kapidaOdeme || "Hayır";
+                    if(urun.kapidaOdeme === "Evet") {
+                        kapidaOdemeMiktari.style.display = "block";
+                        kapidaOdemeMiktari.value = urun.kapidaOdemeMiktari || "";
+                    } else {
+                        kapidaOdemeMiktari.style.display = "none";
+                        kapidaOdemeMiktari.value = "";
+                    }
+                    
+                    document.getElementById('notlar').value = urun.notlar || "";
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+            if (e.target.classList.contains('btn-depoya-al')) {
+                const kod = e.target.getAttribute('data-kod');
+                const yeniZaman = new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const zamanSayi = Date.now();
+                
+                try {
+                    await setDoc(doc(db, "depo_envanter", kod), { 
+                        urunDurumu: "MSK Merkez Depoda Teslim Alındı.", 
+                        yuklemeAdresi: "MSK GLOBAL DEPO" 
+                    }, { merge: true });
+                    
+                    await setDoc(doc(db, "sevkiyatlar", kod), { 
+                        hareketler: arrayUnion({ tarih: yeniZaman, durum: "Ürün Merkez Depoya Ulaştı ve Teslim Alındı.", konum: "MSK GLOBAL DEPO", timestamp: zamanSayi }) 
+                    }, { merge: true });
+                    
+                    alert("Ürün başarıyla depoya alındı ve müşteri ekranı güncellendi!");
+                } catch(err) {
+                    alert("Güncellenirken hata oluştu!");
+                }
             }
         });
     </script>
