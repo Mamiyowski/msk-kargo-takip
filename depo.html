@@ -349,7 +349,7 @@
             } 
         };
 
-        // 🌟 LIFO EXCEL OLUŞTURUCU (ŞOFÖR İÇİN) - LOGO SIFIRA SIFIR YAPILDI 🌟
+        // 🌟 LIFO EXCEL OLUŞTURUCU (ŞOFÖR İÇİN) - LOGO DÜZELTİLDİ 🌟
         window.excelIndir = function(kodId) {
             const plan = anlikTtpListesi.find(p => p.id === kodId);
             if(!plan || !plan.yukler) return;
@@ -361,13 +361,13 @@
                 table { border-collapse: collapse; font-family: 'Arial', sans-serif; }
                 td, th { border: 2px solid #000; text-align: center; vertical-align: middle; padding: 10px; font-size: 11pt; word-wrap: break-word; }
             </style>
-            </head><body><table style="width: 1300px;"><thead>
-                <tr style="height: 60px;">
-                    <th colspan="2" style="border: 3px solid #000; background-color: #fff; padding: 0; vertical-align: middle; text-align: center;">
-                        <img src="https://i.ibb.co/sdQnxLYL/msk-global-lojistik-d-ticaret-ltd-ti-logo.jpg" width="180" height="60" style="display: block; width: 100%; height: 60px;" alt="MSK GLOBAL">
+            </head><body><table style="width: 1300px;" cellpadding="0" cellspacing="0"><thead>
+                <tr style="height: 70px;">
+                    <th colspan="2" style="border: 3px solid #000; background-color: #fff; padding: 0px; margin: 0px; vertical-align: middle; text-align: center; width: 180px;">
+                        <img src="https://i.ibb.co/sdQnxLYL/msk-global-lojistik-d-ticaret-ltd-ti-logo.jpg" width="175" height="60" alt="MSK GLOBAL" style="border: none;">
                     </th>
-                    <th colspan="4" style="border: 3px solid #000; font-size: 16pt; font-weight: bold;">MSK GLOBAL LOJİSTİK DIŞ.TİC.LTD.ŞTİ ${plan.plaka || plan.planKodu}</th>
-                    <th colspan="2" style="border: 3px solid #000; background-color: #f2f2f2; font-size: 14pt; font-weight: bold;">DAĞITIM LİSTESİ</th>
+                    <th colspan="4" style="border: 3px solid #000; font-size: 16pt; font-weight: bold; vertical-align: middle;">MSK GLOBAL LOJİSTİK DIŞ.TİC.LTD.ŞTİ ${plan.plaka || plan.planKodu}</th>
+                    <th colspan="2" style="border: 3px solid #000; background-color: #f2f2f2; font-size: 14pt; font-weight: bold; vertical-align: middle;">DAĞITIM LİSTESİ</th>
                 </tr>
                 <tr style="height: 50px;">
                     <th style="width: 60px;"></th>
@@ -446,7 +446,7 @@
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
 
-        // 🌟 FIFO EXCEL OLUŞTURUCU (DEPO YÜKLEME İÇİN - SATIR TAŞMALARI VE GENİŞLİKLER ÇÖZÜLDÜ) 🌟
+        // 🌟 FIFO EXCEL OLUŞTURUCU (DEPO YÜKLEME İÇİN) 🌟
         window.yuklemeListesiIndir = function(kodId) {
             const plan = anlikTtpListesi.find(p => p.id === kodId);
             if(!plan || !plan.yukler) return;
@@ -460,7 +460,6 @@
             <head><meta charset="utf-8">
             <style>
                 table { border-collapse: collapse; font-family: 'Arial', sans-serif; font-size: 10pt; }
-                /* Padding değerleri düşürüldü ve word-wrap eklendi */
                 td, th { border: 1px dotted #000; text-align: left; vertical-align: middle; padding: 5px; word-wrap: break-word; }
             </style>
             </head><body><table style="width: 1500px;">
@@ -486,7 +485,6 @@
                 </thead><tbody>
             `;
 
-            // YÜKLEME LİSTESİ: Tıra ilk giren ilk yazılır (İndeks 0'dan başlar - FIFO)
             for(let i = 0; i < plan.yukler.length; i++) {
                 let u = plan.yukler[i];
                 let ulke = "ALMANYA"; 
@@ -505,7 +503,6 @@
 
                 let notFormatli = u.notlar ? u.notlar.toUpperCase() : "";
 
-                // BEYAZ ARKA PLAN - Sabit 'height' kaldırıldı, Excel içeriğe göre genişletecek!
                 tableHTML += `
                     <tr style="background-color: #ffffff;">
                         <td style="border: 1px dotted #000; border-left: 2px solid #000; font-weight: bold;">${ulke}</td>
