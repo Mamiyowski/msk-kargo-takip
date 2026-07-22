@@ -60,7 +60,7 @@
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #00c3ff; padding-bottom: 10px; margin-bottom: 20px; }
         .modal-header h2 { color: #0b1c38; font-size: 20px; }
         .btn-kapat { padding: 8px 15px; background-color: #e74c3c; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; }
-        .compact-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; } /* Sütun yapısını 4'e çıkardım ki telefon da tam otursun */
+        .compact-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; }
         .compact-grid .full-width { grid-column: span 4; }
         .compact-grid .two-thirds { grid-column: span 2; }
         .compact-grid label { display: block; font-weight: bold; margin-bottom: 4px; font-size: 12px; color: #333; }
@@ -347,61 +347,130 @@
             } 
         };
 
-        // EXCEL DOSYASI OLUŞTURMA VE İNDİRME İŞLEMİ
+        // 🌟 KUSURSUZ EXCEL ŞABLONU OLUŞTURUCU 🌟
         window.excelIndir = function(kodId) {
             const plan = anlikTtpListesi.find(p => p.id === kodId);
             if(!plan || !plan.yukler) return;
 
+            // HTML TABLOSUNU EXCEL NİZAMINA GÖRE KURUYORUZ (Kalın kenarlıklar, ortalama ve fontlar)
             let tableHTML = `
             <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-            <head><meta charset="utf-8"></head><body>
-            <table border="1" style="border-collapse: collapse; width: 100%; font-family: sans-serif;">
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    table { border-collapse: collapse; font-family: 'Calibri', sans-serif; }
+                    td, th { border: 2px solid #000; text-align: center; vertical-align: middle; padding: 10px; font-size: 11pt; word-wrap: break-word; }
+                </style>
+            </head>
+            <body>
+            <table style="width: 1300px;">
                 <thead>
-                    <tr>
-                        <th colspan="4" style="font-size: 16px; font-weight: bold; text-align: left; padding: 15px; background-color: #f2f2f2;">MSK GLOBAL LOJİSTİK DIŞ.TİC.LTD.ŞTİ - ${plan.plaka || plan.planKodu}</th>
-                        <th colspan="3" style="font-size: 16px; font-weight: bold; text-align: right; padding: 15px; background-color: #f2f2f2;">DAĞITIM LİSTESİ</th>
+                    <tr style="height: 60px;">
+                        <th colspan="2" style="border: 3px solid #000; background-color: #fff;"><img src="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" alt="MSK GLOBAL" height="50"></th>
+                        <th colspan="4" style="border: 3px solid #000; font-size: 16pt; font-weight: bold;">MSK GLOBAL LOJİSTİK DIŞ.TİC.LTD.ŞTİ ${plan.plaka || plan.planKodu}</th>
+                        <th colspan="2" style="border: 3px solid #000; background-color: #f2f2f2; font-size: 14pt; font-weight: bold;">DAĞITIM LİSTESİ</th>
                     </tr>
-                    <tr style="background-color: #d9edf7;">
-                        <th style="padding:10px; width:60px;">SIRA</th>
-                        <th style="padding:10px; width:100px;">PAKET SAYISI</th>
-                        <th style="padding:10px; width:200px;">ALICI</th>
-                        <th style="padding:10px; width:150px;">TELEFON</th>
-                        <th style="padding:10px; width:300px;">ADRES / HEDEF</th>
-                        <th style="padding:10px; width:150px;">ŞOFÖRE ÖDENECEK</th>
-                        <th style="padding:10px; width:150px;">MÜŞTERİ İMZASI</th>
+                    <tr style="height: 50px;">
+                        <th style="border: 2px solid #000; width: 60px;"></th>
+                        <th style="border: 2px solid #000; width: 120px; text-decoration: underline;">PAKET SAYISI</th>
+                        <th style="border: 2px solid #000; width: 250px; text-decoration: underline;">ALICI</th>
+                        <th style="border: 2px solid #000; width: 180px; text-decoration: underline;">TELEFON</th>
+                        <th style="border: 2px solid #000; width: 350px; text-decoration: underline;">ADRES</th>
+                        <th style="border: 2px solid #000; width: 120px; text-decoration: underline;">ÜLKE</th>
+                        <th style="border: 2px solid #000; width: 160px; text-decoration: underline;">ŞOFÖRE ÖDENECEK</th>
+                        <th style="border: 2px solid #000; width: 160px; text-decoration: underline;">MÜŞTERİ İMZASI</th>
                     </tr>
                 </thead>
                 <tbody>
             `;
 
             let sira = 1;
+            let toplamEuro = 0;
+
             // LIFO SİSTEMİ: Sondan başa doğru Excel'e yazdırır! İlk yazılan, kapağa en yakın olandır.
             for(let i = plan.yukler.length - 1; i >= 0; i--) {
                 let u = plan.yukler[i];
-                let tamOdeme = u.kapidaOdeme === "Evet" ? (u.kapidaOdemeMiktari || "") : "0";
                 
+                // Ülke Çıkarma Algoritması (Adresten son kelimeyi alır)
+                let ulke = "ALMANYA"; 
+                if(u.hedef) {
+                    let parcalar = u.hedef.split(',');
+                    if(parcalar.length > 1) {
+                        ulke = parcalar[parcalar.length - 1].trim().toUpperCase();
+                    } else {
+                        let boslukParcalar = u.hedef.split(' ');
+                        ulke = boslukParcalar[boslukParcalar.length - 1].toUpperCase();
+                    }
+                }
+
+                // Ödeme Toplama ve Formatlama
+                let odemeMetni = "EUR 0,00";
+                if(u.kapidaOdeme === "Evet" && u.kapidaOdemeMiktari) {
+                    // "1500 €" içindeki sadece rakamı ayıklar
+                    let miktarSayi = parseFloat(u.kapidaOdemeMiktari.replace(/[^\d.,]/g, '').replace(',', '.'));
+                    if(!isNaN(miktarSayi)) {
+                        toplamEuro += miktarSayi;
+                        odemeMetni = "EUR " + miktarSayi.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+                    } else {
+                        odemeMetni = u.kapidaOdemeMiktari; 
+                    }
+                }
+
+                // Özel Not varsa alıcı adının altına KIRMIZI renkle ekle (Örn: SSH ADRES TESLİM)
+                let aliciAdiFormatli = (u.aliciAdi || "-").toUpperCase();
+                if(u.notlar) {
+                    aliciAdiFormatli += `<br><span style="color:red; font-size:9pt; font-weight:bold;">(${u.notlar.toUpperCase()})</span>`;
+                }
+
+                // Eşit Yükseklikte Data Satırı (65px)
                 tableHTML += `
-                    <tr>
-                        <td style="text-align:center; padding:10px; font-weight:bold;">${sira}</td>
-                        <td style="text-align:center; padding:10px; font-weight:bold;">${u.parca || "-"}</td>
-                        <td style="text-align:center; padding:10px; font-weight:bold; font-size:14px;">${u.aliciAdi || "-"}</td>
-                        <td style="text-align:center; padding:10px;">${u.telefon || "-"}</td>
-                        <td style="text-align:center; padding:10px;">${u.hedef || "-"}</td>
-                        <td style="text-align:center; padding:10px; font-weight:bold;">${tamOdeme}</td>
-                        <td style="text-align:center; padding:10px;"></td>
+                    <tr style="height: 65px;">
+                        <td style="border: 2px solid #000; font-weight: bold; font-size: 12pt;">${sira}</td>
+                        <td style="border: 2px solid #000; font-weight: bold; font-size: 12pt;">${u.parca || "-"}</td>
+                        <td style="border: 2px solid #000; font-weight: bold; font-size: 11pt;">${aliciAdiFormatli}</td>
+                        <td style="border: 2px solid #000; font-weight: bold; font-size: 11pt;">${u.telefon || "-"}</td>
+                        <td style="border: 2px solid #000; font-size: 11pt;">${u.hedef || "-"}</td>
+                        <td style="border: 2px solid #000; font-weight: bold; font-size: 11pt;">${ulke}</td>
+                        <td style="border: 2px solid #000; font-weight: bold; font-size: 12pt;">${odemeMetni}</td>
+                        <td style="border: 2px solid #000;"></td>
                     </tr>
                 `;
                 sira++;
             }
 
-            tableHTML += `</tbody></table></body></html>`;
+            // Alt Toplam ve Kaptan Talimatları Ekranı
+            tableHTML += `
+                <tr style="height: 40px;">
+                    <td colspan="6" style="border: 2px solid #000; border-top: 3px solid #000; text-align: right; padding-right: 15px; font-weight: bold; font-size: 12pt;"></td>
+                    <td style="border: 2px solid #000; border-top: 3px solid #000; font-weight: bold; font-size: 12pt; background-color: #f8f9fa;">EUR ${toplamEuro.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+                    <td style="border: 2px solid #000; border-top: 3px solid #000;"></td>
+                </tr>
+                <tr>
+                    <td colspan="8" style="border: 3px solid #000; text-align: left; padding: 15px; font-size: 11pt; font-weight: bold; vertical-align: top; line-height: 1.5;">
+                        KAPTAN TALİMATI<br>
+                        *ARAÇ YOLDAYKEN HER SABAH İLGİLİ WHATSAPP GRUBUNA KONUM ATILMALIDIR.<br>
+                        *EŞYALARIN MİNİMUM HASARSIZ TESLİM EDİLMESİ ÖNEM ARZ ETMEKTEDİR.<br>
+                        *KAPIDA ÖDEME ALMADAN ÜRÜNLER İNMEYECEKTİR. MÜŞTERİ ÖDEME YAPMADAN MALZEMELERİ ALMAKTA ISRARCI OLURSA BİZE BİLGİ VERİLMEDEN TESLİM ETMEYİNİZ. KAPIDA ÖDEME YAPMADAN MALZEMELERİN TESLİM ALAMAYACAĞININ BİLGİSİNİ BİZ MÜŞTERİLERE ÖNDEN VERİYORUZ.*<br>
+                        *TESLİMATLARDA MUTLAKA RESİM VE VİDEO ÇEKELİM. HAYIRLI OLSUN TEMENNİLERİNDE BULUNALIM MSK GLOBAL LOJİSTİK VE KENDİ FİRMANIZ İÇİN TANITIM AMAÇLI DA VİDEOLAR ÇEKİLMESİ GÜZEL OLMAKTADIR.<br>
+                        *İNDİRME MÜŞTERİYE AİTTİR. ÖN BİLGİ VERİLMEKTEDİR. BAŞKA MÜŞTERİNİN ÜSTÜNDE OLAN ÜRÜNLER VARSA UFAK YARDIMLAR EDİLEBİLİR. EŞYA SAYISI TUTMAZSA KONTROLLER İÇİN DESTEKLERİNİZ ÖNEMLİDİR.<br>
+                        *PAKETLERDE HERHANGİ BİR YIRTILMA ZEDELENME GÖRÜLDÜĞÜ HASAR VB VARSA ARAÇTA İKEN DETAYLI VİDEO FOTOĞRAF VS ÇEKELİM WP GRUBUNA İLETELİM.<br>
+                        *HER YÜK TESLİMİNDEN SONRA MİNİMUM İKİ ŞTANGA TAKALIM, EŞYALARIN DEVRİLMEMESİ İÇİN GEREKİRSE EK TEDBİRLER ALALIM.<br>
+                        *ŞİMDİDEN ELİNİZE SAĞLIK MSK GLOBAL LOJİSTİK OLARAK HAYIRLI YOLCULUKLAR DİLERİZ.<br><br>
+                        <div style="text-align:center; color:red; font-size:13pt; margin-top:10px;">Olası Bir Hasar Durumunda Tarafımıza <u style="text-decoration: underline;">Mutlaka</u> Fotoğraf ve Video Göndermeniz Gerekmektedir.</div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            </body></html>
+            `;
 
             // Bilgisayara İndirme Kodu
             const blob = new Blob([tableHTML], { type: 'application/vnd.ms-excel' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Sofor_Talimati_${plan.plaka || plan.planKodu}.xls`;
+            // Dosya adını plaka numarası ile oluşturur
+            a.download = `MSK_Dagitim_Listesi_${plan.plaka || plan.planKodu}.xls`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -415,7 +484,7 @@
             anlikTtpListesi.forEach(p => {
                 const kod = p.planKodu || p.ttpKodu || p.id; 
                 
-                let excelButon = p.netlesti ? `<button style="background:#27ae60; width:100%; margin-top:5px; padding:10px; border:none; border-radius:4px; font-weight:bold; color:white; cursor:pointer;" onclick="excelIndir('${p.id}')">📥 Şoför Talimatı (Excel)</button>` : '';
+                let excelButon = p.netlesti ? `<button style="background:#27ae60; width:100%; margin-top:5px; padding:10px; border:none; border-radius:4px; font-weight:bold; color:white; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);" onclick="excelIndir('${p.id}')">📥 Şoför Talimatı (Excel)</button>` : '';
 
                 html += `<div class="ttp-card ${p.netlesti ? 'netlesmis' : ''}">
                     <h3>${p.planAdi || kod}</h3><span class="kod">${kod} ${p.plaka ? `| 🚚 ${p.plaka}` : ''}</span>
@@ -514,6 +583,7 @@
         document.getElementById('btnTtpKapat').addEventListener('click', () => document.getElementById('ttpModal').style.display = 'none');
         window.ttpDuzenle = function(kodId) { const p = anlikTtpListesi.find(x => x.id === kodId); if(p) { planAktifKod = p.planKodu || p.ttpKodu || p.id; document.getElementById('aktifPlanBaslik').innerText = planAktifKod; document.getElementById('ttpPlanAdiInput').value = p.planAdi || ""; ttpYuklenenListe = p.yukler ? [...p.yukler] : []; ttpEkraniniGuncelle(); document.getElementById('ttpModal').style.display = 'block'; } };
 
+        // SÜRÜKLE BIRAK (DRAG & DROP)
         window.draggedIndex = null;
         window.startDrag = function(i) { window.draggedIndex = i; };
         window.allowDrop = function(ev) { ev.preventDefault(); };
@@ -583,8 +653,8 @@
                 await setDoc(doc(db, "tir_planlari", planAktifKod), { planKodu: planAktifKod, planAdi: document.getElementById('ttpPlanAdiInput').value || "İsimsiz Plan", yukler: ttpYuklenenListe, plaka: plaka, netlesti: true, timestamp: Date.now() }, { merge: true });
                 
                 for(let u of ttpYuklenenListe) {
-                    await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: true, bagliTirKodu: planAktifKod, plaka: plaka, urunDurumu: "Araca Yükleniyor..." }, { merge: true });
-                    await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: planAktifKod, hareketler: arrayUnion({ tarih: sZaman, durum: "Ürününüz Araca Yükleniyor...", konum: "MSK Merkez Depo", timestamp: Date.now() }) }, { merge: true });
+                    await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: true, bagliTirKodu: planAktifKod, plaka: plaka, urunDurumu: "Araca Yüklendi" }, { merge: true });
+                    await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: planAktifKod, hareketler: arrayUnion({ tarih: sZaman, durum: "Ürününüz Araca Yüklendi.", konum: "MSK Merkez Depo", timestamp: Date.now() }) }, { merge: true });
                 }
                 if(planAktifKod === "MSK-" + planSayac) { planSayac++; localStorage.setItem('mskPlanSayac', planSayac); }
                 alert("Harika! Ürünler araca yüklendi ve Kargo Takip Sistemine aktarıldı!");
