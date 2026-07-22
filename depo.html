@@ -230,16 +230,16 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, setDoc, onSnapshot, doc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+        // MAMI'NIN FIRBASE API BİLGİLERİ DOĞRUDAN GİRİLDİ
         const firebaseConfig = {
-  apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
-  authDomain: "msk-global---kargo-takip.firebaseapp.com",
-  projectId: "msk-global---kargo-takip",
-  storageBucket: "msk-global---kargo-takip.firebasestorage.app",
-  messagingSenderId: "608864535211",
-  appId: "1:608864535211:web:2fa07474ab410fc87fadee",
-  measurementId: "G-VXK3KR1LY8"
-
-};
+            apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
+            authDomain: "msk-global---kargo-takip.firebaseapp.com",
+            projectId: "msk-global---kargo-takip",
+            storageBucket: "msk-global---kargo-takip.firebasestorage.app",
+            messagingSenderId: "608864535211",
+            appId: "1:608864535211:web:2fa07474ab410fc87fadee",
+            measurementId: "G-VXK3KR1LY8"
+        };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
@@ -350,10 +350,12 @@
             } 
         };
 
-        // 🌟 LIFO EXCEL OLUŞTURUCU (ŞOFÖR İÇİN) - LOGO KÜÇÜLTÜLDÜ VE LİNK EKLENDİ 🌟
+        // 🌟 LIFO EXCEL OLUŞTURUCU (ŞOFÖR İÇİN) - PİKSEL ÖLÇÜLERİ VE OTOMATİK TOPLAM FORMÜLÜ EKLENDİ 🌟
         window.excelIndir = function(kodId) {
             const plan = anlikTtpListesi.find(p => p.id === kodId);
             if(!plan || !plan.yukler) return;
+
+            let dataRowEnd = 2 + plan.yukler.length; // Formül için son satırın indeksini hesaplar
 
             let tableHTML = `
             <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
@@ -365,7 +367,7 @@
             </head><body><table style="width: 1300px;" cellpadding="0" cellspacing="0"><thead>
                 <tr style="height: 70px;">
                     <th colspan="2" style="border: 3px solid #000; background-color: #fff; padding: 0px; margin: 0px; vertical-align: middle; text-align: center; width: 180px;">
-                        <img src="https://i.ibb.co/sdQnxLYL/msk-global-lojistik-d-ticaret-ltd-ti-logo.jpg" width="135" height="40" alt="MSK GLOBAL" style="border: none;">
+                        <img src="https://i.ibb.co/sdQnxLYL/msk-global-lojistik-d-ticaret-ltd-ti-logo.jpg" width="167" height="53" alt="MSK GLOBAL" style="border: none;">
                     </th>
                     <th colspan="4" style="border: 3px solid #000; font-size: 16pt; font-weight: bold; vertical-align: middle;">MSK GLOBAL LOJİSTİK DIŞ.TİC.LTD.ŞTİ ${plan.plaka || plan.planKodu}</th>
                     <th colspan="2" style="border: 3px solid #000; background-color: #f2f2f2; font-size: 14pt; font-weight: bold; vertical-align: middle;">DAĞITIM LİSTESİ</th>
@@ -394,17 +396,25 @@
                     else { let bp = u.hedef.split(' '); ulke = bp[bp.length - 1].toUpperCase(); }
                 }
 
+                let miktarSayi = 0;
                 let odemeMetni = "EUR 0,00";
+                
+                // Formülün çalışması için metni sayısal değere çeviriyoruz
                 if(u.kapidaOdeme === "Evet" && u.kapidaOdemeMiktari) {
-                    let miktarSayi = parseFloat(u.kapidaOdemeMiktari.replace(/[^\d.,]/g, '').replace(',', '.'));
-                    if(!isNaN(miktarSayi)) {
-                        toplamEuro += miktarSayi; odemeMetni = "EUR " + miktarSayi.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
-                    } else { odemeMetni = u.kapidaOdemeMiktari; }
+                    let pars = parseFloat(u.kapidaOdemeMiktari.replace(/[^\d.,]/g, '').replace(',', '.'));
+                    if(!isNaN(pars)) {
+                        miktarSayi = pars;
+                        toplamEuro += miktarSayi;
+                        odemeMetni = "EUR " + miktarSayi.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+                    } else {
+                        odemeMetni = u.kapidaOdemeMiktari;
+                    }
                 }
 
                 let aliciAdiFormatli = (u.aliciAdi || "-").toUpperCase();
                 if(u.notlar) { aliciAdiFormatli += `<br><span style="color:red; font-size:9pt; font-weight:bold;">(${u.notlar.toUpperCase()})</span>`; }
 
+                // x:num parametresi eklendi (Excel sayıyı formülde hesaplayabilsin diye)
                 tableHTML += `
                     <tr style="height: 65px;">
                         <td style="font-weight: bold; font-size: 12pt;">${sira}</td>
@@ -413,17 +423,18 @@
                         <td style="font-weight: bold; font-size: 11pt;">${u.telefon || "-"}</td>
                         <td style="font-size: 11pt;">${u.hedef || "-"}</td>
                         <td style="font-weight: bold; font-size: 11pt;">${ulke}</td>
-                        <td style="font-weight: bold; font-size: 12pt;">${odemeMetni}</td>
+                        <td style="font-weight: bold; font-size: 12pt;" ${miktarSayi > 0 ? `x:num="${miktarSayi}"` : `x:num="0"`}>${odemeMetni}</td>
                         <td></td>
                     </tr>
                 `;
                 sira++;
             }
 
+            // x:fmla komutu ile hücreye Excel "=TOPLA()" formülü gömüldü
             tableHTML += `
                 <tr style="height: 40px;">
                     <td colspan="6" style="border-top: 3px solid #000; text-align: right; padding-right: 15px; font-weight: bold; font-size: 12pt;"></td>
-                    <td style="border-top: 3px solid #000; font-weight: bold; font-size: 12pt; background-color: #f8f9fa;">EUR ${toplamEuro.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+                    <td style="border-top: 3px solid #000; font-weight: bold; font-size: 12pt; background-color: #f8f9fa;" x:fmla="=SUM(G3:G${dataRowEnd})">EUR ${toplamEuro.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
                     <td style="border-top: 3px solid #000;"></td>
                 </tr>
                 <tr>
