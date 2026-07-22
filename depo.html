@@ -115,7 +115,6 @@
                     <button id="btnTabGecmis" class="tab-btn inactive">✅ Geçmiş Yükler (Yüklenenler)</button>
                 </div>
                 <div style="display: flex; gap: 10px; flex: 1; min-width: 300px;">
-                    <!-- ARAMA ÇUBUĞU BURAYA EKLENDİ -->
                     <input type="text" id="aramaKutusu" placeholder="🔍 Kod, Alıcı, Tedarikçi veya Hedef ara..." style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-weight: bold; outline: none; font-size:14px;">
                     <select id="siralamaFiltresi" class="sort-select">
                         <option value="tarih_yeni">Tarihe Göre (En Yeni)</option>
@@ -256,7 +255,6 @@
     </div>
 
     <script type="module">
-        // getDoc EKLENDİ (Arşiv işlemleri ve yedekleme için zorunlu)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, setDoc, getDoc, onSnapshot, doc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -353,40 +351,31 @@
         document.getElementById('btnArsivAc').addEventListener('click', () => { arsivKartlariniCiz(); document.getElementById('arsivModal').style.display = 'block'; });
         document.getElementById('btnArsivKapat').addEventListener('click', () => document.getElementById('arsivModal').style.display = 'none');
 
-        // 🌟 TAKİP SİSTEMİYLE SENKRONİZE TIRI ARŞİVE ALMA 🌟
         window.planArsivle = async function(kodId) {
             if(confirm("Tırı arşive kaldırmak istiyor musunuz? (Müşterilerin görememesi için Kargo Takip Sisteminden tamamen SİLİNECEKTİR!)")) {
                 const plan = anlikTtpListesi.find(p => p.id === kodId);
-                
-                // 1. Tırın sevkiyat geçmişini yedekle ve sil
                 let tirSevkiyatSnap = await getDoc(doc(db, "sevkiyatlar", kodId));
                 let tirEskiHareketler = tirSevkiyatSnap.exists() ? tirSevkiyatSnap.data().hareketler : [];
-                await deleteDoc(doc(db, "sevkiyatlar", kodId)); // Takip sisteminden uçurduk
+                await deleteDoc(doc(db, "sevkiyatlar", kodId)); 
                 
-                // 2. Tırın İçindeki Yüklerin sevkiyat geçmişini yedekle ve sil
                 if(plan && plan.yukler) {
                     for(let u of plan.yukler) {
                         let yukSevkiyatSnap = await getDoc(doc(db, "sevkiyatlar", u.urunKodu));
                         let yukEskiHareketler = yukSevkiyatSnap.exists() ? yukSevkiyatSnap.data().hareketler : [];
-                        
-                        // Yedeği depo envanterine koyduk, sonra takip sisteminden uçurduk
                         await setDoc(doc(db, "depo_envanter", u.urunKodu), { eskiHareketler: yukEskiHareketler }, { merge: true });
                         await deleteDoc(doc(db, "sevkiyatlar", u.urunKodu)); 
                     }
                 }
                 
-                // 3. Tırı "Arşivlendi" olarak işaretle ve tırın geçmişini içine kaydet
                 await setDoc(doc(db, "tir_planlari", kodId), { arsivlendi: true, eskiHareketler: tirEskiHareketler }, { merge: true });
                 alert("Tır arşive taşındı ve takip sisteminden güvenle kaldırıldı!");
             }
         };
 
-        // 🌟 TAKİP SİSTEMİYLE SENKRONİZE TIRI ARŞİVDEN ÇIKARMA 🌟
         window.planArsivdenCikar = async function(kodId) {
             if(confirm("Tırı arşivden çıkarıp tekrar Ana Ekrana ve Kargo Takip Sistemine geri yüklemek istiyor musunuz?")) {
                 const plan = anlikTtpListesi.find(p => p.id === kodId);
                 
-                // 1. Tırı takip sistemine yedekleriyle geri yükle
                 let tirEskiHareketler = plan.eskiHareketler || [];
                 await setDoc(doc(db, "sevkiyatlar", kodId), { 
                     takipKodu: kodId, 
@@ -394,7 +383,6 @@
                     hareketler: tirEskiHareketler 
                 }, { merge: true });
 
-                // 2. Yükleri takip sistemine yedekleriyle geri yükle
                 if(plan && plan.yukler) {
                     for(let u of plan.yukler) {
                         let depoUrun = anlikDepoListesi.find(x => x.urunKodu === u.urunKodu);
@@ -408,7 +396,6 @@
                     }
                 }
                 
-                // 3. Arşivden çıkart
                 await setDoc(doc(db, "tir_planlari", kodId), { arsivlendi: false }, { merge: true });
                 alert("Tır tekrar Ana Ekrana ve Takip Sistemine başarıyla eklendi!");
             }
@@ -451,7 +438,6 @@
             } 
         };
 
-        // 🌟 LIFO EXCEL OLUŞTURUCU (ŞOFÖR İÇİN) - LOGO VE ADRES TAŞMA SORUNU ÇÖZÜLDÜ 🌟
         window.excelIndir = function(kodId) {
             const plan = anlikTtpListesi.find(p => p.id === kodId);
             if(!plan || !plan.yukler) return;
@@ -548,7 +534,6 @@
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
 
-        // 🌟 FIFO EXCEL OLUŞTURUCU (DEPO YÜKLEME İÇİN) - ADRES TAŞMA SORUNU ÇÖZÜLDÜ 🌟
         window.yuklemeListesiIndir = function(kodId) {
             const plan = anlikTtpListesi.find(p => p.id === kodId);
             if(!plan || !plan.yukler) return;
@@ -692,9 +677,14 @@
             container.innerHTML = html;
         }
 
-        // ARAMA ÇUBUĞU (Gerçek Zamanlı Filtreleme)
+        // TÜRkÇE KARAKTER UYUMLU ARAMA (Büyük İ ve Küçük i Sorunu Çözüldü)
+        function trKucuk(str) {
+            if (!str) return "";
+            return str.replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase();
+        }
+
         document.getElementById('aramaKutusu').addEventListener('input', (e) => {
-            aramaKelimesi = e.target.value.toLowerCase();
+            aramaKelimesi = trKucuk(e.target.value);
             tabloyuCiz();
         });
 
@@ -707,13 +697,12 @@
             const liste = document.getElementById('depoListesi');
             let data = gosterimModu === "aktif" ? anlikDepoListesi.filter(x => !x.aracaYuklendi) : anlikDepoListesi.filter(x => x.aracaYuklendi);
             
-            // ARAMA FİLTRESİ UYGULAMASI
             if(aramaKelimesi !== "") {
                 data = data.filter(x => 
-                    (x.urunKodu && x.urunKodu.toLowerCase().includes(aramaKelimesi)) ||
-                    (x.aliciAdi && x.aliciAdi.toLowerCase().includes(aramaKelimesi)) ||
-                    (x.referans && x.referans.toLowerCase().includes(aramaKelimesi)) ||
-                    (x.hedef && x.hedef.toLowerCase().includes(aramaKelimesi))
+                    trKucuk(x.urunKodu).includes(aramaKelimesi) ||
+                    trKucuk(x.aliciAdi).includes(aramaKelimesi) ||
+                    trKucuk(x.referans).includes(aramaKelimesi) ||
+                    trKucuk(x.hedef).includes(aramaKelimesi)
                 );
             }
 

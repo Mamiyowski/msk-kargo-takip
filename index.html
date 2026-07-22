@@ -74,13 +74,13 @@
         import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
-  apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
-  authDomain: "msk-global---kargo-takip.firebaseapp.com",
-  projectId: "msk-global---kargo-takip",
-  storageBucket: "msk-global---kargo-takip.firebasestorage.app",
-  messagingSenderId: "608864535211",
-  appId: "1:608864535211:web:2fa07474ab410fc87fadee",
-  measurementId: "G-VXK3KR1LY8"
+            apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
+            authDomain: "msk-global---kargo-takip.firebaseapp.com",
+            projectId: "msk-global---kargo-takip",
+            storageBucket: "msk-global---kargo-takip.firebasestorage.app",
+            messagingSenderId: "608864535211",
+            appId: "1:608864535211:web:2fa07474ab410fc87fadee",
+            measurementId: "G-VXK3KR1LY8"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -123,7 +123,6 @@
                     
                     let tumHareketler = anaVeri.hareketler ? [...anaVeri.hareketler] : [];
 
-                    // EĞER BU YÜK BİR TIRA (TTP) BAĞLIYSA TIRIN HAREKETLERİNİ DE ÇEK VE BİRLEŞTİR!
                     if (anaVeri.bagliTirKodu) {
                         const tirDoc = await getDoc(doc(db, "sevkiyatlar", anaVeri.bagliTirKodu));
                         if(tirDoc.exists()) {
@@ -136,7 +135,8 @@
                     if(tumHareketler.length > 0) {
                         tumHareketler.sort((a, b) => b.timestamp - a.timestamp); // En yeni en üstte
                         
-                        document.getElementById('mapIframe').src = `https://maps.google.com/maps?q=${encodeURIComponent(tumHareketler[0].konum || "Türkiye")}&t=&z=7&ie=UTF8&iwloc=&output=embed`;
+                        // Z=14 YAPILDI (Yakınlaştırma seviyesi artırıldı)
+                        document.getElementById('mapIframe').src = `https://maps.google.com/maps?q=${encodeURIComponent(tumHareketler[0].konum || "Türkiye")}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
                         
                         tumHareketler.forEach(h => {
                             document.getElementById('timelineKutusu').innerHTML += `
