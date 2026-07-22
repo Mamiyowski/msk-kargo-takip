@@ -70,7 +70,7 @@
         .flex-group { display: flex; gap: 8px; }
         .btn-kaydet { width: 100%; padding: 12px; background-color: #2ecc71; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 20px; }
         .ttp-split { display: flex; gap: 15px; margin-top: 15px; }
-        .ttp-box { flex: 1; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e1e8ed; height: 400px; overflow-y: auto; }
+        .ttp-box { flex: 1; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e1e8ed; height: 450px; overflow-y: auto; }
         .yuk-karti { background: white; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
         .yuk-info strong { color: #0b1c38; font-size: 13px; display:block; }
         .yuk-info span { font-size: 12px; color: #666; display: block; margin-top: 3px; font-weight:bold; }
@@ -126,7 +126,6 @@
         </div>
     </div>
 
-    <!-- ÜRÜN MODAL -->
     <div id="urunModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -168,7 +167,7 @@
                 <div class="form-group">
                     <label>Fiyat Bilgisi</label>
                     <div class="flex-group">
-                        <input type="number" id="fiyat"><select id="fiyatBirim" style="flex: 0.8;"><option value="€">€</option><option value="₺">₺</option><option value="$">$</option></select>
+                        <input type="number" id="fiyat"><select id="fiyatBirim" style="flex: 0.8; min-width: 65px;"><option value="€">€</option><option value="₺">₺</option><option value="$">$</option></select>
                     </div>
                 </div>
                 <div class="form-group">
@@ -176,7 +175,7 @@
                     <div class="flex-group">
                         <select id="kapidaOdeme" style="flex: 1;"><option value="Hayır">Hayır</option><option value="Evet">Evet</option></select>
                         <input type="number" id="kapidaOdemeMiktari" style="display:none; flex: 1;">
-                        <select id="kapidaOdemeBirim" style="display:none; flex: 0.8;"><option value="€">€</option><option value="₺">₺</option><option value="$">$</option></select>
+                        <select id="kapidaOdemeBirim" style="display:none; flex: 0.8; min-width: 65px;"><option value="€">€</option><option value="₺">₺</option><option value="$">$</option></select>
                     </div>
                 </div>
                 <div class="form-group"><label>Özel Notlar</label><textarea id="notlar"></textarea></div>
@@ -211,9 +210,12 @@
                 <div class="ttp-box" style="border: 3px solid #00c3ff;">
                     <h3 style="text-align: center; border-bottom:2px solid #ddd; padding-bottom:10px; margin-bottom:10px;">
                         🚚 Bu Plana Eklenen Yükler <br>
-                        <span style="font-size:11px; color:#777;">(↕ Farenizle sürükleyip bırakarak sıralayabilirsiniz)</span><br>
-                        <button id="btnRotaCiz" style="margin-top:10px; background:#f39c12; color:white; border:none; padding:8px 12px; border-radius:4px; font-weight:bold; cursor:pointer; width:100%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">🗺️ Rotayı Haritada Çiz (Teslimat Sırasına Göre)</button>
+                        <span style="font-size:11px; color:#777;">(↕ Farenizle sürükleyip bırakarak sıralayabilirsiniz)</span>
                     </h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <button id="btnRotaOptimize" style="flex:1; background:#8e44ad; color:white; border:none; padding:10px; border-radius:4px; font-weight:bold; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">⚡ En Kısa Yolu Hesapla (Sırala)</button>
+                        <button id="btnRotaCiz" style="flex:1; background:#f39c12; color:white; border:none; padding:10px; border-radius:4px; font-weight:bold; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">🗺️ Haritada Göster</button>
+                    </div>
                     <div id="ttpYuklenenler"></div>
                 </div>
             </div>
@@ -389,7 +391,7 @@
                     let hBtn = (v.urunDurumu !== "MSK Merkez Depoda Teslim Alındı.") ? `<button class="btn-depoya-al" data-kod="${v.urunKodu}">Depoya Al</button>` : "";
                     islem = `${hBtn}<button class="btn-duzenle" data-kod="${v.urunKodu}">Düzenle</button><button class="btn-link" data-kod="${lKod}">Link</button><button class="btn-sil" data-id="${v.id}">Sil</button>`;
                 } else {
-                    islem = `<button class="btn-link" data-kod="${lKod}">Müşteri Linki</button> <button class="btn-havuza-cek" data-kod="${v.urunKodu}">Havuza Çek</button> <button class="btn-sil" data-id="${v.id}">Sil</button>`;
+                    islem = `<button class="btn-link" data-kod="${lKod}">Müşteri Linki (MSK)</button> <button class="btn-havuza-cek" data-kod="${v.urunKodu}">Havuza Çek</button> <button class="btn-sil" data-id="${v.id}">Sil</button>`;
                 }
 
                 html += `<tr>
@@ -442,24 +444,30 @@
         document.getElementById('btnTtpKapat').addEventListener('click', () => document.getElementById('ttpModal').style.display = 'none');
         window.ttpDuzenle = function(kodId) { const p = anlikTtpListesi.find(x => x.id === kodId); if(p) { planAktifKod = p.planKodu || p.ttpKodu || p.id; document.getElementById('aktifPlanBaslik').innerText = planAktifKod; document.getElementById('ttpPlanAdiInput').value = p.planAdi || ""; ttpYuklenenListe = p.yukler ? [...p.yukler] : []; ttpEkraniniGuncelle(); document.getElementById('ttpModal').style.display = 'block'; } };
 
+        // SÜRÜKLE BIRAK (DRAG & DROP)
         window.draggedIndex = null;
         window.startDrag = function(i) { window.draggedIndex = i; };
         window.allowDrop = function(ev) { ev.preventDefault(); };
         window.dropDrag = function(i) { if (window.draggedIndex !== null && window.draggedIndex !== i) { const t = ttpYuklenenListe[window.draggedIndex]; ttpYuklenenListe.splice(window.draggedIndex, 1); ttpYuklenenListe.splice(i, 0, t); ttpEkraniniGuncelle(); } window.draggedIndex = null; };
 
-        // HARİTADA ROTA ÇİZ (LIFO MANTIĞI)
+        // 🌟 AKILLI ROTA OPTİMİZASYONU 🌟
+        document.getElementById('btnRotaOptimize').addEventListener('click', () => {
+            if(ttpYuklenenListe.length === 0) return alert("Sıralanacak yük bulunamadı!");
+            // Hedeflere göre grupla ve sırala. Sonra LIFO mantığına oturur.
+            ttpYuklenenListe.sort((a, b) => a.hedef.localeCompare(b.hedef));
+            ttpEkraniniGuncelle();
+            alert("✅ Sistem yükleri hedeflerine göre otomatik olarak grupladı ve kapağa göre (LIFO) sıraladı!");
+        });
+
+        // 🌟 LIFO MANTIĞIYLA HARİTADA ROTA ÇİZİMİ 🌟
         document.getElementById('btnRotaCiz').addEventListener('click', () => {
-            if(ttpYuklenenListe.length === 0) {
-                alert("Tıra henüz yük eklemediniz!");
-                return;
-            }
+            if(ttpYuklenenListe.length === 0) return alert("Tıra henüz yük eklemediniz!");
             let rotalar = [];
-            // Ters Döngü (LIFO): Son yüklenen (Index: N) = İlk Teslimat, İlk yüklenen (Index: 0) = Son Teslimat
+            // LIFO: En son yüklenen (kapaktaki) yük ilk teslimattır.
             for(let i = ttpYuklenenListe.length - 1; i >= 0; i--) {
                 rotalar.push(encodeURIComponent(ttpYuklenenListe[i].hedef));
             }
-            let baslangic = "İstanbul,+Türkiye"; 
-            let mapUrl = `https://www.google.com/maps/dir/${baslangic}/` + rotalar.join('/');
+            let mapUrl = `https://www.google.com/maps/dir/İstanbul,+Türkiye/` + rotalar.join('/');
             window.open(mapUrl, '_blank');
         });
 
@@ -467,6 +475,7 @@
             const p = anlikTtpListesi.find(x => (x.planKodu || x.ttpKodu || x.id) === planAktifKod);
             const isNet = p && p.netlesti;
             document.getElementById('btnTtpKaydet').style.display = isNet ? 'none' : 'inline-block';
+            document.getElementById('btnRotaOptimize').style.display = isNet ? 'none' : 'inline-block';
             document.getElementById('btnTtpNetlestir').innerText = isNet ? "Araç Zaten Yüklendi" : "Tıra Yükle (NETLEŞTİR)";
             
             let bH = "";
@@ -509,8 +518,8 @@
                 await setDoc(doc(db, "tir_planlari", planAktifKod), { planKodu: planAktifKod, planAdi: document.getElementById('ttpPlanAdiInput').value || "İsimsiz Plan", yukler: ttpYuklenenListe, plaka: plaka, netlesti: true, timestamp: Date.now() }, { merge: true });
                 
                 for(let u of ttpYuklenenListe) {
-                    await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: true, bagliTirKodu: planAktifKod, plaka: plaka, urunDurumu: "Araca Yüklendi" }, { merge: true });
-                    await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: planAktifKod, hareketler: arrayUnion({ tarih: sZaman, durum: "Ürününüz Araca Yüklendi.", konum: "MSK Merkez Depo", timestamp: Date.now() }) }, { merge: true });
+                    await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: true, bagliTirKodu: planAktifKod, plaka: plaka, urunDurumu: "Araca Yükleniyor..." }, { merge: true });
+                    await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: planAktifKod, hareketler: arrayUnion({ tarih: sZaman, durum: "Ürününüz Araca Yükleniyor...", konum: "MSK Merkez Depo", timestamp: Date.now() }) }, { merge: true });
                 }
                 if(planAktifKod === "MSK-" + planSayac) { planSayac++; localStorage.setItem('mskPlanSayac', planSayac); }
                 alert("Harika! Ürünler araca yüklendi ve Kargo Takip Sistemine aktarıldı!");
