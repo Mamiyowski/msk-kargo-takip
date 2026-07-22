@@ -4,22 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MSK GLOBAL | Depo Yönetim Sistemi</title>
-    <link rel="icon" href="https://i.ibb.co/sdQnxLYL/msk-global-lojistik-d-ticaret-ltd-ti-logo.jpg" type="image/jpeg">
+    <link rel="icon" href="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" type="image/jpeg">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f0f4f8; color: #333; }
+        
         .header { background-color: #0b1c38; padding: 15px; text-align: center; border-bottom: 4px solid #00c3ff; color: white; display: flex; align-items: center; justify-content: center; gap: 15px; }
         .header img { height: 50px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .header h1 { font-size: 24px; letter-spacing: 1px; margin: 0; }
         .header span { color: #00c3ff; }
+        
         .dashboard { max-width: 1600px; margin: 25px auto; display: flex; flex-direction: column; gap: 20px; padding: 0 20px; }
         .top-action-buttons { display: flex; gap: 15px; width: 100%; align-items: center; }
         .btn-main-action { flex: 1; padding: 16px; color: white; border: none; border-radius: 8px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: 0.3s; }
         .btn-main-action:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
+        
         .ttp-panel { width: 100%; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 4px solid #8e44ad; }
         .ttp-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .ttp-panel-header h2 { color: #0b1c38; font-size: 20px; }
         .ttp-cards-container { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; }
+        
         .ttp-card { min-width: 320px; background: #f8f9fa; border: 1px solid #e1e8ed; border-radius: 8px; padding: 15px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 4px solid #3498db; }
         .ttp-card.netlesmis { border-left: 4px solid #2ecc71; background: #f0fff4; }
         .ttp-card h3 { color: #0b1c38; margin-bottom: 5px; font-size: 16px; }
@@ -27,6 +31,7 @@
         .ttp-card .detay { font-size: 12px; color: #555; margin-bottom: 10px; }
         .ttp-card-actions { display: flex; gap: 5px; margin-bottom: 8px; }
         .ttp-card-actions button { flex: 1; padding: 8px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; font-size: 12px; }
+        
         .table-container { width: 100%; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 4px solid #00c3ff; overflow-x: auto; }
         .table-header-flex { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
         .tab-buttons { display: flex; gap: 10px; }
@@ -56,11 +61,13 @@
         .btn-depoya-al:hover { background-color: #d35400 !important; }
         .btn-havuza-cek { background-color: #f39c12 !important; }
         .btn-havuza-cek:hover { background-color: #d35400 !important; }
+        
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; overflow-y: auto; }
         .modal-content { background: #fff; width: 95%; max-width: 1100px; margin: 3vh auto; padding: 25px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #00c3ff; padding-bottom: 10px; margin-bottom: 20px; }
         .modal-header h2 { color: #0b1c38; font-size: 20px; }
         .btn-kapat { padding: 8px 15px; background-color: #e74c3c; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; }
+        
         .compact-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; }
         .compact-grid .full-width { grid-column: span 4; }
         .compact-grid .two-thirds { grid-column: span 2; }
@@ -70,6 +77,7 @@
         .compact-grid textarea { min-height: 40px; }
         .flex-group { display: flex; gap: 8px; }
         .btn-kaydet { width: 100%; padding: 12px; background-color: #2ecc71; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 20px; }
+        
         .ttp-split { display: flex; gap: 15px; margin-top: 15px; }
         .ttp-box { flex: 1; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e1e8ed; height: 400px; overflow-y: auto; }
         .yuk-karti { background: white; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
@@ -81,21 +89,22 @@
 <body>
 
     <div class="header">
-        <img src="https://i.ibb.co/sdQnxLYL/msk-global-lojistik-d-ticaret-ltd-ti-logo.jpg" alt="MSK Logo">
+        <img src="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" alt="MSK Logo">
         <h1>MSK GLOBAL | <span>DEPO YÖNETİMİ</span></h1>
     </div>
 
     <div class="dashboard">
+        <div class="top-action-buttons">
+            <button id="btnYeniUrunAc" class="btn-main-action" style="background:#2ecc71;">📥 Yeni Ürün / Yük Ekle</button>
+            <button id="btnTtpAc" class="btn-main-action" style="background:#0b1c38;">🚚 Yeni Tır Planı (MSK) Oluştur</button>
+            <button id="btnArsivAc" class="btn-main-action" style="background:#7f8c8d;">📂 Tır Arşivi (Geçmiş)</button>
+        </div>
+
         <div class="ttp-panel">
             <div class="ttp-panel-header">
                 <h2>🚚 Aktif Tır / Sefer Planları</h2>
             </div>
             <div class="ttp-cards-container" id="ttpKartlariListesi"></div>
-        </div>
-
-        <div class="top-action-buttons">
-            <button id="btnYeniUrunAc" class="btn-main-action" style="background:#2ecc71;">📥 Yeni Ürün / Yük Ekle</button>
-            <button id="btnTtpAc" class="btn-main-action" style="background:#0b1c38;">🚚 Yeni Tır Planı (MSK) Oluştur</button>
         </div>
 
         <div class="table-container">
@@ -189,7 +198,7 @@
     </div>
 
     <!-- TTP MODALI -->
-    <div id="ttpModal" class="modal-overlay">
+    <div id="ttpModal" class="modal-overlay" style="z-index: 1010;">
         <div class="modal-content">
             <div class="modal-header">
                 <div>
@@ -226,19 +235,30 @@
         </div>
     </div>
 
+    <!-- ARŞİV MODALI -->
+    <div id="arsivModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📂 Geçmiş Tır Arşivi</h2>
+                <button id="btnArsivKapat" class="btn-kapat">Kapat</button>
+            </div>
+            <div class="ttp-cards-container" id="arsivKartlariListesi" style="flex-wrap: wrap; max-height: 70vh; overflow-y: auto;">
+                <p style="color:#777; width:100%; text-align:center;">Arşivlenmiş tır bulunmuyor.</p>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, setDoc, onSnapshot, doc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // MAMI'NIN FIRBASE API BİLGİLERİ DOĞRUDAN GİRİLDİ
         const firebaseConfig = {
-            apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
-            authDomain: "msk-global---kargo-takip.firebaseapp.com",
-            projectId: "msk-global---kargo-takip",
-            storageBucket: "msk-global---kargo-takip.firebasestorage.app",
-            messagingSenderId: "608864535211",
-            appId: "1:608864535211:web:2fa07474ab410fc87fadee",
-            measurementId: "G-VXK3KR1LY8"
+            apiKey: "SENIN_API_KEY",
+            authDomain: "SENIN_DOMAIN",
+            projectId: "SENIN_PROJE_ID",
+            storageBucket: "SENIN_BUCKET",
+            messagingSenderId: "SENIN_SENDER_ID",
+            appId: "SENIN_APP_ID"
         };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -310,14 +330,41 @@
         document.getElementById('btnTabAktif').addEventListener('click', () => { gosterimModu = "aktif"; document.getElementById('btnTabAktif').className="tab-btn active"; document.getElementById('btnTabGecmis').className="tab-btn inactive"; tabloyuCiz(); });
         document.getElementById('btnTabGecmis').addEventListener('click', () => { gosterimModu = "gecmis"; document.getElementById('btnTabGecmis').className="tab-btn active"; document.getElementById('btnTabAktif').className="tab-btn inactive"; tabloyuCiz(); });
 
-        onSnapshot(collection(db, "tir_planlari"), (snapshot) => { anlikTtpListesi = []; snapshot.forEach(d => anlikTtpListesi.push({ id: d.id, ...d.data() })); ttpKartlariniCiz(); tabloyuCiz(); });
+        onSnapshot(collection(db, "tir_planlari"), (snapshot) => { 
+            anlikTtpListesi = []; 
+            snapshot.forEach(d => anlikTtpListesi.push({ id: d.id, ...d.data() })); 
+            ttpKartlariniCiz(); 
+            if(document.getElementById('arsivModal').style.display === 'block') arsivKartlariniCiz();
+            tabloyuCiz(); 
+        });
+        
         onSnapshot(collection(db, "depo_envanter"), (snapshot) => { anlikDepoListesi = []; snapshot.forEach(d => anlikDepoListesi.push({ id: d.id, ...d.data() })); tabloyuCiz(); if(document.getElementById('ttpModal').style.display === 'block') ttpEkraniniGuncelle(); });
+
+        // ARŞİV MENÜSÜ AÇ/KAPAT
+        document.getElementById('btnArsivAc').addEventListener('click', () => { arsivKartlariniCiz(); document.getElementById('arsivModal').style.display = 'block'; });
+        document.getElementById('btnArsivKapat').addEventListener('click', () => document.getElementById('arsivModal').style.display = 'none');
+
+        // TIRI ARŞİVE AL
+        window.planArsivle = async function(kodId) {
+            if(confirm("Tırı arşive kaldırmak istiyor musunuz? (Ana ekrandan gizlenecektir)")) {
+                await setDoc(doc(db, "tir_planlari", kodId), { arsivlendi: true }, { merge: true });
+                alert("Tır arşive taşındı!");
+            }
+        };
+
+        // TIRI ARŞİVDEN ÇIKAR
+        window.planArsivdenCikar = async function(kodId) {
+            if(confirm("Tırı arşivden çıkarıp tekrar ana ekrana almak istiyor musunuz?")) {
+                await setDoc(doc(db, "tir_planlari", kodId), { arsivlendi: false }, { merge: true });
+                alert("Tır tekrar ana ekrana alındı!");
+            }
+        };
 
         window.planIptalEt = async function(kodId) {
             if(confirm("DİKKAT! Netleştirmeyi iptal etmek üzeresiniz. Ürünler Aktif Havuza geri dönecek. Onaylıyor musunuz?")) {
                 try {
                     const plan = anlikTtpListesi.find(p => p.id === kodId);
-                    await setDoc(doc(db, "tir_planlari", kodId), { netlesti: false, plaka: "" }, { merge: true });
+                    await setDoc(doc(db, "tir_planlari", kodId), { netlesti: false, plaka: "", arsivlendi: false }, { merge: true });
                     await deleteDoc(doc(db, "sevkiyatlar", kodId)); 
                     
                     if(plan && plan.yukler) {
@@ -327,7 +374,7 @@
                             await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: "", hareketler: arrayUnion({ tarih: yZaman, durum: "Yükleme İptal Edildi, Depoda Bekliyor.", konum: "MSK Merkez Depo", timestamp: Date.now() }) }, { merge: true });
                         }
                     }
-                    alert("İptal Başarılı! Ürünler aktif havuza geri döndü ve Tır takip sisteminden kaldırıldı.");
+                    alert("İptal Başarılı! Ürünler aktif havuza geri döndü.");
                 } catch(err) { alert("Hata oluştu."); }
             }
         };
@@ -350,12 +397,10 @@
             } 
         };
 
-        // 🌟 LIFO EXCEL OLUŞTURUCU (ŞOFÖR İÇİN) - EUR FORMAT MASKESİ EKLENDİ 🌟
+        // 🌟 LIFO EXCEL OLUŞTURUCU (ŞOFÖR İÇİN) - LOGO SIFIRA SIFIR OTURTULDU 🌟
         window.excelIndir = function(kodId) {
             const plan = anlikTtpListesi.find(p => p.id === kodId);
             if(!plan || !plan.yukler) return;
-
-            let dataRowEnd = 2 + plan.yukler.length;
 
             let tableHTML = `
             <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
@@ -363,15 +408,14 @@
             <style>
                 table { border-collapse: collapse; font-family: 'Arial', sans-serif; }
                 td, th { border: 2px solid #000; text-align: center; vertical-align: middle; padding: 10px; font-size: 11pt; word-wrap: break-word; }
-                .money { mso-number-format: '"EUR" #\\,##0\\.00'; }
             </style>
-            </head><body><table style="width: 1300px;" cellpadding="0" cellspacing="0"><thead>
-                <tr style="height: 70px;">
-                    <th colspan="2" style="border: 3px solid #000; background-color: #fff; padding: 0px; margin: 0px; vertical-align: middle; text-align: center; width: 180px;">
-                        <img src="https://i.ibb.co/sdQnxLYL/msk-global-lojistik-d-ticaret-ltd-ti-logo.jpg" width="167" height="53" alt="MSK GLOBAL" style="border: none;">
+            </head><body><table style="width: 1300px;"><thead>
+                <tr style="height: 60px;">
+                    <th colspan="2" style="border: 3px solid #000; background-color: #fff; padding: 0; vertical-align: middle; text-align: center;">
+                        <img src="SENIN_IMGBB_LINKIN_BURAYA_GELECEK" width="180" height="60" style="display: block; width: 100%; height: 60px;" alt="MSK GLOBAL">
                     </th>
-                    <th colspan="4" style="border: 3px solid #000; font-size: 16pt; font-weight: bold; vertical-align: middle;">MSK GLOBAL LOJİSTİK DIŞ.TİC.LTD.ŞTİ ${plan.plaka || plan.planKodu}</th>
-                    <th colspan="2" style="border: 3px solid #000; background-color: #f2f2f2; font-size: 14pt; font-weight: bold; vertical-align: middle;">DAĞITIM LİSTESİ</th>
+                    <th colspan="4" style="border: 3px solid #000; font-size: 16pt; font-weight: bold;">MSK GLOBAL LOJİSTİK DIŞ.TİC.LTD.ŞTİ ${plan.plaka || plan.planKodu}</th>
+                    <th colspan="2" style="border: 3px solid #000; background-color: #f2f2f2; font-size: 14pt; font-weight: bold;">DAĞITIM LİSTESİ</th>
                 </tr>
                 <tr style="height: 50px;">
                     <th style="width: 60px;"></th>
@@ -397,14 +441,12 @@
                     else { let bp = u.hedef.split(' '); ulke = bp[bp.length - 1].toUpperCase(); }
                 }
 
-                let miktarSayi = 0;
-                
+                let odemeMetni = "EUR 0,00";
                 if(u.kapidaOdeme === "Evet" && u.kapidaOdemeMiktari) {
-                    let pars = parseFloat(u.kapidaOdemeMiktari.replace(/[^\d.,]/g, '').replace(',', '.'));
-                    if(!isNaN(pars)) {
-                        miktarSayi = pars;
-                        toplamEuro += miktarSayi;
-                    }
+                    let miktarSayi = parseFloat(u.kapidaOdemeMiktari.replace(/[^\d.,]/g, '').replace(',', '.'));
+                    if(!isNaN(miktarSayi)) {
+                        toplamEuro += miktarSayi; odemeMetni = "EUR " + miktarSayi.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+                    } else { odemeMetni = u.kapidaOdemeMiktari; }
                 }
 
                 let aliciAdiFormatli = (u.aliciAdi || "-").toUpperCase();
@@ -418,7 +460,7 @@
                         <td style="font-weight: bold; font-size: 11pt;">${u.telefon || "-"}</td>
                         <td style="font-size: 11pt;">${u.hedef || "-"}</td>
                         <td style="font-weight: bold; font-size: 11pt;">${ulke}</td>
-                        <td class="money" style="font-weight: bold; font-size: 12pt;" ${miktarSayi > 0 ? `x:num="${miktarSayi}"` : `x:num="0"`}>${miktarSayi}</td>
+                        <td style="font-weight: bold; font-size: 12pt;">${odemeMetni}</td>
                         <td></td>
                     </tr>
                 `;
@@ -428,7 +470,7 @@
             tableHTML += `
                 <tr style="height: 40px;">
                     <td colspan="6" style="border-top: 3px solid #000; text-align: right; padding-right: 15px; font-weight: bold; font-size: 12pt;"></td>
-                    <td class="money" style="border-top: 3px solid #000; font-weight: bold; font-size: 12pt; background-color: #f8f9fa;" x:fmla="=SUM(G3:G${dataRowEnd})">${toplamEuro}</td>
+                    <td style="border-top: 3px solid #000; font-weight: bold; font-size: 12pt; background-color: #f8f9fa;">EUR ${toplamEuro.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
                     <td style="border-top: 3px solid #000;"></td>
                 </tr>
                 <tr>
@@ -466,23 +508,23 @@
             <head><meta charset="utf-8">
             <style>
                 table { border-collapse: collapse; font-family: 'Arial', sans-serif; font-size: 10pt; }
-                td, th { border: 1px dotted #000; text-align: left; vertical-align: middle; padding: 5px; word-wrap: break-word; }
+                td, th { border: 1px dotted #000; text-align: left; vertical-align: middle; padding: 5px; }
             </style>
-            </head><body><table style="width: 1500px;">
+            </head><body><table>
                 <thead>
-                    <tr style="background-color: #92d050; font-weight: bold; text-align: center; height: 35px;">
-                        <th style="border: 2px solid #000; width: 100px;">BÖLGE</th>
-                        <th style="border: 2px solid #000; width: 150px;">NOTLAR</th>
-                        <th style="border: 2px solid #000; width: 180px;">YÜKLEME ADRES</th>
-                        <th style="border: 2px solid #000; width: 250px;">TESLİM ADRESİ</th>
-                        <th style="border: 2px solid #000; width: 60px;">LDM</th>
-                        <th style="border: 2px solid #000; width: 200px;">MALZEME</th>
-                        <th style="border: 2px solid #000; width: 60px;">KAP</th>
-                        <th style="border: 2px solid #000; width: 60px;">ETİK</th>
-                        <th style="border: 2px solid #000; width: 150px;">REFERANS</th>
-                        <th style="border: 2px solid #000; width: 200px;">ALICI</th>
-                        <th style="border: 2px solid #000; width: 100px;">FİYAT</th>
-                        <th style="border: 2px solid #000; width: 120px;">KAPIDA ÖDEME</th>
+                    <tr style="background-color: #92d050; font-weight: bold; text-align: center; height: 30px;">
+                        <th style="border: 2px solid #000;">BÖLGE</th>
+                        <th style="border: 2px solid #000;">NOTLAR</th>
+                        <th style="border: 2px solid #000;">YÜKLEME ADRES</th>
+                        <th style="border: 2px solid #000;">TESLİM ADRESİ</th>
+                        <th style="border: 2px solid #000;">LDM</th>
+                        <th style="border: 2px solid #000;">MALZEME</th>
+                        <th style="border: 2px solid #000;">KAP</th>
+                        <th style="border: 2px solid #000;">ETİK</th>
+                        <th style="border: 2px solid #000;">REFERANS</th>
+                        <th style="border: 2px solid #000;">ALICI</th>
+                        <th style="border: 2px solid #000;">FİYAT</th>
+                        <th style="border: 2px solid #000;">KAPIDA ÖDEME</th>
                     </tr>
                     <tr style="height: 40px;">
                         <td colspan="3" style="background-color: #ffff00; font-size: 16pt; font-weight: bold; text-align: center; border: 2px solid #000;">${plan.plaka || plan.planKodu}</td>
@@ -510,9 +552,9 @@
                 let notFormatli = u.notlar ? u.notlar.toUpperCase() : "";
 
                 tableHTML += `
-                    <tr style="background-color: #ffffff;">
+                    <tr style="height: 30px; background-color: #ffffff;">
                         <td style="border: 1px dotted #000; border-left: 2px solid #000; font-weight: bold;">${ulke}</td>
-                        <td style="border: 1px dotted #000; color: red;">${notFormatli}</td>
+                        <td style="border: 1px dotted #000; color:red; font-weight:bold;">${notFormatli}</td>
                         <td style="border: 1px dotted #000;">${u.yuklemeAdresi || ""}</td>
                         <td style="border: 1px dotted #000;">${u.hedef || ""}</td>
                         <td style="border: 1px dotted #000; text-align: center;">${u.ldm || ""}</td>
@@ -535,10 +577,14 @@
 
         function ttpKartlariniCiz() {
             const container = document.getElementById('ttpKartlariListesi');
-            if (anlikTtpListesi.length === 0) return container.innerHTML = '<p style="color:#777; width:100%; text-align:center;">Kayıtlı plan yok.</p>';
-            anlikTtpListesi.sort((a, b) => b.timestamp - a.timestamp);
+            
+            // SADECE ARŞİVLENMEMİŞ (AKTİF) PLANLARI GÖSTERİR
+            let aktifPlanlar = anlikTtpListesi.filter(p => !p.arsivlendi);
+            
+            if (aktifPlanlar.length === 0) return container.innerHTML = '<p style="color:#777; width:100%; text-align:center;">Kayıtlı aktif plan yok.</p>';
+            aktifPlanlar.sort((a, b) => b.timestamp - a.timestamp);
             let html = "";
-            anlikTtpListesi.forEach(p => {
+            aktifPlanlar.forEach(p => {
                 const kod = p.planKodu || p.ttpKodu || p.id; 
                 
                 let excelButon = p.netlesti ? `
@@ -547,6 +593,8 @@
                         <button style="background:#f39c12; flex:1; padding:10px; border:none; border-radius:4px; font-weight:bold; color:white; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);" onclick="yuklemeListesiIndir('${p.id}')" title="Depo için FIFO Sıralı">📥 Yükleme Listesi</button>
                     </div>
                 ` : '';
+                
+                let arsivButonu = p.netlesti ? `<button style="background:#8e44ad; width:100%; margin-top:5px; padding:8px; border:none; border-radius:4px; font-weight:bold; color:white; cursor:pointer;" onclick="planArsivle('${p.id}')">📂 Arşive Al (Ana Ekrandan Gizle)</button>` : '';
 
                 html += `<div class="ttp-card ${p.netlesti ? 'netlesmis' : ''}">
                     <h3>${p.planAdi || kod}</h3><span class="kod">${kod} ${p.plaka ? `| 🚚 ${p.plaka}` : ''}</span>
@@ -555,6 +603,38 @@
                         <button style="background:#3498db;" onclick="ttpDuzenle('${p.id}')">${p.netlesti ? "Görüntüle" : "Düzenle"}</button>
                         ${p.netlesti ? `<button style="background:#e74c3c; flex:0.6;" onclick="planIptalEt('${p.id}')">İptal Et</button>` : ''}
                         <button style="background:#c0392b; flex:0.4;" onclick="ttpSil('${p.id}')">Sil</button>
+                    </div>
+                    ${arsivButonu}
+                    ${excelButon}
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function arsivKartlariniCiz() {
+            const container = document.getElementById('arsivKartlariListesi');
+            
+            // SADECE ARŞİVLENMİŞ PLANLARI GÖSTERİR
+            let arsivPlanlar = anlikTtpListesi.filter(p => p.arsivlendi);
+            
+            if (arsivPlanlar.length === 0) return container.innerHTML = '<p style="color:#777; width:100%; text-align:center;">Arşivde kayıtlı tır bulunmuyor.</p>';
+            arsivPlanlar.sort((a, b) => b.timestamp - a.timestamp);
+            let html = "";
+            arsivPlanlar.forEach(p => {
+                const kod = p.planKodu || p.ttpKodu || p.id; 
+                
+                let excelButon = `<div style="display: flex; gap: 5px; margin-top: 8px;">
+                        <button style="background:#27ae60; flex:1; padding:10px; border:none; border-radius:4px; font-weight:bold; color:white; cursor:pointer;" onclick="excelIndir('${p.id}')">📥 Şoför Listesi</button>
+                        <button style="background:#f39c12; flex:1; padding:10px; border:none; border-radius:4px; font-weight:bold; color:white; cursor:pointer;" onclick="yuklemeListesiIndir('${p.id}')">📥 Yükleme Listesi</button>
+                    </div>`;
+
+                html += `<div class="ttp-card netlesmis" style="background: #eef2f5;">
+                    <h3>${p.planAdi || kod}</h3><span class="kod" style="color: #7f8c8d;">${kod} ${p.plaka ? `| 🚚 ${p.plaka}` : ''}</span>
+                    <div class="detay">📦 İçindeki Yük: <strong>${p.yukler ? p.yukler.length : 0} Parça</strong></div>
+                    <div class="ttp-card-actions">
+                        <button style="background:#3498db;" onclick="ttpDuzenle('${p.id}')">Görüntüle</button>
+                        <button style="background:#34495e;" onclick="planArsivdenCikar('${p.id}')">Arşivden Çıkar</button>
+                        <button style="background:#c0392b;" onclick="ttpSil('${p.id}')">Sil</button>
                     </div>
                     ${excelButon}
                     </div>`;
@@ -715,8 +795,8 @@
                 await setDoc(doc(db, "tir_planlari", planAktifKod), { planKodu: planAktifKod, planAdi: document.getElementById('ttpPlanAdiInput').value || "İsimsiz Plan", yukler: ttpYuklenenListe, plaka: plaka, netlesti: true, timestamp: Date.now() }, { merge: true });
                 
                 for(let u of ttpYuklenenListe) {
-                    await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: true, bagliTirKodu: planAktifKod, plaka: plaka, urunDurumu: "Araca Yükleniyor..." }, { merge: true });
-                    await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: planAktifKod, hareketler: arrayUnion({ tarih: sZaman, durum: "Ürününüz Araca Yükleniyor...", konum: "MSK Merkez Depo", timestamp: Date.now() }) }, { merge: true });
+                    await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: true, bagliTirKodu: planAktifKod, plaka: plaka, urunDurumu: "Araca Yüklendi" }, { merge: true });
+                    await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: planAktifKod, hareketler: arrayUnion({ tarih: sZaman, durum: "Ürününüz Araca Yüklendi.", konum: "MSK Merkez Depo", timestamp: Date.now() }) }, { merge: true });
                 }
                 if(planAktifKod === "MSK-" + planSayac) { planSayac++; localStorage.setItem('mskPlanSayac', planSayac); }
                 alert("Harika! Ürünler araca yüklendi ve Kargo Takip Sistemine aktarıldı!");
