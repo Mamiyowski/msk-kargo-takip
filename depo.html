@@ -8,9 +8,12 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f0f4f8; color: #333; }
-        .header { background-color: #0b1c38; padding: 15px; text-align: center; border-bottom: 4px solid #00c3ff; color: white; }
-        .header h1 { font-size: 24px; letter-spacing: 1px; }
+        
+        .header { background-color: #0b1c38; padding: 15px; text-align: center; border-bottom: 4px solid #00c3ff; color: white; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .header img { height: 50px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .header h1 { font-size: 24px; letter-spacing: 1px; margin: 0; }
         .header span { color: #00c3ff; }
+        
         .dashboard { max-width: 1600px; margin: 25px auto; display: flex; flex-direction: column; gap: 20px; padding: 0 20px; }
         .top-action-buttons { display: flex; gap: 15px; width: 100%; align-items: center; }
         .btn-main-action { flex: 1; padding: 16px; color: white; border: none; border-radius: 8px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: 0.3s; }
@@ -19,13 +22,15 @@
         .ttp-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .ttp-panel-header h2 { color: #0b1c38; font-size: 20px; }
         .ttp-cards-container { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; }
-        .ttp-card { min-width: 290px; background: #f8f9fa; border: 1px solid #e1e8ed; border-radius: 8px; padding: 15px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 4px solid #3498db; }
+        
+        .ttp-card { min-width: 320px; background: #f8f9fa; border: 1px solid #e1e8ed; border-radius: 8px; padding: 15px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 4px solid #3498db; }
         .ttp-card.netlesmis { border-left: 4px solid #2ecc71; background: #f0fff4; }
         .ttp-card h3 { color: #0b1c38; margin-bottom: 5px; font-size: 16px; }
         .ttp-card .kod { color: #e74c3c; font-weight: bold; font-size: 13px; margin-bottom: 10px; display: block; }
-        .ttp-card .detay { font-size: 12px; color: #555; margin-bottom: 15px; }
-        .ttp-card-actions { display: flex; gap: 5px; }
+        .ttp-card .detay { font-size: 12px; color: #555; margin-bottom: 10px; }
+        .ttp-card-actions { display: flex; gap: 5px; margin-bottom: 8px; }
         .ttp-card-actions button { flex: 1; padding: 8px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; font-size: 12px; }
+        
         .table-container { width: 100%; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 4px solid #00c3ff; overflow-x: auto; }
         .table-header-flex { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
         .tab-buttons { display: flex; gap: 10px; }
@@ -80,6 +85,7 @@
 <body>
 
     <div class="header">
+        <img src="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" alt="MSK Logo">
         <h1>MSK GLOBAL | <span>DEPO YÖNETİMİ</span></h1>
     </div>
 
@@ -180,7 +186,7 @@
                         <select id="kapidaOdemeBirim" style="display:none; flex: 0.8; min-width: 65px;"><option value="€">€</option><option value="₺">₺</option><option value="$">$</option></select>
                     </div>
                 </div>
-                <div class="form-group two-thirds"><label>Özel Notlar</label><textarea id="notlar"></textarea></div>
+                <div class="form-group two-thirds"><label>Özel Notlar (SSH / Kırmızı Not)</label><textarea id="notlar"></textarea></div>
             </div>
             <button id="kaydetBtn" class="btn-kaydet">Sisteme Kaydet / Güncelle</button>
         </div>
@@ -347,103 +353,79 @@
             } 
         };
 
-        // 🌟 KUSURSUZ EXCEL ŞABLONU OLUŞTURUCU 🌟
+        // 🌟 LIFO EXCEL OLUŞTURUCU (ŞOFÖR İÇİN) 🌟
         window.excelIndir = function(kodId) {
             const plan = anlikTtpListesi.find(p => p.id === kodId);
             if(!plan || !plan.yukler) return;
 
-            // HTML TABLOSUNU EXCEL NİZAMINA GÖRE KURUYORUZ (Kalın kenarlıklar, ortalama ve fontlar)
             let tableHTML = `
             <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-            <head>
-                <meta charset="utf-8">
-                <style>
-                    table { border-collapse: collapse; font-family: 'Calibri', sans-serif; }
-                    td, th { border: 2px solid #000; text-align: center; vertical-align: middle; padding: 10px; font-size: 11pt; word-wrap: break-word; }
-                </style>
-            </head>
-            <body>
-            <table style="width: 1300px;">
-                <thead>
-                    <tr style="height: 60px;">
-                        <th colspan="2" style="border: 3px solid #000; background-color: #fff;"><img src="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" alt="MSK GLOBAL" height="50"></th>
-                        <th colspan="4" style="border: 3px solid #000; font-size: 16pt; font-weight: bold;">MSK GLOBAL LOJİSTİK DIŞ.TİC.LTD.ŞTİ ${plan.plaka || plan.planKodu}</th>
-                        <th colspan="2" style="border: 3px solid #000; background-color: #f2f2f2; font-size: 14pt; font-weight: bold;">DAĞITIM LİSTESİ</th>
-                    </tr>
-                    <tr style="height: 50px;">
-                        <th style="border: 2px solid #000; width: 60px;"></th>
-                        <th style="border: 2px solid #000; width: 120px; text-decoration: underline;">PAKET SAYISI</th>
-                        <th style="border: 2px solid #000; width: 250px; text-decoration: underline;">ALICI</th>
-                        <th style="border: 2px solid #000; width: 180px; text-decoration: underline;">TELEFON</th>
-                        <th style="border: 2px solid #000; width: 350px; text-decoration: underline;">ADRES</th>
-                        <th style="border: 2px solid #000; width: 120px; text-decoration: underline;">ÜLKE</th>
-                        <th style="border: 2px solid #000; width: 160px; text-decoration: underline;">ŞOFÖRE ÖDENECEK</th>
-                        <th style="border: 2px solid #000; width: 160px; text-decoration: underline;">MÜŞTERİ İMZASI</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <head><meta charset="utf-8">
+            <style>
+                table { border-collapse: collapse; font-family: 'Arial', sans-serif; }
+                td, th { border: 2px solid #000; text-align: center; vertical-align: middle; padding: 10px; font-size: 11pt; word-wrap: break-word; }
+            </style>
+            </head><body><table style="width: 1300px;"><thead>
+                <tr style="height: 60px;">
+                    <th colspan="2" style="border: 3px solid #000; background-color: #fff;"><img src="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" alt="MSK GLOBAL" height="50"></th>
+                    <th colspan="4" style="border: 3px solid #000; font-size: 16pt; font-weight: bold;">MSK GLOBAL LOJİSTİK DIŞ.TİC.LTD.ŞTİ ${plan.plaka || plan.planKodu}</th>
+                    <th colspan="2" style="border: 3px solid #000; background-color: #f2f2f2; font-size: 14pt; font-weight: bold;">DAĞITIM LİSTESİ</th>
+                </tr>
+                <tr style="height: 50px;">
+                    <th style="width: 60px;"></th>
+                    <th style="width: 120px; text-decoration: underline;">PAKET SAYISI</th>
+                    <th style="width: 250px; text-decoration: underline;">ALICI</th>
+                    <th style="width: 180px; text-decoration: underline;">TELEFON</th>
+                    <th style="width: 350px; text-decoration: underline;">ADRES</th>
+                    <th style="width: 120px; text-decoration: underline;">ÜLKE</th>
+                    <th style="width: 160px; text-decoration: underline;">ŞOFÖRE ÖDENECEK</th>
+                    <th style="width: 160px; text-decoration: underline;">MÜŞTERİ İMZASI</th>
+                </tr>
+            </thead><tbody>
             `;
 
-            let sira = 1;
-            let toplamEuro = 0;
+            let sira = 1; let toplamEuro = 0;
 
-            // LIFO SİSTEMİ: Sondan başa doğru Excel'e yazdırır! İlk yazılan, kapağa en yakın olandır.
             for(let i = plan.yukler.length - 1; i >= 0; i--) {
                 let u = plan.yukler[i];
-                
-                // Ülke Çıkarma Algoritması (Adresten son kelimeyi alır)
                 let ulke = "ALMANYA"; 
                 if(u.hedef) {
                     let parcalar = u.hedef.split(',');
-                    if(parcalar.length > 1) {
-                        ulke = parcalar[parcalar.length - 1].trim().toUpperCase();
-                    } else {
-                        let boslukParcalar = u.hedef.split(' ');
-                        ulke = boslukParcalar[boslukParcalar.length - 1].toUpperCase();
-                    }
+                    if(parcalar.length > 1) { ulke = parcalar[parcalar.length - 1].trim().toUpperCase(); } 
+                    else { let bp = u.hedef.split(' '); ulke = bp[bp.length - 1].toUpperCase(); }
                 }
 
-                // Ödeme Toplama ve Formatlama
                 let odemeMetni = "EUR 0,00";
                 if(u.kapidaOdeme === "Evet" && u.kapidaOdemeMiktari) {
-                    // "1500 €" içindeki sadece rakamı ayıklar
                     let miktarSayi = parseFloat(u.kapidaOdemeMiktari.replace(/[^\d.,]/g, '').replace(',', '.'));
                     if(!isNaN(miktarSayi)) {
-                        toplamEuro += miktarSayi;
-                        odemeMetni = "EUR " + miktarSayi.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
-                    } else {
-                        odemeMetni = u.kapidaOdemeMiktari; 
-                    }
+                        toplamEuro += miktarSayi; odemeMetni = "EUR " + miktarSayi.toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+                    } else { odemeMetni = u.kapidaOdemeMiktari; }
                 }
 
-                // Özel Not varsa alıcı adının altına KIRMIZI renkle ekle (Örn: SSH ADRES TESLİM)
                 let aliciAdiFormatli = (u.aliciAdi || "-").toUpperCase();
-                if(u.notlar) {
-                    aliciAdiFormatli += `<br><span style="color:red; font-size:9pt; font-weight:bold;">(${u.notlar.toUpperCase()})</span>`;
-                }
+                if(u.notlar) { aliciAdiFormatli += `<br><span style="color:red; font-size:9pt; font-weight:bold;">(${u.notlar.toUpperCase()})</span>`; }
 
-                // Eşit Yükseklikte Data Satırı (65px)
                 tableHTML += `
                     <tr style="height: 65px;">
-                        <td style="border: 2px solid #000; font-weight: bold; font-size: 12pt;">${sira}</td>
-                        <td style="border: 2px solid #000; font-weight: bold; font-size: 12pt;">${u.parca || "-"}</td>
-                        <td style="border: 2px solid #000; font-weight: bold; font-size: 11pt;">${aliciAdiFormatli}</td>
-                        <td style="border: 2px solid #000; font-weight: bold; font-size: 11pt;">${u.telefon || "-"}</td>
-                        <td style="border: 2px solid #000; font-size: 11pt;">${u.hedef || "-"}</td>
-                        <td style="border: 2px solid #000; font-weight: bold; font-size: 11pt;">${ulke}</td>
-                        <td style="border: 2px solid #000; font-weight: bold; font-size: 12pt;">${odemeMetni}</td>
-                        <td style="border: 2px solid #000;"></td>
+                        <td style="font-weight: bold; font-size: 12pt;">${sira}</td>
+                        <td style="font-weight: bold; font-size: 12pt;">${u.parca || "-"}</td>
+                        <td style="font-weight: bold; font-size: 11pt;">${aliciAdiFormatli}</td>
+                        <td style="font-weight: bold; font-size: 11pt;">${u.telefon || "-"}</td>
+                        <td style="font-size: 11pt;">${u.hedef || "-"}</td>
+                        <td style="font-weight: bold; font-size: 11pt;">${ulke}</td>
+                        <td style="font-weight: bold; font-size: 12pt;">${odemeMetni}</td>
+                        <td></td>
                     </tr>
                 `;
                 sira++;
             }
 
-            // Alt Toplam ve Kaptan Talimatları Ekranı
             tableHTML += `
                 <tr style="height: 40px;">
-                    <td colspan="6" style="border: 2px solid #000; border-top: 3px solid #000; text-align: right; padding-right: 15px; font-weight: bold; font-size: 12pt;"></td>
-                    <td style="border: 2px solid #000; border-top: 3px solid #000; font-weight: bold; font-size: 12pt; background-color: #f8f9fa;">EUR ${toplamEuro.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
-                    <td style="border: 2px solid #000; border-top: 3px solid #000;"></td>
+                    <td colspan="6" style="border-top: 3px solid #000; text-align: right; padding-right: 15px; font-weight: bold; font-size: 12pt;"></td>
+                    <td style="border-top: 3px solid #000; font-weight: bold; font-size: 12pt; background-color: #f8f9fa;">EUR ${toplamEuro.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
+                    <td style="border-top: 3px solid #000;"></td>
                 </tr>
                 <tr>
                     <td colspan="8" style="border: 3px solid #000; text-align: left; padding: 15px; font-size: 11pt; font-weight: bold; vertical-align: top; line-height: 1.5;">
@@ -459,21 +441,94 @@
                         <div style="text-align:center; color:red; font-size:13pt; margin-top:10px;">Olası Bir Hasar Durumunda Tarafımıza <u style="text-decoration: underline;">Mutlaka</u> Fotoğraf ve Video Göndermeniz Gerekmektedir.</div>
                     </td>
                 </tr>
-                </tbody>
-            </table>
-            </body></html>
+                </tbody></table></body></html>
+            `;
+            const blob = new Blob([tableHTML], { type: 'application/vnd.ms-excel' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Sofor_Talimati_${plan.plaka || plan.planKodu}.xls`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        }
+
+        // 🌟 YENİ: FIFO EXCEL OLUŞTURUCU (DEPO YÜKLEME İÇİN - SARI TABLO) 🌟
+        window.yuklemeListesiIndir = function(kodId) {
+            const plan = anlikTtpListesi.find(p => p.id === kodId);
+            if(!plan || !plan.yukler) return;
+
+            let rotalar = [];
+            // Harita rotası teslimat sırasına (LIFO) göre çizilir!
+            for(let i = plan.yukler.length - 1; i >= 0; i--) { rotalar.push(encodeURIComponent(plan.yukler[i].hedef)); }
+            let mapUrl = `https://www.google.com/maps/dir/İstanbul,+Türkiye/` + rotalar.join('/');
+
+            let tableHTML = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <head><meta charset="utf-8">
+            <style>
+                table { border-collapse: collapse; font-family: 'Arial', sans-serif; font-size: 10pt; }
+                td, th { border: 1px dotted #000; text-align: left; vertical-align: middle; padding: 5px; }
+            </style>
+            </head><body><table>
+                <thead>
+                    <tr style="background-color: #92d050; font-weight: bold; text-align: center; height: 30px;">
+                        <th style="border: 2px solid #000;">BÖLGE</th>
+                        <th style="border: 2px solid #000;">NOTLAR</th>
+                        <th style="border: 2px solid #000;">YÜKLEME ADRES</th>
+                        <th style="border: 2px solid #000;">TESLİM ADRESİ</th>
+                        <th style="border: 2px solid #000;">LDM</th>
+                        <th style="border: 2px solid #000;">MALZEME</th>
+                        <th style="border: 2px solid #000;">KAP</th>
+                        <th style="border: 2px solid #000;">ETİK</th>
+                        <th style="border: 2px solid #000;">REFERANS</th>
+                        <th style="border: 2px solid #000;">ALICI</th>
+                        <th style="border: 2px solid #000;">FİYAT</th>
+                        <th style="border: 2px solid #000;">KAPIDA ÖDEME</th>
+                    </tr>
+                    <tr style="height: 40px;">
+                        <td colspan="3" style="background-color: #ffff00; font-size: 16pt; font-weight: bold; text-align: center; border: 2px solid #000;">${plan.plaka || plan.planKodu}</td>
+                        <td colspan="9" style="border: 2px solid #000; font-weight: bold;"><a href="${mapUrl}">${mapUrl}</a></td>
+                    </tr>
+                </thead><tbody>
             `;
 
-            // Bilgisayara İndirme Kodu
+            // YÜKLEME LİSTESİ: Tıra ilk giren ilk yazılır (İndeks 0'dan başlar - FIFO)
+            for(let i = 0; i < plan.yukler.length; i++) {
+                let u = plan.yukler[i];
+                let ulke = "ALMANYA"; 
+                if(u.hedef) {
+                    let parcalar = u.hedef.split(',');
+                    if(parcalar.length > 1) { ulke = parcalar[parcalar.length - 1].trim().toUpperCase(); } 
+                    else { let bp = u.hedef.split(' '); ulke = bp[bp.length - 1].toUpperCase(); }
+                }
+
+                let odemeMetni = "";
+                if(u.kapidaOdeme === "Evet" && u.kapidaOdemeMiktari) {
+                    let miktarSayi = parseFloat(u.kapidaOdemeMiktari.replace(/[^\d.,]/g, '').replace(',', '.'));
+                    if(!isNaN(miktarSayi)) { odemeMetni = miktarSayi.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + " €"; } 
+                    else { odemeMetni = u.kapidaOdemeMiktari; }
+                }
+
+                let notFormatli = u.notlar ? u.notlar.toUpperCase() : "";
+
+                tableHTML += `
+                    <tr style="background-color: #ffff00; height: 30px;">
+                        <td style="border: 1px dotted #000; border-left: 2px solid #000; font-weight: bold;">${ulke}</td>
+                        <td style="border: 1px dotted #000;">${notFormatli}</td>
+                        <td style="border: 1px dotted #000;">${u.yuklemeAdresi || ""}</td>
+                        <td style="border: 1px dotted #000;">${u.hedef || ""}</td>
+                        <td style="border: 1px dotted #000; text-align: center;">${u.ldm || ""}</td>
+                        <td style="border: 1px dotted #000;">${u.urunAdi || ""}</td>
+                        <td style="border: 1px dotted #000; text-align: center;">${u.parca || ""}</td>
+                        <td style="border: 1px dotted #000; text-align: center;">-</td>
+                        <td style="border: 1px dotted #000;">${u.referans || ""}</td>
+                        <td style="border: 1px dotted #000; font-weight: bold;">${(u.aliciAdi || "-").toUpperCase()}</td>
+                        <td style="border: 1px dotted #000;">${u.fiyat && u.fiyat !== "-" ? u.fiyat : ""}</td>
+                        <td style="border: 1px dotted #000; border-right: 2px solid #000;">${odemeMetni}</td>
+                    </tr>
+                `;
+            }
+
+            tableHTML += `</tbody></table></body></html>`;
             const blob = new Blob([tableHTML], { type: 'application/vnd.ms-excel' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            // Dosya adını plaka numarası ile oluşturur
-            a.download = `MSK_Dagitim_Listesi_${plan.plaka || plan.planKodu}.xls`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `MSK_Yukleme_Listesi_${plan.plaka || plan.planKodu}.xls`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
 
         function ttpKartlariniCiz() {
@@ -484,15 +539,20 @@
             anlikTtpListesi.forEach(p => {
                 const kod = p.planKodu || p.ttpKodu || p.id; 
                 
-                let excelButon = p.netlesti ? `<button style="background:#27ae60; width:100%; margin-top:5px; padding:10px; border:none; border-radius:4px; font-weight:bold; color:white; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);" onclick="excelIndir('${p.id}')">📥 Şoför Talimatı (Excel)</button>` : '';
+                let excelButon = p.netlesti ? `
+                    <div style="display: flex; gap: 5px; margin-top: 8px;">
+                        <button style="background:#27ae60; flex:1; padding:10px; border:none; border-radius:4px; font-weight:bold; color:white; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);" onclick="excelIndir('${p.id}')" title="Şoför için LIFO Sıralı">📥 Şoför Listesi</button>
+                        <button style="background:#f39c12; flex:1; padding:10px; border:none; border-radius:4px; font-weight:bold; color:white; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);" onclick="yuklemeListesiIndir('${p.id}')" title="Depo için FIFO Sıralı">📥 Yükleme Listesi</button>
+                    </div>
+                ` : '';
 
                 html += `<div class="ttp-card ${p.netlesti ? 'netlesmis' : ''}">
                     <h3>${p.planAdi || kod}</h3><span class="kod">${kod} ${p.plaka ? `| 🚚 ${p.plaka}` : ''}</span>
                     <div class="detay">📦 İçindeki Yük: <strong>${p.yukler ? p.yukler.length : 0} Parça</strong></div>
                     <div class="ttp-card-actions">
                         <button style="background:#3498db;" onclick="ttpDuzenle('${p.id}')">${p.netlesti ? "Görüntüle" : "Düzenle"}</button>
-                        ${p.netlesti ? `<button style="background:#f39c12; flex:0.6;" onclick="planIptalEt('${p.id}')">İptal Et</button>` : ''}
-                        <button style="background:#e74c3c; flex:0.4;" onclick="ttpSil('${p.id}')">Sil</button>
+                        ${p.netlesti ? `<button style="background:#e74c3c; flex:0.6;" onclick="planIptalEt('${p.id}')">İptal Et</button>` : ''}
+                        <button style="background:#c0392b; flex:0.4;" onclick="ttpSil('${p.id}')">Sil</button>
                     </div>
                     ${excelButon}
                     </div>`;
