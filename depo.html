@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MSK GLOBAL | Depo Yönetim Sistemi</title>
-    <link rel="icon" href="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" type="image/jpeg">
+    <link rel="icon" href="https://i.ibb.co/sdQnxLYL/msk-global-lojistik-d-ticaret-ltd-ti-logo.jpg" type="image/jpeg">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f0f4f8; color: #333; }
@@ -33,13 +33,14 @@
         .ttp-card-actions button { flex: 1; padding: 8px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; font-size: 12px; }
         
         .table-container { width: 100%; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 4px solid #00c3ff; overflow-x: auto; }
-        .table-header-flex { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .table-header-flex { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; flex-wrap: wrap; gap: 15px; }
         .tab-buttons { display: flex; gap: 10px; }
         .tab-btn { padding: 12px 20px; font-size: 15px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; transition: 0.3s; }
         .tab-btn.active { background-color: #0b1c38; color: white; }
         .tab-btn.inactive { background-color: #e1e8ed; color: #555; }
         .tab-btn.inactive:hover { background-color: #cbd5dc; }
-        .sort-select { padding: 8px 12px; border-radius: 4px; border: 1px solid #ccc; outline: none; font-weight: bold; color: #333; cursor: pointer; font-size: 13px; }
+        .sort-select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; outline: none; font-weight: bold; color: #333; cursor: pointer; font-size: 13px; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; vertical-align: middle; }
         th { background-color: #f8f9fa; color: #0b1c38; font-weight: bold; font-size: 14px; }
@@ -89,7 +90,7 @@
 <body>
 
     <div class="header">
-        <img src="msk_global_lojistik_d_ticaret_ltd_ti_logo.jpg" alt="MSK Logo">
+        <img src="https://i.ibb.co/sdQnxLYL/msk-global-lojistik-d-ticaret-ltd-ti-logo.jpg" alt="MSK Logo">
         <h1>MSK GLOBAL | <span>DEPO YÖNETİMİ</span></h1>
     </div>
 
@@ -113,11 +114,17 @@
                     <button id="btnTabAktif" class="tab-btn active">📦 Aktif Havuz</button>
                     <button id="btnTabGecmis" class="tab-btn inactive">✅ Geçmiş Yükler (Yüklenenler)</button>
                 </div>
-                <select id="siralamaFiltresi" class="sort-select">
-                    <option value="durum_grupla">Duruma Göre Grupla</option>
-                    <option value="tarih_yeni">Tarih (En Yeni)</option>
-                    <option value="tarih_eski">Tarih (En Eski)</option>
-                </select>
+                <div style="display: flex; gap: 10px; flex: 1; min-width: 300px;">
+                    <!-- ARAMA ÇUBUĞU BURAYA EKLENDİ -->
+                    <input type="text" id="aramaKutusu" placeholder="🔍 Kod, Alıcı, Tedarikçi veya Hedef ara..." style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-weight: bold; outline: none; font-size:14px;">
+                    <select id="siralamaFiltresi" class="sort-select">
+                        <option value="tarih_yeni">Tarihe Göre (En Yeni)</option>
+                        <option value="tarih_eski">Tarihe Göre (En Eski)</option>
+                        <option value="kod">Depo Koduna Göre</option>
+                        <option value="durum">Depo Durumuna Göre</option>
+                        <option value="gonderici">Gönderici Firmaya Göre</option>
+                    </select>
+                </div>
             </div>
             <table>
                 <thead>
@@ -249,22 +256,23 @@
     </div>
 
     <script type="module">
+        // getDoc EKLENDİ (Arşiv işlemleri ve yedekleme için zorunlu)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, setDoc, onSnapshot, doc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, setDoc, getDoc, onSnapshot, doc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
-  apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
-  authDomain: "msk-global---kargo-takip.firebaseapp.com",
-  projectId: "msk-global---kargo-takip",
-  storageBucket: "msk-global---kargo-takip.firebasestorage.app",
-  messagingSenderId: "608864535211",
-  appId: "1:608864535211:web:2fa07474ab410fc87fadee",
-  measurementId: "G-VXK3KR1LY8"
+            apiKey: "AIzaSyDn1Wu-FQSmkDmP4qrwi8zPoHi_fIg3shE",
+            authDomain: "msk-global---kargo-takip.firebaseapp.com",
+            projectId: "msk-global---kargo-takip",
+            storageBucket: "msk-global---kargo-takip.firebasestorage.app",
+            messagingSenderId: "608864535211",
+            appId: "1:608864535211:web:2fa07474ab410fc87fadee",
+            measurementId: "G-VXK3KR1LY8"
         };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let anlikDepoListesi = [], anlikTtpListesi = [], siralamaModu = "durum_grupla", gosterimModu = "aktif";
+        let anlikDepoListesi = [], anlikTtpListesi = [], siralamaModu = "tarih_yeni", gosterimModu = "aktif", aramaKelimesi = "";
         let depoSayac = parseInt(localStorage.getItem('mskDepoSayac')) || 1000;
         let planSayac = parseInt(localStorage.getItem('mskPlanSayac')) || 1000; 
         let planAktifKod = "", ttpYuklenenListe = []; 
@@ -345,19 +353,64 @@
         document.getElementById('btnArsivAc').addEventListener('click', () => { arsivKartlariniCiz(); document.getElementById('arsivModal').style.display = 'block'; });
         document.getElementById('btnArsivKapat').addEventListener('click', () => document.getElementById('arsivModal').style.display = 'none');
 
-        // TIRI ARŞİVE AL
+        // 🌟 TAKİP SİSTEMİYLE SENKRONİZE TIRI ARŞİVE ALMA 🌟
         window.planArsivle = async function(kodId) {
-            if(confirm("Tırı arşive kaldırmak istiyor musunuz? (Ana ekrandan gizlenecektir)")) {
-                await setDoc(doc(db, "tir_planlari", kodId), { arsivlendi: true }, { merge: true });
-                alert("Tır arşive taşındı!");
+            if(confirm("Tırı arşive kaldırmak istiyor musunuz? (Müşterilerin görememesi için Kargo Takip Sisteminden tamamen SİLİNECEKTİR!)")) {
+                const plan = anlikTtpListesi.find(p => p.id === kodId);
+                
+                // 1. Tırın sevkiyat geçmişini yedekle ve sil
+                let tirSevkiyatSnap = await getDoc(doc(db, "sevkiyatlar", kodId));
+                let tirEskiHareketler = tirSevkiyatSnap.exists() ? tirSevkiyatSnap.data().hareketler : [];
+                await deleteDoc(doc(db, "sevkiyatlar", kodId)); // Takip sisteminden uçurduk
+                
+                // 2. Tırın İçindeki Yüklerin sevkiyat geçmişini yedekle ve sil
+                if(plan && plan.yukler) {
+                    for(let u of plan.yukler) {
+                        let yukSevkiyatSnap = await getDoc(doc(db, "sevkiyatlar", u.urunKodu));
+                        let yukEskiHareketler = yukSevkiyatSnap.exists() ? yukSevkiyatSnap.data().hareketler : [];
+                        
+                        // Yedeği depo envanterine koyduk, sonra takip sisteminden uçurduk
+                        await setDoc(doc(db, "depo_envanter", u.urunKodu), { eskiHareketler: yukEskiHareketler }, { merge: true });
+                        await deleteDoc(doc(db, "sevkiyatlar", u.urunKodu)); 
+                    }
+                }
+                
+                // 3. Tırı "Arşivlendi" olarak işaretle ve tırın geçmişini içine kaydet
+                await setDoc(doc(db, "tir_planlari", kodId), { arsivlendi: true, eskiHareketler: tirEskiHareketler }, { merge: true });
+                alert("Tır arşive taşındı ve takip sisteminden güvenle kaldırıldı!");
             }
         };
 
-        // TIRI ARŞİVDEN ÇIKAR
+        // 🌟 TAKİP SİSTEMİYLE SENKRONİZE TIRI ARŞİVDEN ÇIKARMA 🌟
         window.planArsivdenCikar = async function(kodId) {
-            if(confirm("Tırı arşivden çıkarıp tekrar ana ekrana almak istiyor musunuz?")) {
+            if(confirm("Tırı arşivden çıkarıp tekrar Ana Ekrana ve Kargo Takip Sistemine geri yüklemek istiyor musunuz?")) {
+                const plan = anlikTtpListesi.find(p => p.id === kodId);
+                
+                // 1. Tırı takip sistemine yedekleriyle geri yükle
+                let tirEskiHareketler = plan.eskiHareketler || [];
+                await setDoc(doc(db, "sevkiyatlar", kodId), { 
+                    takipKodu: kodId, 
+                    tirPlakasi: plan.plaka || "", 
+                    hareketler: tirEskiHareketler 
+                }, { merge: true });
+
+                // 2. Yükleri takip sistemine yedekleriyle geri yükle
+                if(plan && plan.yukler) {
+                    for(let u of plan.yukler) {
+                        let depoUrun = anlikDepoListesi.find(x => x.urunKodu === u.urunKodu);
+                        let yukEskiHareketler = (depoUrun && depoUrun.eskiHareketler) ? depoUrun.eskiHareketler : [];
+                        await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { 
+                            takipKodu: u.urunKodu,
+                            bagliTirKodu: kodId, 
+                            hareketler: yukEskiHareketler,
+                            aliciAdi: u.aliciAdi || "Müşteri"
+                        }, { merge: true });
+                    }
+                }
+                
+                // 3. Arşivden çıkart
                 await setDoc(doc(db, "tir_planlari", kodId), { arsivlendi: false }, { merge: true });
-                alert("Tır tekrar ana ekrana alındı!");
+                alert("Tır tekrar Ana Ekrana ve Takip Sistemine başarıyla eklendi!");
             }
         };
 
@@ -398,7 +451,7 @@
             } 
         };
 
-        // 🌟 LIFO EXCEL OLUŞTURUCU (ŞOFÖR İÇİN) - LOGO SIFIRA SIFIR OTURTULDU 🌟
+        // 🌟 LIFO EXCEL OLUŞTURUCU (ŞOFÖR İÇİN) - LOGO VE ADRES TAŞMA SORUNU ÇÖZÜLDÜ 🌟
         window.excelIndir = function(kodId) {
             const plan = anlikTtpListesi.find(p => p.id === kodId);
             if(!plan || !plan.yukler) return;
@@ -407,13 +460,13 @@
             <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
             <head><meta charset="utf-8">
             <style>
-                table { border-collapse: collapse; font-family: 'Arial', sans-serif; }
-                td, th { border: 2px solid #000; text-align: center; vertical-align: middle; padding: 10px; font-size: 11pt; word-wrap: break-word; }
+                table { border-collapse: collapse; font-family: 'Arial', sans-serif; table-layout: fixed; width: 1300px; }
+                td, th { border: 2px solid #000; text-align: center; vertical-align: middle; padding: 5px; font-size: 11pt; word-wrap: break-word; white-space: normal; }
             </style>
-            </head><body><table style="width: 1300px;"><thead>
+            </head><body><table><thead>
                 <tr style="height: 60px;">
-                    <th colspan="2" style="border: 3px solid #000; background-color: #fff; padding: 0; vertical-align: middle; text-align: center;">
-                        <img src="https://i.ibb.co/sdQnxLYL/msk-global-lojistik-d-ticaret-ltd-ti-logo.jpg" width="180" height="60" style="display: block; width: 100%; height: 60px;" alt="MSK GLOBAL">
+                    <th colspan="2" style="border: 3px solid #000; background-color: #fff; padding: 0; vertical-align: middle; text-align: center; width: 140px; height: 50px;">
+                        <img src="https://i.ibb.co/sdQnxLYL/msk-global-lojistik-d-ticaret-ltd-ti-logo.jpg" width="141" height="47" style="display: block; margin: auto;" alt="MSK GLOBAL">
                     </th>
                     <th colspan="4" style="border: 3px solid #000; font-size: 16pt; font-weight: bold;">MSK GLOBAL LOJİSTİK DIŞ.TİC.LTD.ŞTİ ${plan.plaka || plan.planKodu}</th>
                     <th colspan="2" style="border: 3px solid #000; background-color: #f2f2f2; font-size: 14pt; font-weight: bold;">DAĞITIM LİSTESİ</th>
@@ -459,7 +512,7 @@
                         <td style="font-weight: bold; font-size: 12pt;">${u.parca || "-"}</td>
                         <td style="font-weight: bold; font-size: 11pt;">${aliciAdiFormatli}</td>
                         <td style="font-weight: bold; font-size: 11pt;">${u.telefon || "-"}</td>
-                        <td style="font-size: 11pt;">${u.hedef || "-"}</td>
+                        <td style="font-size: 11pt; word-wrap: break-word; white-space: normal;">${u.hedef || "-"}</td>
                         <td style="font-weight: bold; font-size: 11pt;">${ulke}</td>
                         <td style="font-weight: bold; font-size: 12pt;">${odemeMetni}</td>
                         <td></td>
@@ -475,7 +528,7 @@
                     <td style="border-top: 3px solid #000;"></td>
                 </tr>
                 <tr>
-                    <td colspan="8" style="border: 3px solid #000; text-align: left; padding: 15px; font-size: 11pt; font-weight: bold; vertical-align: top; line-height: 1.5;">
+                    <td colspan="8" style="border: 3px solid #000; text-align: left; padding: 15px; font-size: 11pt; font-weight: bold; vertical-align: top; line-height: 1.5; word-wrap: break-word; white-space: normal;">
                         KAPTAN TALİMATI<br>
                         *ARAÇ YOLDAYKEN HER SABAH İLGİLİ WHATSAPP GRUBUNA KONUM ATILMALIDIR.<br>
                         *EŞYALARIN MİNİMUM HASARSIZ TESLİM EDİLMESİ ÖNEM ARZ ETMEKTEDİR.<br>
@@ -495,7 +548,7 @@
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
 
-        // 🌟 FIFO EXCEL OLUŞTURUCU (DEPO YÜKLEME İÇİN) 🌟
+        // 🌟 FIFO EXCEL OLUŞTURUCU (DEPO YÜKLEME İÇİN) - ADRES TAŞMA SORUNU ÇÖZÜLDÜ 🌟
         window.yuklemeListesiIndir = function(kodId) {
             const plan = anlikTtpListesi.find(p => p.id === kodId);
             if(!plan || !plan.yukler) return;
@@ -508,28 +561,28 @@
             <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
             <head><meta charset="utf-8">
             <style>
-                table { border-collapse: collapse; font-family: 'Arial', sans-serif; font-size: 10pt; }
-                td, th { border: 1px dotted #000; text-align: left; vertical-align: middle; padding: 5px; }
+                table { border-collapse: collapse; font-family: 'Arial', sans-serif; font-size: 10pt; table-layout: fixed; width: 1400px; }
+                td, th { border: 1px dotted #000; text-align: left; vertical-align: middle; padding: 5px; word-wrap: break-word; white-space: normal; }
             </style>
             </head><body><table>
                 <thead>
                     <tr style="background-color: #92d050; font-weight: bold; text-align: center; height: 30px;">
-                        <th style="border: 2px solid #000;">BÖLGE</th>
-                        <th style="border: 2px solid #000;">NOTLAR</th>
-                        <th style="border: 2px solid #000;">YÜKLEME ADRES</th>
-                        <th style="border: 2px solid #000;">TESLİM ADRESİ</th>
-                        <th style="border: 2px solid #000;">LDM</th>
-                        <th style="border: 2px solid #000;">MALZEME</th>
-                        <th style="border: 2px solid #000;">KAP</th>
-                        <th style="border: 2px solid #000;">ETİK</th>
-                        <th style="border: 2px solid #000;">REFERANS</th>
-                        <th style="border: 2px solid #000;">ALICI</th>
-                        <th style="border: 2px solid #000;">FİYAT</th>
-                        <th style="border: 2px solid #000;">KAPIDA ÖDEME</th>
+                        <th style="border: 2px solid #000; width: 80px;">BÖLGE</th>
+                        <th style="border: 2px solid #000; width: 120px;">NOTLAR</th>
+                        <th style="border: 2px solid #000; width: 150px;">YÜKLEME ADRES</th>
+                        <th style="border: 2px solid #000; width: 250px;">TESLİM ADRESİ</th>
+                        <th style="border: 2px solid #000; width: 50px;">LDM</th>
+                        <th style="border: 2px solid #000; width: 150px;">MALZEME</th>
+                        <th style="border: 2px solid #000; width: 50px;">KAP</th>
+                        <th style="border: 2px solid #000; width: 50px;">ETİK</th>
+                        <th style="border: 2px solid #000; width: 120px;">REFERANS</th>
+                        <th style="border: 2px solid #000; width: 200px;">ALICI</th>
+                        <th style="border: 2px solid #000; width: 80px;">FİYAT</th>
+                        <th style="border: 2px solid #000; width: 100px;">KAPIDA ÖDEME</th>
                     </tr>
                     <tr style="height: 40px;">
                         <td colspan="3" style="background-color: #ffff00; font-size: 16pt; font-weight: bold; text-align: center; border: 2px solid #000;">${plan.plaka || plan.planKodu}</td>
-                        <td colspan="9" style="border: 2px solid #000; font-weight: bold;"><a href="${mapUrl}">${mapUrl}</a></td>
+                        <td colspan="9" style="border: 2px solid #000; font-weight: bold; word-wrap: break-word; white-space: normal;"><a href="${mapUrl}">${mapUrl}</a></td>
                     </tr>
                 </thead><tbody>
             `;
@@ -556,8 +609,8 @@
                     <tr style="height: 30px; background-color: #ffffff;">
                         <td style="border: 1px dotted #000; border-left: 2px solid #000; font-weight: bold;">${ulke}</td>
                         <td style="border: 1px dotted #000; color:red; font-weight:bold;">${notFormatli}</td>
-                        <td style="border: 1px dotted #000;">${u.yuklemeAdresi || ""}</td>
-                        <td style="border: 1px dotted #000;">${u.hedef || ""}</td>
+                        <td style="border: 1px dotted #000; word-wrap: break-word; white-space: normal;">${u.yuklemeAdresi || ""}</td>
+                        <td style="border: 1px dotted #000; word-wrap: break-word; white-space: normal;">${u.hedef || ""}</td>
                         <td style="border: 1px dotted #000; text-align: center;">${u.ldm || ""}</td>
                         <td style="border: 1px dotted #000;">${u.urunAdi || ""}</td>
                         <td style="border: 1px dotted #000; text-align: center;">${u.parca || ""}</td>
@@ -578,8 +631,6 @@
 
         function ttpKartlariniCiz() {
             const container = document.getElementById('ttpKartlariListesi');
-            
-            // SADECE ARŞİVLENMEMİŞ (AKTİF) PLANLARI GÖSTERİR
             let aktifPlanlar = anlikTtpListesi.filter(p => !p.arsivlendi);
             
             if (aktifPlanlar.length === 0) return container.innerHTML = '<p style="color:#777; width:100%; text-align:center;">Kayıtlı aktif plan yok.</p>';
@@ -614,8 +665,6 @@
 
         function arsivKartlariniCiz() {
             const container = document.getElementById('arsivKartlariListesi');
-            
-            // SADECE ARŞİVLENMİŞ PLANLARI GÖSTERİR
             let arsivPlanlar = anlikTtpListesi.filter(p => p.arsivlendi);
             
             if (arsivPlanlar.length === 0) return container.innerHTML = '<p style="color:#777; width:100%; text-align:center;">Arşivde kayıtlı tır bulunmuyor.</p>';
@@ -643,15 +692,48 @@
             container.innerHTML = html;
         }
 
-        document.getElementById('siralamaFiltresi').addEventListener('change', () => tabloyuCiz());
+        // ARAMA ÇUBUĞU (Gerçek Zamanlı Filtreleme)
+        document.getElementById('aramaKutusu').addEventListener('input', (e) => {
+            aramaKelimesi = e.target.value.toLowerCase();
+            tabloyuCiz();
+        });
+
+        document.getElementById('siralamaFiltresi').addEventListener('change', (e) => {
+            siralamaModu = e.target.value;
+            tabloyuCiz();
+        });
 
         function tabloyuCiz() {
             const liste = document.getElementById('depoListesi');
             let data = gosterimModu === "aktif" ? anlikDepoListesi.filter(x => !x.aracaYuklendi) : anlikDepoListesi.filter(x => x.aracaYuklendi);
-            if (data.length === 0) return liste.innerHTML = `<tr><td colspan='6' style='text-align:center;'>Bu alanda ürün yok.</td></tr>`;
-            if (siralamaModu === "durum_grupla") data.sort((a, b) => a.urunDurumu === b.urunDurumu ? b.timestamp - a.timestamp : a.urunDurumu.localeCompare(b.urunDurumu));
-            else if (siralamaModu === "tarih_yeni") data.sort((a, b) => b.timestamp - a.timestamp);
-            else data.sort((a, b) => a.timestamp - b.timestamp);
+            
+            // ARAMA FİLTRESİ UYGULAMASI
+            if(aramaKelimesi !== "") {
+                data = data.filter(x => 
+                    (x.urunKodu && x.urunKodu.toLowerCase().includes(aramaKelimesi)) ||
+                    (x.aliciAdi && x.aliciAdi.toLowerCase().includes(aramaKelimesi)) ||
+                    (x.referans && x.referans.toLowerCase().includes(aramaKelimesi)) ||
+                    (x.hedef && x.hedef.toLowerCase().includes(aramaKelimesi))
+                );
+            }
+
+            if (data.length === 0) return liste.innerHTML = `<tr><td colspan='6' style='text-align:center;'>Sonuç bulunamadı.</td></tr>`;
+            
+            if (siralamaModu === "tarih_yeni") {
+                data.sort((a, b) => b.timestamp - a.timestamp);
+            } else if (siralamaModu === "tarih_eski") {
+                data.sort((a, b) => a.timestamp - b.timestamp);
+            } else if (siralamaModu === "kod") {
+                data.sort((a, b) => {
+                    let numA = parseInt((a.urunKodu || "").replace(/\\D/g, '')) || 0;
+                    let numB = parseInt((b.urunKodu || "").replace(/\\D/g, '')) || 0;
+                    return numB - numA; 
+                });
+            } else if (siralamaModu === "durum") {
+                data.sort((a, b) => (a.urunDurumu || "").localeCompare(b.urunDurumu || ""));
+            } else if (siralamaModu === "gonderici") {
+                data.sort((a, b) => (a.referans || "").localeCompare(b.referans || ""));
+            }
 
             let html = "";
             data.forEach((v) => {
