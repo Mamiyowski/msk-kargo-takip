@@ -135,8 +135,7 @@
                     if(tumHareketler.length > 0) {
                         tumHareketler.sort((a, b) => b.timestamp - a.timestamp); // En yeni en üstte
                         
-                        // Z=14 YAPILDI (Yakınlaştırma seviyesi artırıldı)
-                        document.getElementById('mapIframe').src = `https://maps.google.com/maps?q=${encodeURIComponent(tumHareketler[0].konum || "Türkiye")}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+                        document.getElementById('mapIframe').src = `https://maps.google.com/maps?q=${encodeURIComponent(tumHareketler[0].konum || "Türkiye")}&t=&z=8&ie=UTF8&iwloc=&output=embed`;
                         
                         tumHareketler.forEach(h => {
                             document.getElementById('timelineKutusu').innerHTML += `

@@ -165,14 +165,14 @@
                     <label>Ürün Nerede? (Anlık Durum)</label>
                     <select id="urunDurumu">
                         <option value="Depoya Gelmesi Bekleniyor.">Depoya Gelmesi Bekleniyor.</option>
-                        <option value="MSK Merkez Depoda Teslim Alındı.">MSK Merkez Depoda Teslim Alındı.</option>
+                        <option value="MSK Global Siteler Depoda Teslim Alındı.">MSK Global Siteler Depoda Teslim Alındı.</option>
                         <option value="Farklı Lokasyonda Yükleme Bekliyor.">Farklı Lokasyonda Yükleme Bekliyor.</option>
                     </select>
                 </div>
                 <div class="form-group two-thirds">
                     <label>Yükleme Adresi</label>
                     <div class="flex-group">
-                        <select id="yuklemeSec" style="flex:1;"><option value="MSK GLOBAL DEPO">MSK GLOBAL DEPO</option><option value="DİĞER">Diğer (Yazın)</option></select>
+                        <select id="yuklemeSec" style="flex:1;"><option value="MSK GLOBAL SİTELER DEPO">MSK GLOBAL SİTELER DEPO</option><option value="DİĞER">Diğer (Yazın)</option></select>
                     </div>
                     <input type="text" id="manuelYukleme" placeholder="Adres..." style="display:none; margin-top:5px;">
                 </div>
@@ -278,7 +278,7 @@
         document.getElementById('btnYeniUrunAc').addEventListener('click', () => {
             document.querySelectorAll('.compact-grid input, .compact-grid textarea').forEach(el => el.value = '');
             document.getElementById('urunDurumu').value = "Depoya Gelmesi Bekleniyor.";
-            document.getElementById('yuklemeSec').value = "MSK GLOBAL DEPO";
+            document.getElementById('yuklemeSec').value = "MSK GLOBAL SİTELER DEPO";
             document.getElementById('manuelYukleme').style.display = "none";
             document.getElementById('kapidaOdeme').value = "Hayır";
             document.getElementById('kapidaOdemeMiktari').style.display = "none";
@@ -347,7 +347,6 @@
         
         onSnapshot(collection(db, "depo_envanter"), (snapshot) => { anlikDepoListesi = []; snapshot.forEach(d => anlikDepoListesi.push({ id: d.id, ...d.data() })); tabloyuCiz(); if(document.getElementById('ttpModal').style.display === 'block') ttpEkraniniGuncelle(); });
 
-        // ARŞİV MENÜSÜ AÇ/KAPAT
         document.getElementById('btnArsivAc').addEventListener('click', () => { arsivKartlariniCiz(); document.getElementById('arsivModal').style.display = 'block'; });
         document.getElementById('btnArsivKapat').addEventListener('click', () => document.getElementById('arsivModal').style.display = 'none');
 
@@ -411,8 +410,8 @@
                     if(plan && plan.yukler) {
                         const yZaman = new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                         for (let u of plan.yukler) {
-                            await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: false, bagliTirKodu: "", urunDurumu: "MSK Merkez Depoda Teslim Alındı." }, { merge: true });
-                            await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: "", hareketler: arrayUnion({ tarih: yZaman, durum: "Yükleme İptal Edildi, Depoda Bekliyor.", konum: "MSK Merkez Depo", timestamp: Date.now() }) }, { merge: true });
+                            await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: false, bagliTirKodu: "", urunDurumu: "MSK Global Siteler Depoda Teslim Alındı." }, { merge: true });
+                            await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: "", hareketler: arrayUnion({ tarih: yZaman, durum: "Yükleme İptal Edildi, Depoda Bekliyor.", konum: "MSK Global Siteler Depo", timestamp: Date.now() }) }, { merge: true });
                         }
                     }
                     alert("İptal Başarılı! Ürünler aktif havuza geri döndü.");
@@ -428,8 +427,8 @@
                     if(plan && plan.yukler) {
                         const yZaman = new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                         for (let u of plan.yukler) {
-                            await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: false, bagliTirKodu: "", urunDurumu: "MSK Merkez Depoda Teslim Alındı." }, { merge: true });
-                            if(plan.netlesti) { await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: "", hareketler: arrayUnion({ tarih: yZaman, durum: "Araç Planı Silindi, Depoda Bekliyor.", konum: "MSK Merkez Depo", timestamp: Date.now() }) }, { merge: true }); }
+                            await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: false, bagliTirKodu: "", urunDurumu: "MSK Global Siteler Depoda Teslim Alındı." }, { merge: true });
+                            if(plan.netlesti) { await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: "", hareketler: arrayUnion({ tarih: yZaman, durum: "Araç Planı Silindi, Depoda Bekliyor.", konum: "MSK Global Siteler Depo", timestamp: Date.now() }) }, { merge: true }); }
                         }
                     }
                     await deleteDoc(doc(db, "tir_planlari", kodId));
@@ -677,7 +676,6 @@
             container.innerHTML = html;
         }
 
-        // TÜRkÇE KARAKTER UYUMLU ARAMA (Büyük İ ve Küçük i Sorunu Çözüldü)
         function trKucuk(str) {
             if (!str) return "";
             return str.replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase();
@@ -740,7 +738,7 @@
                 let lKod = v.urunKodu; 
                 
                 if(gosterimModu === "aktif") {
-                    let hBtn = (v.urunDurumu !== "MSK Merkez Depoda Teslim Alındı.") ? `<button class="btn-depoya-al" data-kod="${v.urunKodu}">Depoya Al</button>` : "";
+                    let hBtn = (v.urunDurumu !== "MSK Global Siteler Depoda Teslim Alındı.") ? `<button class="btn-depoya-al" data-kod="${v.urunKodu}">Depoya Al</button>` : "";
                     islem = `${hBtn}<button class="btn-duzenle" data-kod="${v.urunKodu}">Düzenle</button><button class="btn-link" data-kod="${lKod}">Link</button><button class="btn-sil" data-id="${v.id}">Sil</button>`;
                 } else {
                     islem = `<button class="btn-link" data-kod="${lKod}">Müşteri Linki (MSK)</button> <button class="btn-havuza-cek" data-kod="${v.urunKodu}">Havuza Çek</button> <button class="btn-sil" data-id="${v.id}">Sil</button>`;
@@ -761,15 +759,15 @@
             if (e.target.classList.contains('btn-link')) navigator.clipboard.writeText(`https://kargotakip.mskglobal.com.tr/?kargo=${e.target.getAttribute('data-kod')}`).then(() => alert("Kopyalandı!"));
             if (e.target.classList.contains('btn-depoya-al')) {
                 const k = e.target.getAttribute('data-kod'); const t = new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                await setDoc(doc(db, "depo_envanter", k), { urunDurumu: "MSK Merkez Depoda Teslim Alındı.", yuklemeAdresi: "MSK GLOBAL DEPO" }, { merge: true });
-                await setDoc(doc(db, "sevkiyatlar", k), { hareketler: arrayUnion({ tarih: t, durum: "Ürün Merkez Depoya Ulaştı.", konum: "MSK GLOBAL DEPO", timestamp: Date.now() }) }, { merge: true });
+                await setDoc(doc(db, "depo_envanter", k), { urunDurumu: "MSK Global Siteler Depoda Teslim Alındı.", yuklemeAdresi: "MSK GLOBAL SİTELER DEPO" }, { merge: true });
+                await setDoc(doc(db, "sevkiyatlar", k), { hareketler: arrayUnion({ tarih: t, durum: "Ürün Merkez Depoya Ulaştı.", konum: "MSK GLOBAL SİTELER DEPO", timestamp: Date.now() }) }, { merge: true });
             }
             if (e.target.classList.contains('btn-havuza-cek')) {
                 const k = e.target.getAttribute('data-kod');
                 if(confirm("Ürünü zorla 'Aktif Havuza' geri almak istiyor musunuz?")) {
-                    await setDoc(doc(db, "depo_envanter", k), { aracaYuklendi: false, bagliTirKodu: "", urunDurumu: "MSK Merkez Depoda Teslim Alındı." }, { merge: true });
+                    await setDoc(doc(db, "depo_envanter", k), { aracaYuklendi: false, bagliTirKodu: "", urunDurumu: "MSK Global Siteler Depoda Teslim Alındı." }, { merge: true });
                     const t = new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                    await setDoc(doc(db, "sevkiyatlar", k), { bagliTirKodu: "", hareketler: arrayUnion({ tarih: t, durum: "Araçtan Çıkarıldı, Depoda Bekliyor.", konum: "MSK Merkez Depo", timestamp: Date.now() }) }, { merge: true });
+                    await setDoc(doc(db, "sevkiyatlar", k), { bagliTirKodu: "", hareketler: arrayUnion({ tarih: t, durum: "Araçtan Çıkarıldı, Depoda Bekliyor.", konum: "MSK Global Siteler Depo", timestamp: Date.now() }) }, { merge: true });
                     alert("Başarılı!");
                 }
             }
@@ -777,7 +775,7 @@
                 const u = anlikDepoListesi.find(x => x.urunKodu === e.target.getAttribute('data-kod'));
                 if(u) {
                     document.getElementById('urunKodu').value = u.urunKodu; document.getElementById('tarih').value = u.tarih || "";
-                    document.getElementById('urunDurumu').value = u.urunDurumu || "MSK Merkez Depoda Teslim Alındı.";
+                    document.getElementById('urunDurumu').value = u.urunDurumu || "MSK Global Siteler Depoda Teslim Alındı.";
                     document.getElementById('referans').value = u.referans || ""; document.getElementById('aliciAdi').value = u.aliciAdi || "";
                     document.getElementById('telefon').value = u.telefon || "";
                     document.getElementById('urunAdi').value = u.urunAdi || ""; document.getElementById('hedef').value = u.hedef || "";
@@ -785,25 +783,22 @@
                     if(u.fiyat && u.fiyat !== "-") { let fs = u.fiyat.split(" "); document.getElementById('fiyat').value = fs[0]; if(fs[1]) document.getElementById('fiyatBirim').value = fs[1]; }
                     if(u.kapidaOdemeMiktari) { let ks = u.kapidaOdemeMiktari.split(" "); document.getElementById('kapidaOdemeMiktari').value = ks[0]; if(ks[1]) document.getElementById('kapidaOdemeBirim').value = ks[1]; }
                     document.getElementById('kapidaOdeme').value = u.kapidaOdeme || "Hayır"; document.getElementById('kapidaOdeme').dispatchEvent(new Event('change'));
-                    if(u.yuklemeAdresi === "MSK GLOBAL DEPO") { yuklemeSec.value = "MSK GLOBAL DEPO"; manuelYukleme.style.display = "none"; } else { yuklemeSec.value = "DİĞER"; manuelYukleme.value = u.yuklemeAdresi; manuelYukleme.style.display = "block"; }
+                    if(u.yuklemeAdresi === "MSK GLOBAL SİTELER DEPO") { yuklemeSec.value = "MSK GLOBAL SİTELER DEPO"; manuelYukleme.style.display = "none"; } else { yuklemeSec.value = "DİĞER"; manuelYukleme.value = u.yuklemeAdresi; manuelYukleme.style.display = "block"; }
                     document.getElementById('urunModal').style.display = 'block';
                 }
             }
         });
 
-        // MSK TIR PLANLAMA
         document.getElementById('btnPlanSifirla').addEventListener('click', () => { if(confirm("Tır Planı (MSK) sayacını 1000'den başlatmak istiyor musunuz?")) { planSayac = 1000; localStorage.setItem('mskPlanSayac', planSayac); planAktifKod = "MSK-" + planSayac; document.getElementById('aktifPlanBaslik').innerText = planAktifKod; } });
         document.getElementById('btnTtpAc').addEventListener('click', () => { planAktifKod = "MSK-" + planSayac; document.getElementById('aktifPlanBaslik').innerText = planAktifKod; document.getElementById('ttpPlanAdiInput').value = ""; ttpYuklenenListe = []; ttpEkraniniGuncelle(); document.getElementById('ttpModal').style.display = 'block'; });
         document.getElementById('btnTtpKapat').addEventListener('click', () => document.getElementById('ttpModal').style.display = 'none');
         window.ttpDuzenle = function(kodId) { const p = anlikTtpListesi.find(x => x.id === kodId); if(p) { planAktifKod = p.planKodu || p.ttpKodu || p.id; document.getElementById('aktifPlanBaslik').innerText = planAktifKod; document.getElementById('ttpPlanAdiInput').value = p.planAdi || ""; ttpYuklenenListe = p.yukler ? [...p.yukler] : []; ttpEkraniniGuncelle(); document.getElementById('ttpModal').style.display = 'block'; } };
 
-        // SÜRÜKLE BIRAK (DRAG & DROP)
         window.draggedIndex = null;
         window.startDrag = function(i) { window.draggedIndex = i; };
         window.allowDrop = function(ev) { ev.preventDefault(); };
         window.dropDrag = function(i) { if (window.draggedIndex !== null && window.draggedIndex !== i) { const t = ttpYuklenenListe[window.draggedIndex]; ttpYuklenenListe.splice(window.draggedIndex, 1); ttpYuklenenListe.splice(i, 0, t); ttpEkraniniGuncelle(); } window.draggedIndex = null; };
 
-        // ROTA OPTİMİZASYONU
         document.getElementById('btnRotaOptimize').addEventListener('click', () => {
             if(ttpYuklenenListe.length === 0) return alert("Sıralanacak yük bulunamadı!");
             ttpYuklenenListe.sort((a, b) => a.hedef.localeCompare(b.hedef));
@@ -811,7 +806,6 @@
             alert("✅ Sistem yükleri hedeflerine göre otomatik olarak grupladı ve kapağa göre (LIFO) sıraladı!");
         });
 
-        // HARİTADA ROTA ÇİZ (LIFO MANTIĞI)
         document.getElementById('btnRotaCiz').addEventListener('click', () => {
             if(ttpYuklenenListe.length === 0) return alert("Tıra henüz yük eklemediniz!");
             let rotalar = [];
@@ -868,7 +862,7 @@
                 
                 for(let u of ttpYuklenenListe) {
                     await setDoc(doc(db, "depo_envanter", u.urunKodu), { aracaYuklendi: true, bagliTirKodu: planAktifKod, plaka: plaka, urunDurumu: "Araca Yüklendi" }, { merge: true });
-                    await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: planAktifKod, hareketler: arrayUnion({ tarih: sZaman, durum: "Ürününüz Araca Yüklendi.", konum: "MSK Merkez Depo", timestamp: Date.now() }) }, { merge: true });
+                    await setDoc(doc(db, "sevkiyatlar", u.urunKodu), { bagliTirKodu: planAktifKod, hareketler: arrayUnion({ tarih: sZaman, durum: "Ürününüz Araca Yüklendi.", konum: "MSK Global Siteler Depo", timestamp: Date.now() }) }, { merge: true });
                 }
                 if(planAktifKod === "MSK-" + planSayac) { planSayac++; localStorage.setItem('mskPlanSayac', planSayac); }
                 alert("Harika! Ürünler araca yüklendi ve Kargo Takip Sistemine aktarıldı!");
