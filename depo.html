@@ -180,7 +180,6 @@
                 <div class="form-group"><label>Alıcı Adı</label><input type="text" id="aliciAdi"></div>
                 <div class="form-group"><label>Alıcı Telefonu</label><input type="text" id="telefon" placeholder="Örn: +49 178..."></div>
                 <div class="form-group"><label>Hedef Adresi / Ülke</label><input type="text" id="hedef"></div>
-                <!-- YENİ EKLENEN BÖLGE ALANI -->
                 <div class="form-group"><label>Bölge (Excel İçin)</label><input type="text" id="bolge" placeholder="Örn: Berlin, Bavyera..."></div>
                 <div class="form-group"><label>Ürün Adı</label><input type="text" id="urunAdi"></div>
                 <div class="form-group"><label>Parça</label><input type="text" id="parca"></div>
@@ -227,7 +226,6 @@
                 <!-- SOL TARAF: HAVUZ -->
                 <div class="ttp-box">
                     <h3 style="text-align: center; border-bottom:2px solid #ddd; padding-bottom:10px; margin-bottom:10px;">📦 Havuzdaki Yükler</h3>
-                    <!-- TTP İÇİ ARAMA MOTORU EKLENDİ -->
                     <input type="text" id="ttpAramaKutusu" placeholder="🔍 Havuzda ara (Kod, Alıcı, Bölge)..." style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 2px solid #ccc; outline: none; font-weight:bold;">
                     <div id="ttpBekleyenler"></div>
                 </div>
@@ -316,7 +314,7 @@
             let tarih = document.getElementById('tarih').value || new Date().toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
             const urunAdi = document.getElementById('urunAdi').value, hedef = document.getElementById('hedef').value, aliciAdi = document.getElementById('aliciAdi').value;
             const telefon = document.getElementById('telefon').value;
-            const bolge = document.getElementById('bolge').value; // BÖLGE DEĞERİ ALINDI
+            const bolge = document.getElementById('bolge').value; 
             
             if (!urunKodu || !urunAdi || !hedef || !aliciAdi) return alert("Kod, Alıcı, Ürün ve Hedef zorunludur!");
 
@@ -701,7 +699,8 @@
                     trKucuk(x.urunKodu).includes(aramaKelimesi) ||
                     trKucuk(x.aliciAdi).includes(aramaKelimesi) ||
                     trKucuk(x.referans).includes(aramaKelimesi) ||
-                    trKucuk(x.hedef).includes(aramaKelimesi)
+                    trKucuk(x.hedef).includes(aramaKelimesi) ||
+                    (x.bolge && trKucuk(x.bolge).includes(aramaKelimesi))
                 );
             }
 
@@ -717,12 +716,16 @@
             data.forEach((v) => {
                 let kOdeHtml = v.kapidaOdeme === "Evet" ? `K.Ö: EVET<br>${v.kapidaOdemeMiktari}` : "K.Ö: Hayır";
                 let rDurum = "";
+                
+                // 🌟 ANA EKRAN BÖLGE ETİKETİ 🌟
+                let bolgeBadge = v.bolge ? `<span style="background-color:#e67e22; color:white; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; display:inline-block; margin-bottom:4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">🌍 BÖLGE: ${v.bolge.toUpperCase()}</span><br>` : '';
+
                 if(gosterimModu === "aktif") {
                     const pln = anlikTtpListesi.filter(p => p.yukler && !p.netlesti && p.yukler.some(y => y.urunKodu === v.urunKodu));
                     let pHT = pln.length > 0 ? `<br><span class="badge" style="background:#8e44ad;">Taslak: ${pln.map(p => p.planKodu || p.ttpKodu).join(', ')}</span>` : "";
-                    rDurum = `<span class="badge">Nereye: ${v.hedef}</span><br><span class="badge badge-status" style="background:#34495e;">Nereden: ${v.yuklemeAdresi}</span><br><span class="info-text" style="color:#d35400; font-weight:bold;">${v.urunDurumu}</span>${pHT}`;
+                    rDurum = bolgeBadge + `<span class="badge">Nereye: ${v.hedef}</span><br><span class="badge badge-status" style="background:#34495e;">Nereden: ${v.yuklemeAdresi}</span><br><span class="info-text" style="color:#d35400; font-weight:bold;">${v.urunDurumu}</span>${pHT}`;
                 } else {
-                    rDurum = `<span class="badge" style="background:#2ecc71; padding:6px;">🚚 Yüklendi: ${v.bagliTirKodu}</span><br><strong style="display:block; margin-top:5px;">Plaka: ${v.plaka || '-'}</strong><span class="info-text" style="color:#27ae60; font-weight:bold;">Hedef: ${v.hedef}</span>`;
+                    rDurum = bolgeBadge + `<span class="badge" style="background:#2ecc71; padding:6px;">🚚 Yüklendi: ${v.bagliTirKodu}</span><br><strong style="display:block; margin-top:5px;">Plaka: ${v.plaka || '-'}</strong><span class="info-text" style="color:#27ae60; font-weight:bold;">Hedef: ${v.hedef}</span>`;
                 }
                 
                 let islem = "";
@@ -806,7 +809,6 @@
             window.open(mapUrl, '_blank');
         });
 
-        // TTP DURUM DEĞİŞTİRME (YÜKLENDİ / JOKER)
         window.toggleTtpDurum = function(kod, tur) {
             let item = ttpYuklenenListe.find(x => x.urunKodu === kod);
             if(item) {
@@ -835,26 +837,32 @@
                 havuzFiltreli = havuzFiltreli.filter(x => 
                     trKucuk(x.urunKodu).includes(ttpAramaKelimesi) ||
                     trKucuk(x.aliciAdi).includes(ttpAramaKelimesi) ||
-                    trKucuk(x.bolge).includes(ttpAramaKelimesi) ||
+                    (x.bolge && trKucuk(x.bolge).includes(ttpAramaKelimesi)) ||
                     trKucuk(x.hedef).includes(ttpAramaKelimesi)
                 );
             }
 
             havuzFiltreli.forEach(u => {
-                bH += `<div class="yuk-karti"><div class="yuk-info"><strong style="display:block;">A: ${u.aliciAdi || '-'} | G: ${u.referans || '-'}</strong><span>📍 H: ${u.bolge ? u.bolge + ' - ' : ''}${u.hedef} | 📦 ${u.parca} Prç | 📏 ${u.ldm} LDM</span></div>${!isNet ? `<button class="btn-ekle" style="background:#2ecc71;" onclick="ttpyeEkle('${u.urunKodu}')">Ekle ➔</button>` : ''}</div>`;
+                // 🌟 TTP EKRANI HAVUZ BÖLGE ETİKETİ 🌟
+                let bolgeBadge = u.bolge ? `<span style="background-color:#e67e22; color:white; padding:3px 6px; border-radius:4px; font-size:11px; font-weight:bold; display:inline-block; margin:4px 0;">🌍 BÖLGE: ${u.bolge.toUpperCase()}</span><br>` : '';
+                bH += `<div class="yuk-karti"><div class="yuk-info"><strong style="display:block;">A: ${u.aliciAdi || '-'} | G: ${u.referans || '-'}</strong>${bolgeBadge}<span>📍 H: ${u.hedef} | 📦 ${u.parca} Prç | 📏 ${u.ldm} LDM</span></div>${!isNet ? `<button class="btn-ekle" style="background:#2ecc71;" onclick="ttpyeEkle('${u.urunKodu}')">Ekle ➔</button>` : ''}</div>`;
             });
             document.getElementById('ttpBekleyenler').innerHTML = bH || "<p style='color:#777; text-align:center;'>Havuzda uygun yük yok.</p>";
 
             let yH = "";
             ttpYuklenenListe.forEach((u, i) => {
                 let bgRenk = "#ffffff";
-                if(u.isYuklendi) bgRenk = "#d5f5e3"; // Yeşil (Yüklendi)
-                else if(u.isJoker) bgRenk = "#d6eaf8"; // Mavi (Joker)
+                if(u.isYuklendi) bgRenk = "#d5f5e3"; 
+                else if(u.isJoker) bgRenk = "#d6eaf8"; 
+
+                // 🌟 TTP EKRANI YÜKLENDİ KISMI BÖLGE ETİKETİ 🌟
+                let bolgeBadge = u.bolge ? `<span style="background-color:#e67e22; color:white; padding:3px 6px; border-radius:4px; font-size:11px; font-weight:bold; display:inline-block; margin:4px 0;">🌍 BÖLGE: ${u.bolge.toUpperCase()}</span><br>` : '';
 
                 yH += `<div class="yuk-karti" ${!isNet ? `draggable="true" ondragstart="startDrag(${i})" ondragover="allowDrop(event)" ondrop="dropDrag(${i})"` : ''} style="border-left: 4px solid #3498db; cursor: ${!isNet ? 'grab' : 'default'}; background-color: ${bgRenk};">
                     <div class="yuk-info" style="pointer-events:none;">
                         <strong style="display:block;">${i + 1}. A: ${u.aliciAdi || '-'} | G: ${u.referans || '-'}</strong>
-                        <span>📍 H: ${u.bolge ? u.bolge + ' - ' : ''}${u.hedef} | 📦 ${u.parca} Prç | 📏 ${u.ldm} LDM</span>
+                        ${bolgeBadge}
+                        <span>📍 H: ${u.hedef} | 📦 ${u.parca} Prç | 📏 ${u.ldm} LDM</span>
                     </div>
                     ${!isNet ? `<div style="display:flex; flex-direction:column; gap:4px; align-items:flex-end;">
                         <div style="display:flex; gap:4px;">
